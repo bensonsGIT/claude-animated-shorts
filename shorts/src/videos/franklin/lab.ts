@@ -2,11 +2,11 @@
 // table under a surgical lamp holding the opened coffin, counters with a microscope, bottles and a monitor whose
 // text-free chart shows two equal bars (copper, zinc). Floor y = 0, exam table centred at (0, -3).
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 
 export const LAB = { x0: -6, x1: 6, z0: -9, z1: 6, h: 3.2 };
 export const EXAM = { x: 0, z: -3, top: 0.9, w: 0.95, l: 2.3 };

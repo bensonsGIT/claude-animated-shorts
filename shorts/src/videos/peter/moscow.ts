@@ -3,11 +3,11 @@
 // izbas, a cart, the tax clerk's table, and a white church with onion domes at the end of the street. Ground y = 0.
 // Painted backdrops: the city's domes beyond the far end (z = -95), fields and woods beyond the gate (z = +95).
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, grassHD, roofHD, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, grassHD, roofHD, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const WALL_Z = -8;

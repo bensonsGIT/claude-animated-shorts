@@ -2,11 +2,11 @@
 // white-clothed table with gilded candelabras and high-backed velvet chairs, the host's gilded chair at the head.
 // Floor at y = 0, table along z at x = 0 (head of the table at z = -9.8), windows on the left wall (x = -7).
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 
 export const BQ = { x0: -7, x1: 7, z0: -12, z1: 8, h: 7.5 };
 export const BQ_TABLE = { w: 1.6, z0: -9, z1: 3, top: 0.8 };

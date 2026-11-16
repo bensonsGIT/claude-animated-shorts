@@ -4,20 +4,17 @@
 // the sun, painted crescent in the drawing); standing ones get a soft multiply contact blob. Effects are unlit cards.
 // Cards, effects and blobs live on the NOINK layer so the world ink pass never outlines their quads.
 import * as THREE from "three";
-import {
-  Pen, bodyFront, bodySide, swingKid, soldier, townsfolk, OFFICER, KID, PARENT, fxNote, fxBurst, fxSplash, fxStars, fxCreak, fxRing, fxShadow, fxContact, fxPlank, fxDrum,
-  Outfit, Expr, FrontOpts, SideOpts, fxPuff, STEPHEN, FORMOSUS, FORMOSUS_SHROUD, FORMOSUS_STRIPPED, DEACON, SERGIUS, SERGIUS_POPE, THEODORE, CLERIC,
-  ROMAN, DIGGER, fxFly, fxFinger, fxWhisper, fxHalo, fxSparkle, fxCrack, fxRubble, fxLurker, fxRobe, fxShout, fxScrap, fxIcon,
-} from "./toon";
+import { Pen, bodyFront, bodySide, swingKid, soldier, townsfolk, OFFICER, KID, PARENT, fxNote, fxBurst, fxSplash, fxStars, fxCreak, fxRing, fxShadow, fxContact, fxPlank, fxDrum, Outfit, Expr, FrontOpts, SideOpts, fxPuff } from "../../engine/toon";
+import { STEPHEN, FORMOSUS, FORMOSUS_SHROUD, FORMOSUS_STRIPPED, DEACON, SERGIUS, SERGIUS_POPE, THEODORE, CLERIC, ROMAN, DIGGER, fxFly, fxFinger, fxWhisper, fxHalo, fxSparkle, fxCrack, fxRubble, fxLurker, fxRobe, fxShout, fxScrap, fxIcon } from "../../engine/library/formosus";
 import {
   FPS, D0, FILES, ROW_GAP, COUNT, PARK, SHOTS, SNAP, DROP0, DROP1, DROP_H, V3, front, marchPhase, stomp, deckY, dropW, dropU, shapeZ,
   smooth, clamp01, BridgeState, WORD, MARK, lidAt as lidAt2,
 } from "./story";
 import { SARC, SARC_TOP } from "./basilica";
 import { bankY, BANK_Y, SHORE } from "./tiber";
-import { NOINK } from "./ink";
-import type { LightName } from "./lights";
-import { cardShade, blobMaterial, CARD_K } from "./cardshade";
+import { NOINK } from "../../engine/ink";
+import type { LightName } from "../../engine/lights";
+import { cardShade, blobMaterial, CARD_K } from "../../engine/cardshade";
 
 // ---------------- canvas pool ----------------
 type Entry = { cv: HTMLCanvasElement; tex: THREE.CanvasTexture; w: number; h: number };
@@ -208,7 +205,7 @@ const person = (cam: CamInfo, who: Who, x: number, y: number, z: number, view: {
 /** ground shadow under a standing / sitting card (review rounds 2-4), multiply, blue-violet: a TIGHT contact pool right under
  *  the feet (~.5 on screen at the core) so nobody floats, plus by day (cards cast no real shadow) a lighter soft tail
  *  stretched AWAY from the sun, length ~1.6 m / tan(sun elevation), capped. Golden: world.ts casts real card shadows. */
-const CONTACT: Record<LightName, [number, number, number]> = { day: [0.2, 0.21, 0.33], golden: [0.24, 0.2, 0.33], night: [0.16, 0.13, 0.26], lab: [0.3, 0.32, 0.42], sun: [0.24, 0.22, 0.34], dark: [0.1, 0.1, 0.2], moon: [0.14, 0.15, 0.3] };
+const CONTACT: Partial<Record<LightName, [number, number, number]>> = { day: [0.2, 0.21, 0.33], golden: [0.24, 0.2, 0.33], night: [0.16, 0.13, 0.26], lab: [0.3, 0.32, 0.42], sun: [0.24, 0.22, 0.34], dark: [0.1, 0.1, 0.2], moon: [0.14, 0.15, 0.3] };
 const TAIL: [number, number, number] = [0.42, 0.44, 0.62];
 const toSrgb = (v: number) => { const c = clamp01(v); return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; };
 const hexOf = (c: [number, number, number], k: number) => "#" + c.map((v) => Math.round(255 * toSrgb(1 - (1 - v) * k)).toString(16).padStart(2, "0")).join("");
@@ -221,7 +218,7 @@ const blob = (out: Stage, x: number, y: number, z: number, sc = 1, k = 1) => {
     out.fx.push({ key: `blob|shadow|${tc}`, cw: 128, ch: 256, draw: (p) => fxShadow(p, tc), x: x + ox * c, y: y + 0.018, z: z + oz * c,
       w: 0.72 * sc, h, flat: true, rot });
   }
-  const cc = hexOf(CONTACT[LNAME], k);
+  const cc = hexOf(CONTACT[LNAME]!, k);
   out.fx.push({ key: `blob|contact|${cc}`, cw: 128, ch: 128, draw: (p) => fxContact(p, cc), x: x + ox * 0.03 * sc, y: y + 0.022, z: z + oz * 0.03 * sc,
     w: 0.52 * sc, h: 0.4 * sc, flat: true, rot });
 };

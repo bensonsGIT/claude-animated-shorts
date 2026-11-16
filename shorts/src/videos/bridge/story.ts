@@ -4,7 +4,8 @@
 // big reframes are cuts; impacts are 7-frame kicks that flip sign every frame; no hand-held float.
 export const FPS = 30;
 export const TOTAL = 2025;
-export const D0 = 6.0; // bank top + deck height (m)
+import { D0 } from "../../engine/build";
+export { D0 };
 export const HALF = 27; // towers at z = +-27, span 54 m
 export const FILES = [-1.65, -0.55, 0.55, 1.65];
 export const ROW_GAP = 1.3;

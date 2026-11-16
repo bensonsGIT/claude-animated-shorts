@@ -2,11 +2,11 @@
 // back wall (cold moonlight), a plank bench with a blanket, an iron ring and chain on the wall, a stool with a stub of
 // candle, ink and paper. Floor y = 0, x (-2.2..2.2), z (-2.6 back wall .. 2), ceiling 3.0 m.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, stoneHD, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, stoneHD, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const CELL = { x0: -2.2, x1: 2.2, z0: -2.6, z1: 2, h: 3.0 };

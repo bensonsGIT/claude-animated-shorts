@@ -6,11 +6,11 @@
 // a writing desk with a candle and a wing chair by the window.
 // Floor y = 0, x across (-6..6), z into the room (back wall z = -8, camera side z = +6), ceiling 3.6 m.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, planksHD, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, planksHD, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 
 export const PARLOR = { x0: -6, x1: 6, z0: -8, z1: 6, h: 3.6 };
 export const ETABLE = { x0: -0.6, x1: 1.45, z: -3.6, d: 0.8, top: 0.78 };
@@ -75,7 +75,7 @@ export class Parlor extends Room {
   private extra = new THREE.Group();
   private dinner = new THREE.Group();
   private phials: THREE.Group[] = [];
-  private glows: THREE.Sprite[] = [];
+  private jarGlows: THREE.Sprite[] = [];
   private glass: THREE.MeshBasicMaterial;
   private night = nightGlass(); private morn = morningGlass();
 
@@ -207,7 +207,7 @@ export class Parlor extends Room {
         const sp = new THREE.Sprite(new THREE.SpriteMaterial({ color: new THREE.Color(0.6, 0.9, 1.6), transparent: true, opacity: 0, depthWrite: false,
           blending: THREE.AdditiveBlending, fog: false, map: this.glowTexBlue() }));
         sp.position.set(x, y, z + 0.02); sp.scale.set(s, s, 1); sp.layers.set(NOINK); sp.renderOrder = 5;
-        this.elec.add(sp); this.glows.push(sp);
+        this.elec.add(sp); this.jarGlows.push(sp);
       }
     }
     // ---- dinner: platter + roast turkey, plates, candles ----
@@ -263,7 +263,7 @@ export class Parlor extends Room {
   dress(d: Dress) {
     this.elec.visible = d.elec; this.extra.visible = d.extra; this.dinner.visible = d.dinner;
     this.phials.forEach((g, i) => (g.visible = i < d.phials));
-    this.glows.forEach((s, i) => ((s.material as THREE.SpriteMaterial).opacity = d.charge * (i % 2 ? 0.9 : 0.55)));
+    this.jarGlows.forEach((s, i) => ((s.material as THREE.SpriteMaterial).opacity = d.charge * (i % 2 ? 0.9 : 0.55)));
     this.glass.map = d.morning ? this.morn : this.night;
   }
 }

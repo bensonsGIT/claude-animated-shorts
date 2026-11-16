@@ -3,11 +3,11 @@
 // (gold mosaic conch) behind the dais at the far end (z < -17.5). Ceiling of the nave 10 m, aisles 6 m.
 // Modes: "synod" (night, candles, the two thrones, clergy benches), "peter" (day, open sarcophagus, no thrones).
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, stoneHD, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, stoneHD, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const NAVE = { x0: -8, x1: 8, z0: -17.5, z1: 8, h: 10, col: 4.6, aisleH: 6.2, apseR: 5 };

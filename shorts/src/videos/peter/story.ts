@@ -1,4 +1,4 @@
-import type { LightName } from "./lights";
+import type { LightName } from "../../engine/lights";
 import { TOTAL, WORD, BEAT } from "./timing";
 export { TOTAL, WORD, BEAT };
 // Timeline of the Peter the Great beard-tax short: shots timed to the voice words (~/peter-short/voice/words.json) and the
@@ -6,7 +6,8 @@ export { TOTAL, WORD, BEAT };
 // big reframes are cuts; impacts are 7-frame kicks that flip sign every frame; no hand-held float.
 // The bridge physics below is kept only because the (hidden) bridge world still builds from it.
 export const FPS = 30;
-export const D0 = 6.0; // bank top + deck height (m)
+import { D0 } from "../../engine/build";
+export { D0 };
 export const HALF = 27; // towers at z = +-27, span 54 m
 export const FILES = [-1.65, -0.55, 0.55, 1.65];
 export const ROW_GAP = 1.3;

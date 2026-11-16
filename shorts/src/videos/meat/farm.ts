@@ -2,11 +2,11 @@
 // over a fire, split-rail fences, a field running back to the woods, and a painted backdrop of rolling hills and a
 // clear blue sky. Ground y = 0; the yard is around the origin, the cabin behind it (z < -6), the field to the right.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, grassHD, roofHD, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, grassHD, roofHD, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 /** the soap kettle (centre of its rim) */

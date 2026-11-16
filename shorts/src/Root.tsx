@@ -4,13 +4,16 @@ import {
   calculateCaptionedVideoMetadata,
   captionedVideoSchema,
 } from "./CaptionedVideo";
-import { BridgeShort, BRIDGE_FRAMES } from "./videos/bridge/Bridge";
-import { TychoShort, TYCHO_FRAMES } from "./videos/tycho/Bridge";
-import { NewtonShort, NEWTON_FRAMES } from "./videos/newton/Bridge";
-import { FranklinShort, FRANKLIN_FRAMES } from "./videos/franklin/Bridge";
-import { FormosusShort, FORMOSUS_FRAMES } from "./videos/formosus/Bridge";
-import { MeatShort, MEAT_FRAMES } from "./videos/meat/Bridge";
-import { PeterShort, PETER_FRAMES } from "./videos/peter/Bridge";
+import { short as bridge } from "./videos/bridge";
+import { short as tycho } from "./videos/tycho";
+import { short as newton } from "./videos/newton";
+import { short as franklin } from "./videos/franklin";
+import { short as formosus } from "./videos/formosus";
+import { short as meat } from "./videos/meat";
+import { short as peter } from "./videos/peter";
+
+/** every short: 1080x1920 at 30 fps. A new short adds its folder's `short` here. */
+const SHORTS = [bridge, tycho, newton, franklin, formosus, meat, peter];
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -28,62 +31,9 @@ export const RemotionRoot: React.FC = () => {
           src: staticFile("sample-video.mp4"),
         }}
       />
-      <Composition
-        id="BridgeShort"
-        component={BridgeShort}
-        durationInFrames={BRIDGE_FRAMES}
-        fps={30}
-        width={1080}
-        height={1920}
-      />
-      <Composition
-        id="TychoShort"
-        component={TychoShort}
-        durationInFrames={TYCHO_FRAMES}
-        fps={30}
-        width={1080}
-        height={1920}
-      />
-      <Composition
-        id="NewtonShort"
-        component={NewtonShort}
-        durationInFrames={NEWTON_FRAMES}
-        fps={30}
-        width={1080}
-        height={1920}
-      />
-      <Composition
-        id="FranklinShort"
-        component={FranklinShort}
-        durationInFrames={FRANKLIN_FRAMES}
-        fps={30}
-        width={1080}
-        height={1920}
-      />
-      <Composition
-        id="FormosusShort"
-        component={FormosusShort}
-        durationInFrames={FORMOSUS_FRAMES}
-        fps={30}
-        width={1080}
-        height={1920}
-      />
-      <Composition
-        id="MeatShort"
-        component={MeatShort}
-        durationInFrames={MEAT_FRAMES}
-        fps={30}
-        width={1080}
-        height={1920}
-      />
-      <Composition
-        id="PeterShort"
-        component={PeterShort}
-        durationInFrames={PETER_FRAMES}
-        fps={30}
-        width={1080}
-        height={1920}
-      />
+      {SHORTS.map((s) => (
+        <Composition key={s.id} id={s.id} component={s.component} durationInFrames={s.frames} fps={30} width={1080} height={1920} />
+      ))}
     </>
   );
 };

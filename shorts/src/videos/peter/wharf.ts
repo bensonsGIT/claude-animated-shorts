@@ -2,11 +2,11 @@
 // river, stacks of timber, a sawhorse, a half-built hull on the stocks with its bare ribs, a timber quay, and a painted
 // far bank with a wooden town and onion domes. Water y = 0; the bank rises to y = 0.5 at z = 2 and stays flat behind.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const BANK_Y = 0.5;

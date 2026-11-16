@@ -2,11 +2,11 @@
 // Floor y = 0; x (-3..3), z (-3 back wall .. 3), ceiling 3.2. Desk against the back wall with a brass microscope and
 // specimen jars; a bookcase on the left; a tall window on the back wall (daylight); a jar shelf on the right wall.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, planksHD, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, planksHD, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const ROOM = { x0: -3, x1: 3, z0: -3, z1: 3, h: 3.2 };

@@ -4,11 +4,11 @@
 // the prism (a real 3D beam in, a 7-colour fan out onto the right wall) or the looking glass (sun glare).
 // Floor y = 0, x across (-3.5..3.5), z (-4 back wall .. 3), ceiling 3.1 m.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, planksHD, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, planksHD, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const STUDY = { x0: -3.5, x1: 3.5, z0: -4, z1: 3, h: 3.1 };

@@ -3,11 +3,11 @@
 // strike), a furnace glowing at the back right, a table of coin piles, and the Warden's desk front right with candles
 // and the case papers that pile up over "months". Floor y = 0, x across (-7..7), z (-8 back wall .. 6), ceiling 5.2 m.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, planksHD, stoneHD, beam } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, planksHD, stoneHD, beam } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const MINT = { x0: -7, x1: 7, z0: -8, z1: 6, h: 5.2 };

@@ -1,11 +1,11 @@
 // The imagined gate of heaven (shot 15): a floor of white cloud, cloud banks all round, a tall golden barred gate with
 // an arch at z = -5, and a bright glow behind it. No saint is shown. Floor y = 0; the gate is centred on x = 0.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room, cyl, at } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const GATE: V3 = [0, 0, -5];

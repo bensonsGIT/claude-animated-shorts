@@ -10,6 +10,21 @@ Proven example: **The Bridge That Fell for a Song**. It is an original 67 s shor
 - Script, voice and sound: `~/bridge-short/`.
 - Style research: `references/`.
 
+## Project layout (since 2026-11-16)
+The engine is shared; a short's folder holds only what is its own.
+- `shorts/src/engine/`: rendering engine used by every short. `ShortVideo.tsx` (composition + post chain, `makeShort`),
+  `build.ts`, `paint.ts`, `shade.ts`, `cardshade.ts`, `ink.ts`, `lensblur.ts`, `lights.ts` + `grade.ts` (every light
+  preset any short uses), `hall.ts` (the `Room` base class + great hall), `toon.ts` (the `Pen` API, faces, hats, beards,
+  bodies, the bridge cast and generic fx).
+- `shorts/src/engine/library/<short>.ts`: characters and fx cards first drawn for that short (Tycho's ruffs, Newton's
+  periwigs, Franklin's turkey, Formosus's clergy, the meat-shower vultures, Peter's boyars...). Any short imports them.
+- `shorts/src/videos/<name>/`: `index.tsx` (wires the short into `makeShort` and exports `short`), `story.ts`,
+  `timing.ts`, `cast.ts`, `world.ts`, `Captions.tsx` and the short's own set files (`moscow.ts`, `farm.ts`...).
+- `shorts/src/Root.tsx` registers every short from the `SHORTS` list.
+- A fix in `src/engine/` reaches every short. When it changes behaviour, re-render a still of each short that uses it.
+- New hats, props or expressions go into `engine/toon.ts` as new names. Never change what an existing name draws: Franklin's
+  plain tricorn became `tricornFlat` and his desk quill `writeQuill` because later shorts drew `tricorn`/`quill` differently.
+
 Later shorts (2026-11-15) are the better starting point now. They are interior stories with captions and the current
 voice/sound workflow; all three live in `shorts/src/videos/` with scripts, voice and sound in `~/<name>-short/`.
 - **Newton** (`newton/`, composition `NewtonShort`): three sets (study, Royal Mint, Newgate cell), periwigs, wall fx, glare veil.
@@ -63,7 +78,7 @@ User rules that apply:
      shifts every later word.
    - Then `make_timing.py` -> `src/videos/<name>/timing.ts` + `~/<name>-short/timing.json` (TOTAL, WORD, BEAT/shots, WORDS for captions).
    - To audition voices: `~/newton-short/voice/chatterbox/samples.py` (refs from Kokoro voices via make_refs*.py).
-4. **Shot plan** in `story.ts`: copy `src/videos/newton/` (or `franklin/` for one room; `templates/bridge/` only for an outdoor town story) to `src/videos/<name>/`, register a new composition in `src/Root.tsx`, and rename it.
+4. **Shot plan** in `story.ts`: copy `src/videos/newton/` (or `franklin/` for one room) to `src/videos/<name>/`, rename the export in its `index.tsx`, and add its `short` to `SHORTS` in `src/Root.tsx`. Only the short's own files are copied; the engine stays in `src/engine/`.
    - Cuts and gags are keyed to `WORD.<word>` / beat onsets (never to hard frame numbers), so a re-voice retimes the whole film.
    - 9:16 is narrow: stage two-shots in depth, keep close-ups ~2.5 m from these bean-head cards, frame faces in the upper
      third (captions sit at 71 %). Check marks with a quick projection before rendering stills.
@@ -82,10 +97,10 @@ User rules that apply:
    - `paint.ts`: HD Canvas2D painted textures with seams painted in as dark tints.
    - `world.ts`: sky shader, fog = horizon colour, river, per-frame posing, sun frozen per shot and camera-relative.
 6. **Characters.**
-   - `toon.ts`: the Canvas2D `Pen` drawing API, 600x1000 design canvas, soles at y = 975, bean heads, stick limbs, plum variable-width outline, face library.
+   - `engine/toon.ts` (+ `engine/library/*.ts` for earlier shorts' casts): the Canvas2D `Pen` drawing API, 600x1000 design canvas, soles at y = 975, bean heads, stick limbs, plum variable-width outline, face library.
    - `cast.ts`: camera-facing billboards, crowds, effect cards, blinks, walk cycles. All billboards go on the `NOINK` layer.
    - `cardshade.ts`: cards lit by the scene light, no emissive.
-7. **Post** (`Bridge.tsx` + `ink.ts` + `lensblur.ts` + `grade.ts`).
+7. **Post** (`engine/ShortVideo.tsx` + `ink.ts` + `lensblur.ts` + `grade.ts`). Per-short overlays (glare, dim) and the flash timing go in the short's `index.tsx`.
    - Composer order: ink → lens pre → lens main → bloom → NEUTRAL tone map → grade (MSAA 4).
    - Every pixel parameter scales with output height / 1920.
 8. **Sound**: copy `~/newton-short/audio/newton_sound.py` (shared libs in `shorts/audio/`: dsp.py, instruments.py, sfx_gen.py).
@@ -109,7 +124,7 @@ User rules that apply:
 11. **Deliver.** SendUserFile the final mp4, update memory, write notes.
 
 ## Final look values (bridge after 4 verifier rounds; all in `templates/bridge/`)
-Start every new short from `templates/bridge/` (copy to `src/videos/<name>/`): the look lives in these values, the
+These values now live in `shorts/src/engine/` (`templates/bridge/` is the original published copy): the look lives in these values, the
 story lives in story.ts / build.ts layout / cast.ts roles. Opus max scores at the end: colour day 7, golden 5-6,
 lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (from 5/3/4/5/4/7/4/6 at the start).
 - **Light presets** (`lights.ts`, sun camera-relative and frozen per shot):
@@ -124,7 +139,7 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
   jumps from 1 %, fog tint 0.3 only far; character cards on layer `NOINK` (they carry their own plum ink).
 - **Lens** (`lensblur.ts` + `dofAt` in story.ts): cInf px at 1080: hook/river CU 15-16, close-ups 12-14, MS 10-12,
   park 7, golden sway 5, wides/aerials 0. Focus on the eyes of the front row.
-- **Post** (`Bridge.tsx`): ink → lens pre → lens main → bloom (thr 1.0, int .5, 6 levels, radius .6) → NEUTRAL tone
+- **Post** (`engine/ShortVideo.tsx`): ink → lens pre → lens main → bloom (thr 1.0, int .5, 6 levels, radius .6) → NEUTRAL tone
   map → grade; MSAA 4. Film grain exists but is OFF (reference measures no grain; it quadruples the file size).
 - **Characters** (`toon.ts`/`cast.ts`/`cardshade.ts`): bean heads h/w .94, plum ink #241726, eyes .26 W apart, no blush,
   14 expressions; adults 3.5 head-heights; walk bob 5 %, lean 1-7°, planted 0.8 m stride; blinks 0.5-2.3 s; tight
@@ -158,7 +173,7 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 
 ## Look-match loop (how the bridge look was reached; reuse for any "make it look like X" pass)
 1. **Measure the reference first.** One analysis agent per topic (motion, depth, textures, characters, lighting, outlines, grade), each writing numbers, not adjectives, to `references/reports/<topic>.md`. Shared brief: `compare/CONTEXT.md`. Reports are the source of truth for every agent after.
-2. **Sandboxes, one owner per file.** Copy the project folder to `src/videos/<name>_{cam,world,mat,char,post}` with entries `src/sandboxes/<n>/index.tsx` (same `index.tsx` as main, only the import path changed). Ownership used for the bridge:
+2. **Sandboxes, one owner per file.** (Written for the bridge, before the engine moved to `src/engine/`: sandbox the engine files too, and merge them back into `src/engine/`.) Copy the project folder to `src/videos/<name>_{cam,world,mat,char,post}` with entries `src/sandboxes/<n>/index.tsx` (same `index.tsx` as main, only the import path changed). Ownership used for the bridge:
    - cam: story.ts (camera keys, cuts, kicks, DOF table, foreground props)
    - world: world.ts, lights.ts, shade.ts, grade.ts (sun, sky, fog, river, colour, grade)
    - mat: paint.ts, build.ts (painted textures, buildings, props)

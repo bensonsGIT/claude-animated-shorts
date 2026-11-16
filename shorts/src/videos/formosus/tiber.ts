@@ -2,11 +2,11 @@
 // at z = -34, and a painted backdrop of the city (Hadrian's round tomb, towers, old St Peter's gable, hills) with
 // the sky, night (moon) or day. Water y = 0; the bank rises to y = 0.5 at z = 2 and stays flat behind.
 import * as THREE from "three";
-import { Batch, boxGeo, lam, quad, V } from "./build";
-import { ctex, stoneHD } from "./paint";
-import { twoTone } from "./shade";
-import { NOINK } from "./ink";
-import { Room } from "./hall";
+import { Batch, boxGeo, lam, quad, V } from "../../engine/build";
+import { ctex, stoneHD } from "../../engine/paint";
+import { twoTone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
+import { Room } from "../../engine/hall";
 import type { V3 } from "./story";
 
 export const BANK_Y = 0.5;

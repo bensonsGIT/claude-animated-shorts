@@ -4,12 +4,12 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { staticFile } from "remotion";
-import { Batch, Strand, boxGeo, V, lam, buildTown, flagTex, Kit, Ray, kitClone } from "./build";
-import { beam, bed, rep, ctex, planksHD, beamHD, stoneHD, cobbleHD, grassHD, chainHD, waterNear, waterFar, cloudHD } from "./paint";
-import { Pen, fxSign } from "./toon";
-import { LIGHTS, LOOK, LightPreset } from "./lights";
-import { TONE, CHAR, LFB, twoTone, untone } from "./shade";
-import { NOINK } from "./ink";
+import { Batch, Strand, boxGeo, V, lam, buildTown, flagTex, Kit, Ray, kitClone } from "../../engine/build";
+import { beam, bed, rep, ctex, planksHD, beamHD, stoneHD, cobbleHD, grassHD, chainHD, waterNear, waterFar, cloudHD } from "../../engine/paint";
+import { Pen, fxSign } from "../../engine/toon";
+import { LIGHTS, LOOK, LightPreset } from "../../engine/lights";
+import { TONE, CHAR, LFB, twoTone, untone } from "../../engine/shade";
+import { NOINK } from "../../engine/ink";
 import { Banquet } from "./banquet";
 import { Moscow } from "./moscow";
 import { Mint } from "./mint";
