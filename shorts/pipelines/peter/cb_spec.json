@@ -1,0 +1,21 @@
+{ "ref": "/Users/benson/tts/refs/ref_am_michael.wav", "exaggeration": 0.5, "cfg": 0.5, "lead": 0.15, "pause_k": 1.0,
+  "beats": [
+    ["A ruler once came home from a trip, pulled out a razor at his own welcome party, and started shaving his guests!", 0.55],
+    ["In 1698, the tsar returned from Western Europe, where the fashionable men were clean-shaven.", 0.35],
+    ["His name was Peter the Great, and at six foot eight, nobody argued.", 0.45],
+    ["One by one, Russia's proudest nobles lost their beards to his own hand.", 0.4],
+    ["To many Russians, a beard was holy, and shaving it was a sin.", 0.35],
+    ["Soon, police could shave any bearded man on sight!", 0.45],
+    ["Then Peter offered a deal: keep your beard, but pay for it every year.", 0.35],
+    ["A rich merchant paid up to a hundred rubles.", 0.3],
+    ["A peasant paid a kopek every time he walked through the city gates.", 0.4],
+    ["Payers had to carry a copper token stamped with a nose, a mouth and a beard!", 0.4],
+    ["One version even carried a message: the beard is a superfluous burden.", 0.6],
+    ["But some shaved men had a bigger worry.", 0.45],
+    ["An English captain met a carpenter who kept his cut-off beard tucked inside his coat.", 0.4],
+    ["He planned to be buried with it, so he could explain himself to Saint Nicholas!", 0.8],
+    ["The tax outlived Peter by almost fifty years.", 0.45],
+    ["All because one tsar came home and reached for a razor!", 0.3]
+  ],
+  "subs": {"1698,": "sixteen ninety-eight,", "tsar": "zar", "kopek": "koe-peck", "rubles.": "roobles."},
+  "fuzzy": ["peter", "tsar", "zar", "czar", "kopek", "kopeck", "copeck", "rubles", "roubles", "nicholas", "saint", "st", "cutoff", "cut", "off"] }
