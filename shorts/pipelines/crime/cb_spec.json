@@ -1,0 +1,24 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5, "cfg": 0.5, "lead": 0.15, "pause_k": 1.0,
+ "beats": [
+  ["A broke student killed a pawnbroker to prove he was a genius, then never spent a single kopek!", 0.5],
+  ["It's 1865 in St. Petersburg, and Rodion Raskolnikov lives in a room the size of a cupboard.", 0.35],
+  ["This is Crime and Punishment, by Fyodor Dostoevsky.", 0.45],
+  ["He has a theory: extraordinary men, like Napoleon, are allowed to step over the law.", 0.4],
+  ["So he takes an axe from the porter's lodge and visits the old pawnbroker.", 0.55],
+  ["But her sister Lizaveta walks in, and he kills her too!", 0.5],
+  ["He hides the loot under a stone in a courtyard, and never even checks how much he took.", 0.4],
+  ["Then he falls into a fever for days.", 0.35],
+  ["A detective named Porfiry plays cat and mouse with him, but never quite arrests him.", 0.4],
+  ["Then a house painter confesses to the murders instead!", 0.5],
+  ["Raskolnikov could have walked free.", 0.6],
+  ["Instead, he confesses to Sonya, a poor girl forced onto the streets to feed her family.", 0.35],
+  ["She tells him to kiss the ground at the crossroads and turn himself in.", 0.4],
+  ["He does, and gets eight years of hard labor in Siberia!", 0.45],
+  ["Sonya follows him there.", 0.7],
+  ["He set out to prove he was Napoleon, and decided he was a louse!", 0.3]
+ ],
+ "subs": {"1865": "eighteen sixty-five", "St.": "Saint", "Dostoevsky.": "Dostoyevsky."},
+ "fuzzy": ["raskolnikov", "raskolnikoff", "rodion", "dostoevsky", "dostoyevsky", "fyodor", "lizaveta", "lizavetta", "porfiry", "porfiri", "sonya", "kopek", "kopeck", "petersburg", "saint", "st", "eighteen", "sixtyfive", "napoleon"]
+}

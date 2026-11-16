@@ -465,6 +465,14 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.ell(fx, fy, 7 * u, 6 * u, "#f2ece4", 1.6 * u); // a little ribbon rosette
     return;
   }
+  if (o.hat === "battered") { // Crime and Punishment: Raskolnikov's worn tall round hat, dented, a rusty patch, over his hair
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    hatOn(p, { ...o, hat: "tophat", hair: undefined }, hp, H, cx, hc, light, seed, facing, side);
+    const yb = crown + 0.22 * HH, ht = 0.8 * HH, wt = 0.33 * W;
+    p.stroke(R([[cx - wt * 0.7, yb - ht * 0.95], [cx - wt * 0.1, yb - ht * 0.78], [cx + wt * 0.5, yb - ht * 0.98]]), 2.6 * u, "#5a5060"); // the dent
+    p.poly(R([[cx + wt * 0.15, yb - ht * 0.55], [cx + wt * 0.7, yb - ht * 0.5], [cx + wt * 0.62, yb - ht * 0.32], [cx + wt * 0.12, yb - ht * 0.36]]), "#6a4a3a", 1.6 * u); // a rusty patch
+    return;
+  }
   if (o.hat === "boater") { // Gatsby short: a straw boater: flat-topped crown, flat brim, dark ribbon, over short hair
     hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
     const col = o.cap ?? "#e6d398", yb = crown + 0.2 * HH, wc = 0.38 * W, ht = 0.24 * HH, deg = (a * 180) / Math.PI;
