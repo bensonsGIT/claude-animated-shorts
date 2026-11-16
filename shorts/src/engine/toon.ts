@@ -546,6 +546,39 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.shadedFill(brim, col, mul(col, SH_FELT), light, 0.6 * W, 0.4);
     p.poly(brim, null, ow);
     p.stroke(R([[cx - 0.62 * W, yb - 0.21 * HH], [cx + 4 * u * facing, yb + 0.05 * HH], [cx + 0.62 * W, yb - 0.21 * HH]]), 2.4 * u, "#c9a24a");
+  } else if (o.hat === "slouch" || o.hat === "brimhat") {
+    // Australian army slouch hat (left brim pinned up, puggaree band, rising-sun badge) / a farmer's wide-brim felt hat
+    const slouch = o.hat === "slouch", col = o.cap ?? (slouch ? "#9a8a5c" : "#7a6040"), band = slouch ? "#6a5a3a" : "#3a2a20";
+    const yb = crown + 0.24 * HH, wb = (slouch ? 0.62 : 0.7) * W, ht = 0.4 * HH, wc = 0.34 * W;
+    const deg = (a * 180) / Math.PI;
+    const crownPts = R([[cx - wc, yb], [cx - wc * 0.92, yb - ht * 0.8], [cx - wc * 0.5, yb - ht], [cx, yb - ht * 0.86], [cx + wc * 0.5, yb - ht], [cx + wc * 0.92, yb - ht * 0.8], [cx + wc, yb]]);
+    const [bx, by] = R([[cx, yb]])[0];
+    p.ell(bx, by, wb, 0.075 * HH, mul(col, [0.86, 0.84, 0.8]), ow, 0, 360, deg); // brim
+    p.shadedFill(crownPts, col, mul(col, SH_FELT), light, wc, 0.4);
+    p.clip(crownPts, () => p.band(R([[cx - wc - 4 * u, yb - 0.09 * HH], [cx + wc + 4 * u, yb - 0.09 * HH]]), band, 0.12 * HH, 0.8 * u));
+    p.poly(crownPts, null, ow);
+    p.stroke(R([[cx, yb - ht * 0.84], [cx, yb - ht * 0.45]]), 1.6 * u, mul(col, [0.66, 0.64, 0.7])); // crease
+    if (slouch) {
+      const flap = R([[cx - wb, yb + 2 * u], [cx - wb * 0.9, yb - 0.42 * HH], [cx - wb * 0.62, yb - 0.5 * HH], [cx - wc * 0.95, yb - 0.3 * HH], [cx - wc * 0.95, yb]]);
+      p.shadedFill(flap, mul(col, [0.94, 0.92, 0.88]), mul(col, SH_FELT), light, wb * 0.4, 0.4);
+      p.poly(flap, null, ow);
+      const [sx, sy] = R([[cx - wb * 0.72, yb - 0.24 * HH]])[0];
+      p.ell(sx, sy, 6 * u, 5 * u, "#d9b04a", 1.6 * u, 180, 360, deg); // rising-sun badge
+      for (let i = 0; i < 5; i++) { const ang = rad(200 + i * 35); p.stroke([[sx + 6 * u * Math.cos(ang), sy + 5 * u * Math.sin(ang)], [sx + 10 * u * Math.cos(ang), sy + 9 * u * Math.sin(ang)]], 1.4 * u, "#d9b04a"); }
+    }
+  } else if (o.hat === "peaked") {
+    // officer's peaked service cap: stiff khaki top, brown band, dark leather peak
+    const yb = crown + 0.26 * HH, wb = 0.42 * W, wt = 0.56 * W, ht = 0.3 * HH, col = o.cap ?? "#a89a6a";
+    const body = R([...sag(yb, wb).reverse(), [cx - wt, yb - ht], [cx + wt, yb - ht]]);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, wt, 0.4);
+    p.clip(body, () => p.band(R([[cx - wt - 5 * u, yb - 0.06 * HH], [cx + wt + 5 * u, yb - 0.06 * HH]]), "#6a3e22", 0.11 * HH, 1.2 * u));
+    p.poly(body, null, ow);
+    const deg = (a * 180) / Math.PI, [tx, ty] = R([[cx, yb - ht]])[0];
+    p.ell(tx, ty, wt, 0.06 * HH, mix(col, "#ffffff", 0.1), ow, 0, 360, deg);
+    const [px, py] = R([[cx + 3 * u * facing, yb + 3 * u]])[0];
+    p.ell(px, py, 34 * u, 0.05 * HH, "#2a2018", 2.5 * u, 0, 180, deg);
+    const [gx, gy] = R([[cx, yb - 0.15 * HH]])[0];
+    p.ell(gx, gy, 6 * u, 6 * u, "#d9b04a", 1.6 * u, 0, 360, deg);
   } else if (o.hat === "tophat") {
     const yb = crown + 0.22 * HH, ht = 0.8 * HH, wb = 0.31 * W, wt = 0.33 * W, col = "#2e2a36";
     const body = R([...sag(yb, wb).reverse(), [cx - wt, yb - ht], [cx + wt, yb - ht]]);
@@ -610,7 +643,9 @@ export type Prop = null | "icecream" | "shako" | "goblet" | "magnifier" | ["hamm
    *  pulled out of the coat, k 0 = hand at the chest .. 1 = held up beside the face */
   /** Franklin short: ["touch", k] reaching for the live wire; "writeQuill" seated at the desk; a fork; hand on chest; finger on lips */
   | ["touch", number] | "writeQuill" | "fork" | "chest" | "shush"
-  | "razor" | "purse" | "kopek" | "token" | "bite" | "chin" | ["deal", string] | ["beardOut", number, string];
+  | "razor" | "purse" | "kopek" | "token" | "bite" | "chin" | ["deal", string] | ["beardOut", number, string]
+  /** Emu War short: a Lewis gun carried across the body (two hands); a pitchfork shaken overhead */
+  | "lewis" | "pitchfork";
 
 const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number }> = {
   adult: { a: 118, torso: 1.1, legs: 1.4, tw: 0.8 },
@@ -754,6 +789,15 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     const S = sh(1);
     arms.push({ pts: hang(-1, 0), front: false });
     arms.push({ pts: [S, [tcx + 1.2 * T.a + 14 * u, S[1] + 0.25 * HH], [tcx + 0.3 * T.a, chin + 0.02 * HH]], front: true });
+  } else if (prop === "lewis") {
+    // both hands on a Lewis gun held across the body: right hand at the grip by the right hip, left hand forward on the barrel
+    const SR = sh(1), SL = sh(-1);
+    arms.push({ pts: [SR, [tcx + 1.15 * T.a + 6 * u, SR[1] + 0.45 * HH], [tcx + 0.55 * T.a, SR[1] + 0.72 * HH]], front: true });
+    arms.push({ pts: [SL, [tcx - 1.2 * T.a - 8 * u, SL[1] + 0.25 * HH], [tcx - 0.65 * T.a, SL[1] + 0.38 * HH]], front: true });
+  } else if (prop === "pitchfork") {
+    const S = sh(1);
+    arms.push({ pts: hang(-1, 0), front: false });
+    arms.push({ pts: [S, [tcx + 1.25 * T.a + 18 * u, S[1] - 0.15 * HH], [tcx + 1.3 * T.a + 20 * u, S[1] - 0.6 * HH]], front: true });
   } else if (prop === "fist") {
     // a fist shaken overhead
     const S = sh(1);
@@ -931,6 +975,24 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       beardBundle(p, hx, hy - 2 * u, prop[2], u, 0.25 + 0.75 * k);
       p.dot(hx, hy, 5.5 * u);
     } else if (prop === "bite" || prop === "chin") {
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "lewis") {
+      if (hx > 300) { // draw the gun once, from the grip hand (right) up to the muzzle past the left hand
+        const L = arms[arms.length - 1].pts[2], dx = L[0] - hx, dy = L[1] - hy, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+        const at = (k: number): P2 => [hx + ux * k, hy + uy * k];
+        p.band([at(-34 * u), at(-4 * u)], "#7a4a2a", 9 * u, 1.6 * u, "round"); // wooden butt
+        p.band([at(-6 * u), at(d + 30 * u)], "#3a3a40", 11 * u, 1.6 * u, "butt"); // cooling shroud
+        p.band([at(d + 30 * u), at(d + 46 * u)], "#24242a", 4 * u, 1.2 * u, "butt"); // muzzle
+        const [mx, my] = at(d * 0.35);
+        p.ell(mx, my - 11 * u, 20 * u, 6 * u, "#2e2e34", 1.8 * u); // pan magazine on top
+        p.dot(mx, my - 12 * u, 3 * u, "#5a5a62");
+        for (let i = 1; i < 6; i++) { const [fx, fy] = at(d * 0.45 + i * 9 * u); p.stroke([[fx - uy * 5 * u, fy + ux * 5 * u], [fx + uy * 5 * u, fy - ux * 5 * u]], 1.2 * u, "#55555c"); }
+      }
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "pitchfork") {
+      p.band([[hx + 2 * u, hy + 70 * u], [hx - 2 * u, hy - 70 * u]], "#9a7048", 4.5 * u, 1.4 * u, "round");
+      for (const dx2 of [-12, 0, 12]) p.band([[hx + dx2 * u - 2 * u, hy - 68 * u], [hx + dx2 * u - 2 * u, hy - 100 * u]], "#9aa0a8", 2.6 * u, 1.1 * u, "round");
+      p.band([[hx - 15 * u, hy - 68 * u], [hx + 11 * u, hy - 68 * u]], "#9aa0a8", 3 * u, 1.1 * u, "round");
       p.dot(hx, hy, 5.5 * u);
     } else if (prop === "fist") {
       p.ell(hx, hy, 9 * u, 8 * u, skin, 2.4 * u);
