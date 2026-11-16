@@ -146,12 +146,16 @@ def sparkle(b, t0, r, notes=(86, 88, 91, 93, 95, 98), n=6, gain=0.5, step=0.07):
         place(b, pan(I.glock(I.m2f(r.choice(notes)), r.uniform(0.3, 0.6), r, 1.0), r.uniform(-0.7, 0.7)), t0 + k * step, gain)
 
 
-def murmur(dur, r, voices=8, lo=95, hi=160):
-    n = ns(dur); out = np.zeros((2, n))
+def murmur(dur, r, voices=10):
+    """party chatter, the Tycho short's recipe: half men, half women, lively, bright"""
+    n = ns(dur)
+    out = np.zeros((2, n))
     for _ in range(voices):
-        y = G.babble(dur, r, r.uniform(lo, hi), r.uniform(0.95, 1.05), r.uniform(3.4, 4.4), r.uniform(0.4, 0.7), fmax=3000)
-        out += pan(lp(y, r.uniform(1800, 2800), 1) * r.uniform(0.3, 0.9), r.uniform(-0.85, 0.85))
-    return fades(out, 0.5, 0.6)
+        kind = r.uniform()
+        base, scale = ((r.uniform(95, 140), r.uniform(0.95, 1.05)) if kind < 0.5 else (r.uniform(180, 240), r.uniform(1.12, 1.2)))
+        y = G.babble(dur, r, base, scale, r.uniform(4.2, 5.4), r.uniform(0.65, 0.9), fmax=3400)
+        out += pan(lp(y, r.uniform(2200, 3400), 1) * r.uniform(0.3, 1.0), r.uniform(-0.85, 0.85))
+    return fades(out, 0.4, 0.6)
 
 
 def steps(S, a, b, r, rate=4.0, gain=0.25):
@@ -202,12 +206,42 @@ def record_scratch(r, dur=0.45):
     return fades(bp(r.standard_normal(n), 200, 3000) * 0.6 + np.sin(2 * np.pi * np.cumsum(f) / SR) * 0.5, 0.005, 0.1)
 
 
+def cork(r):
+    """a champagne cork: a sharp pop + a little fizz"""
+    t = tt(0.5)
+    pop = np.sin(2 * np.pi * np.cumsum(900 * np.exp(-t / 0.01) + 300) / SR) * np.exp(-t / 0.012)
+    fizz = hp(r.standard_normal(len(t)), 4000) * np.clip(t / 0.03, 0, 1) * np.exp(-t / 0.18) * 0.25
+    return fades(pop + 0.6 * hp(r.standard_normal(len(t)), 1500) * np.exp(-t / 0.006) + fizz, 0.0005, 0.05)
+
+
+def party_life(S, a, b, r):
+    """a lively party over the chatter: scattered cheers and whoops (men and women), excited 'oh!'s, glasses, corks"""
+    t = a + r.uniform(0.2, 0.6)
+    while t < b - 0.4:
+        k = r.uniform()
+        if k < 0.45:
+            woman = r.uniform() < 0.5
+            y = G.hurrah(r, r.uniform(190, 250) if woman else r.uniform(110, 160), r.uniform(1.12, 1.2) if woman else r.uniform(0.95, 1.08))
+        elif k < 0.75:
+            y = G.whoa(r, r.uniform(120, 220))
+        else:
+            y = G.oof(r, "oh", r.uniform(150, 240), r.uniform(1.0, 1.18))
+        place(S, pan(lp(y, 3200, 1), r.uniform(-0.85, 0.85)), t, r.uniform(0.07, 0.15))
+        t += r.uniform(0.6, 1.6)
+    t = a + 0.15
+    while t < b - 0.2:
+        place(S, pan(G.clink(r, r.uniform(2400, 4800), 0.09, 0.9), r.uniform(-0.8, 0.8)), t, r.uniform(0.08, 0.16)); t += r.uniform(0.18, 0.5)
+    for k in range(max(1, int((b - a) / 3.5))):
+        place(S, pan(cork(r), r.uniform(-0.6, 0.6)), a + r.uniform(0.3, max(0.4, b - a - 0.6)), 0.3)
+
+
 def build_sfx():
     r = rng(1925)
     S = buf()
     # ---- ambiences ----
     for a, b in PARTY:
-        place(S, crowd_wash(b - a, r, 10), a, 0.11)
+        place(S, murmur(b - a, r, 16), a, 0.34)
+        party_life(S, a, b, r)
         t = a + 0.3
         while t < b - 0.2:
             place(S, pan(G.clink(r, r.uniform(2400, 4200), 0.08, 0.8), r.uniform(-0.7, 0.7)), t, 0.12); t += r.uniform(0.35, 0.9)
@@ -230,7 +264,7 @@ def build_sfx():
         place(S, G.water_bed(b - a, r, 0.3, 0.3), a, 0.14); place(S, G.bird_chirps(b - a, r, 0.25, "sparrow"), a, 0.06)
     for a, b in RAINY:
         place(S, rain_bed(b - a, r, 1.0), a, 0.22)
-    cue(0.0, "party crowd wash + glass clinks; bay water + crickets; rain in the cottage and at the grave")
+    cue(0.0, "party chatter (Tycho recipe) + glass clinks; bay water + crickets; rain in the cottage and at the grave")
     # ---- 1-2: the gate swings open, a stray dog trots in ----
     place(S, pan(G.creak(0.55, r, 90, 160), 0.5), W["wander"] - 0.02, 0.45)
     for k in range(8): place(S, pan(tok(r, r.uniform(1700, 2100), 0.4), 0.4 - 0.08 * k), W["wander"] + 0.25 + 0.13 * k, 0.12)
