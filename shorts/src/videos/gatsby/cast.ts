@@ -398,7 +398,7 @@ export const gatsbyStage = (id: number, t: number, cam: CamInfo, out: Stage) => 
   if (id >= 20 && id <= 22) {
     const [fx, fy, fz] = M.float, mx = fx + 0.06 * (t - WORD.next), mz = fz + 0.12 * Math.sin(t * 0.3);
     out.fx.push({ key: "mattress", cw: 600, ch: 160, draw: fxMattress, x: mx, y: fy + 0.02, z: mz, w: 1.9, h: 0.6, flat: true, rot: 0.25 });
-    const ru = q((t * 0.4) % 1, 20);
+    const ru = q((t * 0.4) % 1, 90);
     out.fx.push({ key: `ring${ru}`, cw: 600, ch: 600, draw: (p) => fxRing(p, ru), x: mx, y: fy + 0.01, z: mz, w: 2.6, h: 2.6, flat: true });
     if (id === 20) stand(cam, out, G, [mx - 0.1, fy - 0.12, mz], { mode: "sit", expr: on(t, WORD.pool) ? "smile_closed" : "neutral", facing: 1 }, false);
     if (id === 21) {
@@ -418,7 +418,7 @@ export const gatsbyStage = (id: number, t: number, cam: CamInfo, out: Stage) => 
     stand(cam, out, PM, M.postman, { expr: "neutral", facing: 1 });
     stand(cam, out, MN, M.minister, { expr: "neutral", facing: 0, prop: "letter" });
     for (let k = 0; k < 10; k++) {
-      const u = q((t * 1.3 + hh(k, 71)) % 1, 20), x = GRAVE[0] - 2.5 + 5 * hh(k, 72), z = GRAVE[2] + 1.0 + 2.2 * hh(k, 73);
+      const u = q((t * 1.3 + hh(k, 71)) % 1, 60), x = GRAVE[0] - 2.5 + 5 * hh(k, 72), z = GRAVE[2] + 1.0 + 2.2 * hh(k, 73);
       out.fx.push({ key: `ring${u}`, cw: 600, ch: 600, draw: (p) => fxRing(p, u), x, y: 0.02, z, w: 0.5, h: 0.5, flat: true });
     }
     if (id === 25) burst(out, t, WORD.flower - LEAD, [153.75, 1.08, -1.1], 0.35, "#dff0ff", 0.3);
