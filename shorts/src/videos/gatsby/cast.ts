@@ -190,7 +190,7 @@ const person = (cam: CamInfo, who: Who, x: number, y: number, z: number, view: {
 /** ground shadow under a standing / sitting card (review rounds 2-4), multiply, blue-violet: a TIGHT contact pool right under
  *  the feet (~.5 on screen at the core) so nobody floats, plus by day (cards cast no real shadow) a lighter soft tail
  *  stretched AWAY from the sun, length ~1.6 m / tan(sun elevation), capped. Golden: world.ts casts real card shadows. */
-const CONTACT: Partial<Record<LightName, [number, number, number]>> = { day: [0.2, 0.21, 0.33], golden: [0.24, 0.2, 0.33], night: [0.16, 0.13, 0.26], lab: [0.3, 0.32, 0.42], sun: [0.24, 0.22, 0.34], morning: [0.26, 0.24, 0.36], dark: [0.1, 0.1, 0.2], moon: [0.14, 0.15, 0.3] };
+const CONTACT: Partial<Record<LightName, [number, number, number]>> = { day: [0.2, 0.21, 0.33], golden: [0.24, 0.2, 0.33], night: [0.16, 0.13, 0.26], lab: [0.3, 0.32, 0.42], sun: [0.24, 0.22, 0.34], morning: [0.26, 0.24, 0.36], party: [0.14, 0.13, 0.28], dark: [0.1, 0.1, 0.2], moon: [0.14, 0.15, 0.3] };
 const TAIL: [number, number, number] = [0.42, 0.44, 0.62];
 const toSrgb = (v: number) => { const c = clamp01(v); return c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; };
 const hexOf = (c: [number, number, number], k: number) => "#" + c.map((v) => Math.round(255 * toSrgb(1 - (1 - v) * k)).toString(16).padStart(2, "0")).join("");
@@ -372,7 +372,7 @@ export const gatsbyStage = (id: number, t: number, cam: CamInfo, out: Stage) => 
   if (id >= 14 && id <= 18) {
     const car = carAt(id, t);
     const seat = (sx: number, sz: number): V3 => [car.x + sx, car.bounce + SEAT_Y - 0.42, car.z + sz];
-    if (id !== 16) {
+    if (id !== 16 && id !== 18) {
       stand(cam, out, DC, seat(-0.3, -0.36), { mode: "sit", expr: id === 15 ? "shock" : "stern", facing: 1 }, false);
       stand(cam, out, G, seat(-0.3, 0.36), { mode: "sit", expr: id === 15 ? "shock" : "neutral", facing: -1 }, false);
       for (const s of [-1, 1]) out.fx.push({ key: "beam", cw: 512, ch: 256, draw: fxBeam, x: car.x + 2.25 + 3.2, y: 0.03, z: car.z + s * 0.45, w: 6.5, h: 1.6, flat: true, rot: -Math.PI / 2, soft: true });

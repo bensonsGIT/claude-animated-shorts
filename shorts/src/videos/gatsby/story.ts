@@ -25,7 +25,7 @@ const W = (k: keyof typeof WORD) => F(WORD[k]);
 /** cut frame just before word k */
 const cw = (k: keyof typeof WORD) => W(k) - PRE;
 const sh = (set: ShotSet, light: LightName, extra: Partial<ShotDef> = {}) => (id: number, a: number, b: number): ShotDef => ({ id, a, b, light, set, ...extra });
-const party = sh("egg", "night"), bay = sh("egg", "moon"), past = sh("egg", "day", { sunAz: 70, sunEl: 40 }), cot = sh("cottage", "morning"), plz = sh("plaza", "sun");
+const party = sh("egg", "party"), bay = sh("egg", "moon"), past = sh("egg", "day", { sunAz: 70, sunEl: 40 }), cot = sh("cottage", "morning"), plz = sh("plaza", "sun");
 const ash = sh("valley", "moon"), pool = sh("egg", "golden", { sunAz: 30, sunEl: 14 }), rain = sh("egg", "lab");
 export const SHOTS: ShotDef[] = [
   party(1, 0, cw("wander")), // "A man threw giant parties every weekend, hoping one woman would"
@@ -74,14 +74,14 @@ export const layersAt = (f: number): { id: number; alpha: number }[] => {
 const TY = 0.6, DY = 0.15, PY = -0.2;
 export const MARK = {
   terrace: [2.4, TY, -9.9] as V3,
-  gateWatch: [3.4, 0, 1.6] as V3,
+  gateWatch: [3.6, 0, 2.75] as V3,
   nick3: [-0.5, 0, 2.5] as V3, gatsby3: [0.62, 0, 2.3] as V3,
   dockEnd: [0, DY, 33.4] as V3,
   officer: [45.1, 0, 0.9] as V3, girl: [46.15, 0, 1.05] as V3,
   bride: [49.45, 0, 2.95] as V3, groom: [50.6, 0, 2.9] as V3,
   nick9: [-0.78, 0, -0.2] as V3, gatsby9: [0.86, 0, -0.1] as V3,
   daisy10: [-0.42, 0, -0.3] as V3, gatsby10: [0.48, 0, -0.32] as V3,
-  tom12: [-1.0, 0, -1.45] as V3, gatsby12: [1.0, 0, -1.45] as V3, daisy12: [0, 0, -2.55] as V3,
+  tom12: [-0.95, 0, -1.6] as V3, gatsby12: [0.95, 0, -1.6] as V3, daisy12: [0, 0, -0.45] as V3,
   myrtle: [4.4, 0, -3.6] as V3,
   blameG: [-59.3, 0, 2.5] as V3, blameD: [-58.45, 0, 2.05] as V3,
   tom19: [2.15, 0, -2.35] as V3, wilson19: [3.95, 0, -2.8] as V3,
@@ -145,9 +145,9 @@ const carX = (f: number) => carAt(14, T(f)).x;
 const C = {
   s1a: hold([0, 8.8, 23], [0, 3.0, -8], 46, 0, 0.0006),
   s1b: hold([0.4, 3.0, 15.5], [0.8, 2.2, -8], 46, 0, 0.0008),
-  s2: hold([14.6, 1.5, 3.05], [4.0, 1.4, 1.8], 46, cw("wander"), 0.0016, W("in") - 2),
+  s2: hold([16.5, 1.5, 3.0], [4.0, 1.35, 2.85], 40, cw("wander"), 0.0016, W("in") - 2),
   s3: hold([0.1, 1.62, 6.9], [0.05, 1.38, 1.0], 42, cf(1), 0.0014),
-  s4: hold([17.9, 2.25, 46.1], [0.2, 1.25, 33.3], 34, cf(2), 0.0010),
+  s4: hold([19.5, 2.4, 47.6], [0.2, 1.1, 33.3], 34, cf(2), 0.0010),
   s5: hold([45.6, 1.52, 5.6], [45.6, 1.4, 0.6], 44, cf(3), 0.0012),
   s6: hold([50.0, 1.55, 7.6], [50.0, 1.45, 2.6], 44, cf(4), 0.0012),
   s7: hold([0.2, 2.4, 31.5], [0, 5.4, -14], 44, cf(5), 0.0008, W("mansion") - 2, 0.004),
@@ -156,10 +156,10 @@ const C = {
   s10: hold([0, 1.55, 3.4], [0, 1.38, -0.4], 42, cf(7), 0.0016),
   s11: hold([0, 2.6, 17.5], [0, 2.4, -6], 46, cw("parties2"), 0.0008),
   s12: hold([0, 1.62, 4.7], [0, 1.25, -1.6], 46, cf(8), 0.001, W("him") - 2),
-  s13: hold([0, 1.58, 1.9], [0, 1.45, -2.5], 42, cf(9), 0.0018, W("both") - 2, 0.005),
-  s14: hold([6.2, 1.0, 4.6], [-8, 2.7, -4.2], 48, cf(10), 0.0008),
-  s15: (f: number): Shot => ({ pos: [7.0, 0.55, 1.6], look: [carX(f) - 1, 0.95, 1.0], fov: 50 }),
-  s16: hold([-5.4, 6.0, -9.2], [-6, 6.2, -16], 40, cw("killed"), 0.003),
+  s13: hold([0, 1.6, 3.0], [0, 1.45, -1.2], 40, cf(9), 0.0018, W("both") - 2, 0.005),
+  s14: hold([7.0, 1.0, 5.4], [-7, 3.6, -7.5], 50, cf(10), 0.0008),
+  s15: (f: number): Shot => ({ pos: [9.5, 0.7, 2.2], look: [carX(f) - 1, 0.95, 1.0], fov: 50 }),
+  s16: hold([-7.6, 6.1, -10.2], [-8.25, 6.2, -16], 40, cw("killed"), 0.003),
   s17: (f: number): Shot => ({ pos: [9.5, 1.25, 2.6], look: [Math.max(carX(f), 16), 0.9, 0.9], fov: 46 }),
   s18: hold([-59.1, 1.55, 6.4], [-59.0, 1.3, 1.6], 42, cf(11), 0.0014, W("blame") - 2, 0.004),
   s19: hold([3.0, 1.6, 2.6], [3.0, 1.35, -2.8], 44, cf(12), 0.0012),
@@ -192,7 +192,7 @@ const CAMS: Record<number, Key[]> = {
   20: [{ f: cf(13), s: C.s20 }],
   21: [{ f: cw("husband2"), s: C.s21 }],
   22: [{ f: cw("shot"), s: C.s22 }],
-  23: [{ f: cf(14), s: C.s1b }],
+  23: [{ f: cf(14), s: hold([0.4, 3.0, 15.5], [0.8, 2.2, -8], 46, cf(14), 0.0008) }],
   24: [{ f: cw("funeral"), s: C.s24 }],
   25: [{ f: cf(15), s: C.s25 }],
 };
@@ -234,7 +234,7 @@ export const DOF: Dof[] = [
   { f: cf(8), cInf: 9, focus: () => eyesOf(M.gatsby12) },
   { f: cf(9), cInf: 12, focus: () => eyesOf(M.daisy12, -0.1) },
   { f: cf(10), cInf: 0 },
-  { f: cw("killed"), cInf: 6, focus: () => [-6, 6.2, -16] },
+  { f: cw("killed"), cInf: 6, focus: () => [-8.25, 6.2, -16] },
   { f: cw("didnt"), cInf: 0 },
   { f: cf(11), cInf: 10, focus: () => eyesOf(M.blameG) },
   { f: cf(12), cInf: 10, focus: () => eyesOf(M.tom19) },

@@ -88,7 +88,7 @@ export class World {
     CHAR.uBodyGrad.value = L.bodyGrad; CHAR.uSideTint.value.set(...L.sideTint);
     // ---- fog + background: outdoor sets fog far into their sky colour, rooms into the wall tone ----
     const outdoor = s.set === "egg" || s.set === "valley";
-    const fogCol = s.set === "valley" ? "#2c3050" : s.light === "night" || s.light === "moon" ? "#1e2a4a" : s.light === "lab" ? "#b8bec4" : L.fog;
+    const fogCol = s.set === "valley" ? "#2c3050" : s.light === "party" || s.light === "night" || s.light === "moon" ? "#1e2a4a" : s.light === "lab" ? "#b8bec4" : L.fog;
     untone(fogCol, this.fog.color);
     this.fog.near = outdoor ? (s.light === "lab" ? 14 : 40) : L.fogNear; this.fog.far = outdoor ? (s.light === "lab" ? 70 : 220) : L.fogFar;
     scene.fog = this.fog; scene.background = untone(fogCol, this.bg);
@@ -113,7 +113,7 @@ export class World {
     for (let i = ai; i < this.actors.length; i++) this.actors[i].mesh.visible = false;
     let fi = 0;
     const fused: Fx[] = [];
-    const fxTint = s.light === "moon" ? "#b9c2e6" : s.light === "golden" ? "#ffe6cc" : s.light === "night" ? "#ffe2c8" : s.light === "lab" ? "#e2e6ea" : "#ffffff";
+    const fxTint = s.light === "moon" ? "#b9c2e6" : s.light === "golden" ? "#ffe6cc" : s.light === "party" ? "#e8cfb8" : s.light === "lab" ? "#e2e6ea" : "#ffffff";
     for (const p of st.fx) {
       if (p.w <= 0.001) continue;
       if (!this.frustum.intersectsSphere(this.sph.set(this.v.set(p.x, p.y, p.z), Math.max(p.w, p.h)))) continue;

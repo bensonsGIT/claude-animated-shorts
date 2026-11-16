@@ -12,7 +12,7 @@ export type LightPreset = {
   sunCol: string; sunI: number; sky: string; ground: string; hemiI: number;         // three lights (unpatched mats only)
   bias: number; normalBias: number;
 };
-export type LightName = "day" | "golden" | "night" | "lab" | "sun" | "dark" | "moon" | "morning";
+export type LightName = "day" | "golden" | "night" | "lab" | "sun" | "dark" | "moon" | "morning" | "party";
 export const LIGHTS: Record<LightName, LightPreset> = {
   day: {
     az: 75, el: 48,
@@ -92,6 +92,16 @@ export const LIGHTS: Record<LightName, LightPreset> = {
     sunCol: "#fff2dc", sunI: 2.8, sky: "#f4ead8", ground: "#a08870", hemiI: 0.6,
     bias: -0.0004, normalBias: 0.02,
   },
+  // Gatsby short: an outdoor party at night: warm lantern key from the camera side, deep blue shade, a navy sky
+  party: {
+    az: 130, el: 34,
+    lit: [1.08, 0.82, 0.6], shade: [0.13, 0.13, 0.27], lift: [0.03, 0.035, 0.09], lambert: 0.4, sideK: 0.85, term: 0.12,
+    charTint: [0.98, 0.86, 0.74], charShade: 0.8, charGrad: 0.12, bodyGrad: 0.28, sideTint: [0.78, 0.8, 1.0],
+    blob: [0.5, 0.48, 0.7], actorShadow: false,
+    top: "#05081c", hor: "#24345e", skyCurve: [0.0, 0.5, 0.6], fog: "#1e2a4a", fogNear: 40, fogFar: 220, sunDisc: "#000000",
+    sunCol: "#ffc890", sunI: 2.4, sky: "#4a4a7a", ground: "#2a2030", hemiI: 0.3,
+    bias: -0.0004, normalBias: 0.02,
+  },
 };
 
 /** world-only look per light (sky stops by elevation in degrees, river colours, cloud palette). All colours are
@@ -149,6 +159,13 @@ export const LOOK: Record<LightName, WorldLook> = {
     cloud: { lit: "#3a2a3a", mid: "#2a1e2c", shade: "#1a1220" },
     bounce: [0.0, 0.01, 0.04],
     sat: 1.04,
+  },
+  party: {
+    sky: { c: ["#24345e", "#1e2a5a", "#16204a", "#10183c", "#05081c"], e: [0, 4, 10, 20, 40] },
+    water: { near: "#1e3a6e", mid: "#22385e", far: "#2a2a44", crest: "#4a5a88", trough: "#101830", glint: "#ffd9a0", shade: [0.42, 0.46, 0.72] },
+    cloud: { lit: "#3a2a3a", mid: "#2a1e2c", shade: "#1a1220" },
+    bounce: [0.05, 0.03, 0.0],
+    sat: 1.1,
   },
   lab: {
     sky: { c: ["#dfe9e6", "#dfe9e6", "#dfe9e6", "#dfe9e6", "#dfe9e6"], e: [0, 4, 10, 20, 40] },

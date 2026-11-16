@@ -83,7 +83,7 @@ export class Egg extends Room {
   private shores: THREE.Mesh[] = [];
   private shoreTex = { night: shoreTex(true), day: shoreTex(false) };
   private windows: THREE.Mesh[] = [];
-  private winLit = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.2, 1.55, 0.75) });
+  private winLit = new THREE.MeshBasicMaterial({ color: new THREE.Color(1.5, 0.95, 0.32) });
   private winDark = new THREE.MeshBasicMaterial({ color: new THREE.Color("#1a2036") });
   private winDay = new THREE.MeshBasicMaterial({ color: new THREE.Color("#5a6a8a") });
   private lamps: Lamp[] = [];
@@ -229,7 +229,7 @@ export class Egg extends Room {
     this.greenCore = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 10), new THREE.MeshBasicMaterial({ color: new THREE.Color(0.6, 4.2, 1.2) }));
     this.greenCore.position.set(...GREEN); this.greenCore.layers.set(NOINK); this.root.add(this.greenCore);
     this.green = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex(), color: new THREE.Color(0.25, 1.6, 0.5), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
-    this.green.position.set(...GREEN); this.green.scale.set(3, 3, 1); this.green.layers.set(NOINK); this.green.renderOrder = 5; this.root.add(this.green);
+    this.green.position.set(...GREEN); this.green.scale.set(1, 1, 1); this.green.layers.set(NOINK); this.green.renderOrder = 5; this.root.add(this.green);
     // far-shore trees
     const tree = (x: number, z: number, s: number) => {
       deco.add(cyl(0.18 * s, 0.28 * s, 3.5 * s, 7), bark, at(x, 1.75 * s, z));
@@ -330,6 +330,6 @@ export class Egg extends Room {
     this.gateL.rotation.y = -1.3 * o.gate; this.gateR.rotation.y = 1.3 * o.gate;
     const g = Math.max(0, o.green);
     this.green.visible = this.greenCore.visible = g > 0;
-    this.green.scale.setScalar(2.2 + 1.6 * g); (this.green.material as THREE.SpriteMaterial).opacity = Math.min(1, 0.5 + 0.5 * g);
+    this.green.scale.setScalar(0.7 + 0.5 * g); (this.green.material as THREE.SpriteMaterial).opacity = Math.min(1, 0.5 + 0.5 * g);
   }
 }

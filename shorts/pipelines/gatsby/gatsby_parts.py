@@ -22,7 +22,7 @@ INSIDE = COTTAGE + PLAZA
 SFX = '''
 def rain_bed(dur, r, level=1.0, bright=5000):
     n = ns(dur)
-    y = st(lp(hp(r.standard_normal(n), 900), bright)) * 0.5
+    y = lp(hp(r.standard_normal(n), 900), bright) * 0.5
     y = widen(fades(y, 0.4, 0.5), r, 9, 0.6)
     for _ in range(int(dur * 14)):
         place(y, pan(drip(r) * 0.25, r.uniform(-0.8, 0.8)), r.uniform(0, dur - 0.2), r.uniform(0.2, 0.6))

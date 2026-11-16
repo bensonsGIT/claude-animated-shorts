@@ -174,11 +174,11 @@ export const GRADE_NIGHT: GradeParams = {
   tintS: [0.018, 0.004], tintM: [0, 0], tintH: [-0.01, 0.004],
   vig: [0.22, 0.42],
 };
-export const GRADES: Record<LightName, GradeParams> = { day: GRADE_DAY2, golden: GRADE_GOLDEN2, night: GRADE_NIGHT, lab: GRADE_DAY2, sun: GRADE_DAY2, dark: GRADE_NIGHT, moon: GRADE_NIGHT, morning: GRADE_DAY2 };
+export const GRADES: Record<LightName, GradeParams> = { day: GRADE_DAY2, golden: GRADE_GOLDEN2, night: GRADE_NIGHT, lab: GRADE_DAY2, sun: GRADE_DAY2, dark: GRADE_NIGHT, moon: GRADE_NIGHT, morning: GRADE_DAY2, party: GRADE_NIGHT };
 /** One strength (0..1, the effect's `amount`) per preset, set against the NEW world (bridge_world, 2026-10-31): full-strength
  *  presets overshot (day median Y' .59-.67 vs target .571, golden .58 vs .52); day 0.65 / golden 0.45 land at
  *  .54-.62 / ~.52. Re-fit the presets (grade.md 5.C) after the merge and raise these again. */
-export const GRADE_STRENGTH: Record<LightName, number> = { day: 1, golden: 1, night: 1, lab: 0.85, sun: 0.85, dark: 0.8, moon: 0.85, morning: 0.8 };
+export const GRADE_STRENGTH: Record<LightName, number> = { day: 1, golden: 1, night: 1, lab: 0.85, sun: 0.85, dark: 0.8, moon: 0.85, morning: 0.8, party: 0.9 };
 /** Apply the preset of a light to the effect (only touches uniforms when the light changes). */
 export function gradeFor(fx: GradeEffect, light: LightName) {
   const tag = fx as unknown as { _light?: string };
