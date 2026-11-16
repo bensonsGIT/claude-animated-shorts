@@ -69,8 +69,16 @@ export const fxCatMouse = (p: Pen, t = 0) => {
   p.dot(cx + 44, 166, 3.5); p.dot(cx + 62, 166, 3.5);
   p.stroke([[cx - 54, 196], [cx - 90, 160]], 8, "#e8a050");
 };
-/** a hard dark shadow cast on a wall (soft card, 500 x 900): "axe" = a man holding an axe low; "arm" = an arm raised (no blade) */
-export const fxShadow2 = (p: Pen, kind: "axe" | "arm", col = "#1e1828") => {
+/** a woodcutter's axe (200 x 400, head at the top): ash handle, grey iron head with a bright edge */
+export const fxAxe = (p: Pen) => {
+  p.poly([[92, 70], [108, 70], [114, 390], [88, 390]], "#a87a4a", 6);
+  p.stroke([[100, 120], [102, 360]], 3, "#8a5e34");
+  p.poly([[60, 30], [124, 22], [130, 96], [62, 100], [20, 118], [8, 60], [24, 10]], "#8a8e98", 7);
+  p.stroke([[16, 64], [24, 112]], 6, "#e8ecf4");
+};
+/** a hard dark shadow cast on a wall (soft card, 500 x 900): "axe" = a man holding an axe low; "arm" = an arm raised (no blade);
+ *  "raise" = an arm raised with an axe (a silhouette only) */
+export const fxShadow2 = (p: Pen, kind: "axe" | "arm" | "raise", col = "#1e1828") => {
   const g = p.g; g.fillStyle = col;
   g.beginPath(); g.ellipse(250, 150, 60, 68, 0, 0, Math.PI * 2); g.fill();
   g.beginPath(); g.moveTo(195, 215); g.lineTo(305, 215); g.lineTo(330, 560); g.lineTo(305, 890); g.lineTo(258, 890); g.lineTo(250, 600); g.lineTo(242, 890); g.lineTo(195, 890); g.lineTo(170, 560); g.closePath(); g.fill();
@@ -78,8 +86,12 @@ export const fxShadow2 = (p: Pen, kind: "axe" | "arm", col = "#1e1828") => {
     g.save(); g.translate(330, 520); g.rotate(rad(20));
     g.fillRect(-8, -10, 16, 230); g.beginPath(); g.moveTo(-8, 200); g.lineTo(-70, 190); g.lineTo(-80, 250); g.lineTo(-8, 238); g.closePath(); g.fill();
     g.restore();
-  } else {
+  } else if (kind === "arm") {
     g.beginPath(); g.moveTo(290, 240); g.lineTo(420, 30); g.lineTo(450, 50); g.lineTo(320, 280); g.closePath(); g.fill();
+  } else { // "raise": the arm up, the axe handle back over the head, the blade's silhouette at the top (all inside the card)
+    g.beginPath(); g.moveTo(285, 235); g.lineTo(395, 120); g.lineTo(420, 140); g.lineTo(315, 270); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(398, 128); g.lineTo(330, 40); g.lineTo(346, 30); g.lineTo(414, 118); g.closePath(); g.fill();
+    g.beginPath(); g.moveTo(336, 44); g.lineTo(268, 64); g.lineTo(252, 8); g.lineTo(322, 18); g.closePath(); g.fill();
   }
 };
 /** a small brass Orthodox cross (120 x 160) */

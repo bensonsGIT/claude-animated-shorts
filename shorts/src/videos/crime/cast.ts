@@ -4,10 +4,10 @@
 import * as THREE from "three";
 import { Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxStars, Outfit, FrontOpts, SideOpts } from "../../engine/toon";
 import { RASKOL, RASKOL_BARE, RASKOL_CONVICT, ALYONA, LIZAVETA, PORFIRY, SONYA, SONYA_SHAWL, MIKOLKA, CLERK, CONVICT,
-  fxNapoleon, fxLouse, fxCatMouse, fxShadow2, fxCross, fxPurse2 } from "../../engine/library/crime";
+  fxNapoleon, fxLouse, fxCatMouse, fxShadow2, fxCross, fxPurse2, fxAxe } from "../../engine/library/crime";
 import { MUSCOVITE, PEASANT } from "../../engine/library/peter";
 import { fxCoin } from "../../engine/library/newton";
-import { FPS, SHOTS, V3, clamp01, WORD, BEAT, MARK, doorAt } from "./story";
+import { FPS, SHOTS, V3, clamp01, smooth, WORD, BEAT, MARK, doorAt } from "./story";
 import { STONE, LODGE } from "./petersburg";
 import { LANDING } from "./rooms";
 import { NOINK } from "../../engine/ink";
@@ -240,6 +240,11 @@ const crowd = (cam: CamInfo, t: number, out: Stage, spots: V3[], laugh: boolean)
   stand(cam, out, who(700 + i, o, `c${i}${i % 3 === 2 ? "m" : "p"}`), m, { expr: laugh ? (i % 2 ? "laugh" : "grin") : i % 2 ? "neutral" : "stern", facing: i % 2 ? 1 : -1,
     tilt: laugh && i % 2 ? q(3 * Math.sin(t * 11 + i), 2) : 0 });
 });
+/** a point at a character's side: `side` metres along the camera's right, height y, nudged toward the camera (+) or away (-) */
+const handAt = (cam: CamInfo, m: V3, side: number, y: number, toward = 0.12): V3 => {
+  const dx = cam.pos.x - m[0], dz = cam.pos.z - m[2], d = Math.hypot(dx, dz) || 1;
+  return [m[0] + cam.right.x * side + (dx / d) * toward, y, m[2] + cam.right.z * side + (dz / d) * toward];
+};
 const fxEyesPeek = (p: Pen) => { p.g.fillStyle = "#140e14"; p.g.fillRect(0, 0, 200, 120); for (const x of [70, 130]) { p.ell(x, 60, 20, 14, "#f4ecd8", 0); p.ell(x + 4, 62, 7, 9, "#1a1418", 0); } p.stroke([[50, 38], [92, 46]], 6, "#8a7a6a"); p.stroke([[150, 46], [110, 38]], 6, "#8a7a6a"); };
 
 export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
@@ -273,21 +278,27 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     }
     return;
   }
-  if (id === 5) { // the porter's lodge: only the shadow of the axe crosses the wall
+  if (id === 5) { // the porter's lodge: on "axe" the axe slides out of the dark doorway into his hand (its shadow crosses the wall)
     stand(cam, out, RK, M.lodgeR, { expr: on(t, WORD.axe) ? "stern" : "nervous", facing: -1 });
     const k = clamp01((t - WORD.axe + 0.2) / 0.6);
     if (t >= WORD.axe - 0.2) out.fx.push({ key: "axeShadow", cw: 500, ch: 900, draw: (p) => fxShadow2(p, "axe"), x: LODGE[0] - 0.15, y: 1.0, z: -0.6 - 0.9 * k, w: 1.0, h: 1.9, yaw: Math.PI / 2, soft: true });
+    if (t >= WORD.axe - 0.35) {
+      const u = smooth((t - WORD.axe + 0.35) / 0.55), hand = handAt(cam, M.lodgeR, -0.3, 0.95);
+      const from: V3 = [LODGE[0] + 0.15, 1.05, LODGE[2]], c: V3 = [from[0] + (hand[0] - from[0]) * u, from[1] + (hand[1] - from[1]) * u, from[2] + (hand[2] - from[2]) * u];
+      out.fx.push({ key: "axe", cw: 200, ch: 400, draw: fxAxe, x: c[0], y: c[1], z: c[2], w: 0.24, h: 0.48, rot: 0.5 - 0.35 * u });
+    }
     return;
   }
   if (id === 6) { // her door opens a crack on the chain: two sharp eyes
     stand(cam, out, RK, M.landingR, { expr: "nervous", facing: -1 });
+    { const b = handAt(cam, M.landingR, 0.2, 1.05, -0.12); out.fx.push({ key: "axe", cw: 200, ch: 400, draw: fxAxe, x: b[0], y: b[1], z: b[2], w: 0.24, h: 0.48, rot: -0.35 }); } // hidden under his coat, the head peeking out
     const k = doorAt(6, t);
     if (k > 0.3) out.fx.push({ key: "peek", cw: 200, ch: 120, draw: fxEyesPeek, x: LANDING[0] + 0.44, y: 1.48, z: LANDING[2] + 0.04, w: 0.3 * k, h: 0.18, yaw: 0 });
     return;
   }
   if (id === 7) { // Lizaveta in the doorway; on "too" only an arm's shadow on the yellow paper, and the icon lamp goes out
     if (t < WORD.too - 0.05) stand(cam, out, LZ, M.lizaveta, { expr: on(t, WORD.walks) ? "shock" : "neutral", facing: -1, prop: "letter" });
-    else out.fx.push({ key: "armShadow", cw: 500, ch: 900, draw: (p) => fxShadow2(p, "arm"), x: -1.15, y: 1.25, z: -2.17, w: 1.1, h: 2.0, yaw: 0, soft: true });
+    else out.fx.push({ key: "armShadow", cw: 500, ch: 900, draw: (p) => fxShadow2(p, "raise"), x: -1.15, y: 1.25, z: -2.17, w: 1.1, h: 2.0, yaw: 0, soft: true });
     void AL;
     return;
   }
