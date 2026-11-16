@@ -8,6 +8,8 @@ import { BridgeShort, BRIDGE_FRAMES } from "./videos/bridge/Bridge";
 import { TychoShort, TYCHO_FRAMES } from "./videos/tycho/Bridge";
 import { NewtonShort, NEWTON_FRAMES } from "./videos/newton/Bridge";
 import { FranklinShort, FRANKLIN_FRAMES } from "./videos/franklin/Bridge";
+import { FormosusShort, FORMOSUS_FRAMES } from "./videos/formosus/Bridge";
+import { MeatShort, MEAT_FRAMES } from "./videos/meat/Bridge";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -53,6 +55,22 @@ export const RemotionRoot: React.FC = () => {
         id="FranklinShort"
         component={FranklinShort}
         durationInFrames={FRANKLIN_FRAMES}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="FormosusShort"
+        component={FormosusShort}
+        durationInFrames={FORMOSUS_FRAMES}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="MeatShort"
+        component={MeatShort}
+        durationInFrames={MEAT_FRAMES}
         fps={30}
         width={1080}
         height={1920}

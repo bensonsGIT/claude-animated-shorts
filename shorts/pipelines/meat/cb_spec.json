@@ -1,0 +1,23 @@
+{
+  "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+  "exaggeration": 0.5, "cfg": 0.5, "lead": 0.15, "pause_k": 1.0,
+  "beats": [
+    ["In 1876, it rained meat in Kentucky!", 0.5],
+    ["Mrs. Crouch was outside making soap when chunks of raw flesh started falling from a clear blue sky.", 0.4],
+    ["For a few minutes, it covered a strip of land the size of a football field.", 0.35],
+    ["The biggest pieces were four inches across.", 0.45],
+    ["Two men came to investigate.", 0.3],
+    ["And they did the obvious thing. They tasted it!", 0.45],
+    ["Their verdict: mutton. Or maybe venison.", 0.5],
+    ["One scientist insisted it was a kind of algae.", 0.35],
+    ["Then the microscopes came out. It was lung, muscle and cartilage.", 0.4],
+    ["One doctor said the lung came from either a horse, or a human baby.", 0.55],
+    ["The leading theory: vultures.", 0.4],
+    ["Vultures throw up their meals to lighten the load, so they can take off faster.", 0.35],
+    ["A flock passing overhead had simply lost its lunch.", 0.45],
+    ["Which means two men in Kentucky had tasted vulture vomit!", 0.5],
+    ["And a piece of it is still kept in a jar.", 0.6]
+  ],
+  "subs": {"1876,": "eighteen seventy-six,"},
+  "fuzzy": ["crouch", "mrs", "misses", "four", "4", "inches", "mutton", "venison", "algae"]
+}

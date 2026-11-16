@@ -1,0 +1,92 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5,
+ "cfg": 0.5,
+ "lead": 0.15,
+ "pause_k": 1.0,
+ "beats": [
+  [
+   "In 897, a man was put on trial nine months after he died!",
+   0.5
+  ],
+  [
+   "His body was dug up, dressed in his old robes, and propped on a throne.",
+   0.4
+  ],
+  [
+   "The judge was Pope Stephen the Sixth. The defendant was a former pope, Formosus.",
+   0.45
+  ],
+  [
+   "A deacon stood beside the corpse to answer for him.",
+   0.4
+  ],
+  [
+   "Stephen hurled accusations. The corpse stayed silent.",
+   0.5
+  ],
+  [
+   "The verdict: guilty!",
+   0.5
+  ],
+  [
+   "They ripped off his robes, cut off his blessing fingers, and threw his body into the Tiber.",
+   0.5
+  ],
+  [
+   "Then an earthquake cracked the very church where the trial was held!",
+   0.5
+  ],
+  [
+   "Rome was disgusted. Rumors spread that the body had washed ashore and was working miracles.",
+   0.45
+  ],
+  [
+   "Within months, Stephen was overthrown, thrown in prison, and strangled!",
+   0.55
+  ],
+  [
+   "The next popes cancelled the verdict and reburied Formosus in St. Peter's, in full papal robes.",
+   0.4
+  ],
+  [
+   "Legend says the saints' images bowed to him as he passed.",
+   0.55
+  ],
+  [
+   "Case closed. Until one of the original judges became pope, and declared him guilty all over again!",
+   0.6
+  ]
+ ],
+ "subs": {
+  "897,": "eight ninety-seven,",
+  "Formosus.": "For-mo-sus.",
+  "Formosus": "For-mo-sus",
+  "Tiber.": "Tyber.",
+  "St.": "Saint"
+ },
+ "fuzzy": [
+  "formosus",
+  "formosa",
+  "for",
+  "mo",
+  "sus",
+  "tiber",
+  "tyber",
+  "saint",
+  "st",
+  "stephen",
+  "steven",
+  "deacon",
+  "cancelled",
+  "canceled",
+  "rumors",
+  "rumours",
+  "saints",
+  "saint's",
+  "earthquake",
+  "the",
+  "sixth",
+  "vi"
+ ]
+}
