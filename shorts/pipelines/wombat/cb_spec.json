@@ -1,0 +1,22 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5, "cfg": 0.5, "lead": 0.15, "pause_k": 1.0,
+ "beats": [
+  ["Somewhere in Australia, an animal is pooping perfect little cubes!", 0.55],
+  ["It's the wombat, a chubby burrower with very short legs.", 0.35],
+  ["Every night, it leaves dozens of cubes on rocks and logs to mark its turf.", 0.4],
+  ["For years, nobody knew how a round tube could make a square poo.", 0.45],
+  ["Then a scientist in Australia sent two engineers in Atlanta the guts of two roadkill wombats, frozen!", 0.45],
+  ["One of them said they opened those intestines like it was Christmas!", 0.45],
+  ["They slid long skinny balloons inside and blew them up, to see where the gut stretched.", 0.35],
+  ["Around the wall, they found two stiff bands and two stretchy ones.", 0.35],
+  ["Near the end, the poo dries out, and that uneven squeeze presses in the corners!", 0.4],
+  ["So the cubes are shaped inside the wombat, not on the way out.", 0.45],
+  ["The lead scientist, Patricia Yang, even tested whether they roll like dice!", 0.5],
+  ["In 2019, the team won an Ig Nobel Prize for physics!", 0.6],
+  ["Now Yang hopes factories can learn a new way to make cubes.", 0.4],
+  ["Until then, the best cube machine on Earth is still a wombat!", 0.3]
+ ],
+ "subs": {"2019,": "twenty nineteen,", "Ig": "Igg", "Nobel": "No-bell"},
+ "fuzzy": ["wombat", "wombats", "womb", "patricia", "yang", "young", "ig", "igg", "nobel", "noble", "nobell", "atlanta", "2019", "twenty", "nineteen", "its", "it's"]
+}
