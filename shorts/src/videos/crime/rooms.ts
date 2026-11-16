@@ -116,7 +116,7 @@ export class Pawn extends Room {
     s.build(this.root, false); deco.build(this.root, true); fix.build(this.root, false);
   }
   /** door 0 shut .. 1 open a crack (on the chain); lamp lit or out */
-  pose(door: number, lamp: boolean) { this.door.rotation.y = -0.32 * door; this.setFlames(lamp); }
+  pose(door: number, lamp: boolean) { this.door.rotation.y = 0.32 * door; this.setFlames(lamp); }
 }
 
 export class Office extends Room {

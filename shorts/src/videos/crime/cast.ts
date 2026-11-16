@@ -7,7 +7,7 @@ import { RASKOL, RASKOL_BARE, RASKOL_CONVICT, ALYONA, LIZAVETA, PORFIRY, SONYA, 
   fxNapoleon, fxLouse, fxCatMouse, fxShadow2, fxCross, fxPurse2 } from "../../engine/library/crime";
 import { MUSCOVITE, PEASANT } from "../../engine/library/peter";
 import { fxCoin } from "../../engine/library/newton";
-import { FPS, SHOTS, V3, clamp01, smooth, WORD, BEAT, MARK, doorAt } from "./story";
+import { FPS, SHOTS, V3, clamp01, WORD, BEAT, MARK, doorAt } from "./story";
 import { STONE, LODGE } from "./petersburg";
 import { LANDING } from "./rooms";
 import { NOINK } from "../../engine/ink";
@@ -246,10 +246,9 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
   const M = MARK;
   cam.t = t;
   if (id === 1) { // under the stone: the purse goes in on "genius"; a coin rolls out on "kopek", he snatches it back
-    stand(cam, out, RK, M.yardR, { expr: on(t, WORD.kopek) ? "shock" : on(t, WORD.genius) ? "smug" : "nervous", facing: 1 });
-    if (t < WORD.genius - 0.15) out.fx.push({ key: "purse", cw: 200, ch: 200, draw: fxPurse2, x: STONE[0] - 0.15, y: 0.3 + 0.4 * (1 - smooth((t - WORD.genius + 0.7) / 0.5)), z: STONE[2] + 0.4, w: 0.32, h: 0.32 });
+    stand(cam, out, RK, M.yardR, { expr: on(t, WORD.kopek) ? "shock" : on(t, WORD.genius) ? "smug" : "nervous", facing: 1, prop: t < WORD.genius - 0.25 ? "purse" : null });
     const r0 = WORD.kopek - 0.35, u = clamp01((t - r0) / 0.5);
-    if (t >= r0 && t < WORD.kopek + 0.55) out.fx.push({ key: "coin", cw: 200, ch: 200, draw: (p) => fxCoin(p), x: STONE[0] + 0.3 + 0.9 * u, y: 0.08, z: STONE[2] + 0.5 + 0.4 * u, w: 0.14, h: 0.14, rot: 6 * u });
+    if (t >= r0 && t < WORD.kopek + 0.7) out.fx.push({ key: "coin", cw: 200, ch: 200, draw: (p) => fxCoin(p), x: STONE[0] - 0.25 - 0.6 * u, y: 0.13, z: STONE[2] + 0.6, w: 0.26, h: 0.26, rot: -6 * u });
     return;
   }
   if (id === 2) { // along the canal: Raskolnikov walking, a few passers-by
@@ -270,7 +269,7 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     }
     if (id === 4) {
       const s = popK(t, WORD.theory - 0.05), hop = on(t, WORD.step) ? q(clamp01((t - WORD.step) / 0.9), 30) : -1;
-      bubbleAt(out, `nap${hop}`, (p) => fxNapoleon(p, hop), [0.55, 2.0, -0.6], s, 0.95);
+      bubbleAt(out, `nap${hop}`, (p) => fxNapoleon(p, hop), [0.25, 1.95, -0.6], s, 0.9);
     }
     return;
   }
@@ -283,7 +282,7 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
   if (id === 6) { // her door opens a crack on the chain: two sharp eyes
     stand(cam, out, RK, M.landingR, { expr: "nervous", facing: -1 });
     const k = doorAt(6, t);
-    if (k > 0.3) out.fx.push({ key: "peek", cw: 200, ch: 120, draw: fxEyesPeek, x: LANDING[0] + 0.42, y: 1.48, z: LANDING[2] + 0.06, w: 0.16 * k, h: 0.1, yaw: 0 });
+    if (k > 0.3) out.fx.push({ key: "peek", cw: 200, ch: 120, draw: fxEyesPeek, x: LANDING[0] + 0.44, y: 1.48, z: LANDING[2] + 0.04, w: 0.3 * k, h: 0.18, yaw: 0 });
     return;
   }
   if (id === 7) { // Lizaveta in the doorway; on "too" only an arm's shadow on the yellow paper, and the icon lamp goes out
@@ -310,7 +309,7 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
       return;
     }
     const circ = id === 10 ? t * 1.3 : 2.4;
-    const pm: V3 = [M.suspect[0] + 1.25 * Math.cos(circ), 0, M.suspect[2] - 0.35 + 0.55 * Math.sin(circ)];
+    const pm: V3 = [M.suspect[0] + 0.85 * Math.cos(circ), 0, M.suspect[2] - 0.45 + 0.5 * Math.sin(circ)];
     stand(cam, out, RK, M.suspect, { expr: id === 11 && on(t, WORD.confesses) ? "shock" : "nervous", facing: 1 });
     const wink = id === 10 && on(t, WORD.arrests);
     stand(cam, out, PF, id === 10 ? pm : M.porfiry, { expr: id === 11 ? (on(t, WORD.confesses) ? "shock" : "smug") : wink ? "smile" : "grin", facing: -1, prop: id === 10 && on(t, WORD.cat) ? "point" : null });
@@ -335,7 +334,7 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
   if (id === 14) {
     stand(cam, out, SS, M.sonya, { expr: on(t, WORD.crossroads) ? "stern" : "nervous", facing: 1, prop: on(t, WORD.crossroads) ? "point" : null });
     const s = popK(t, WORD.himself - 0.1);
-    if (s > 0) out.fx.push({ key: "cross", cw: 120, ch: 160, draw: fxCross, x: M.sonya[0] + 0.3, y: 1.25, z: M.sonya[2] + 0.2, w: 0.1 * s, h: 0.13 * s });
+    if (s > 0) out.fx.push({ key: "cross", cw: 120, ch: 160, draw: fxCross, x: M.sonya[0] + 0.2, y: 1.2, z: M.sonya[2] + 0.4, w: 0.17 * s, h: 0.23 * s });
     return;
   }
   if (id === 15) { // the Haymarket: he kneels and kisses the ground; people stare and laugh
@@ -356,7 +355,7 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     }
     if (id === 19) {
       stand(cam, out, RC, M.last, { expr: on(t, WORD.louse) ? "smile_closed" : on(t, WORD.napoleon2) ? "smug" : "neutral", facing: 0 });
-      const c: V3 = [M.last[0] + 0.2, 2.2, M.last[2] - 0.2];
+      const c: V3 = [M.last[0] - 0.05, 2.18, M.last[2] - 0.2];
       if (on(t, WORD.louse)) bubbleAt(out, "louse", fxLouse, c, popK(t, WORD.louse - 0.05), 0.8);
       else bubbleAt(out, "napB", (p) => fxNapoleon(p), c, popK(t, WORD.napoleon2 - 0.05), 0.8);
     }
