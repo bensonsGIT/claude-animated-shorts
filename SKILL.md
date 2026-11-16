@@ -100,7 +100,7 @@ User rules that apply:
    - Make side-by-sides against reference frames with `python scripts/sbs_sheet.py out.jpg --ours ... --ref ...`.
    - Send them to an Opus max verifier: 1-3 images, a ≤200-word verdict.
 10. **Final render.**
-    - `npx remotion render src/index.ts <Comp> out/<name>/video.mp4 --codec h264 --crf 16 --scale 1.3333333333333333` (~8 min for 55 s)
+    - `npx remotion render src/index.ts <Comp> out/<name>/video.mp4 --codec h264 --crf 16 --scale 1.3333333333333333 --gl=angle` (~6 min for 72 s on the Mac; without `--gl=angle` it falls back to a ~15x slower GL path)
     - Mux: `ffmpeg -i video.mp4 -i mix.wav -map 0:v:0 -map 1:a:0 -c:v copy -af "lowpass=f=16000:poles=2" -c:a aac -b:a 320k -shortest final.mp4`
       (Remotion writes a silent audio track; plain 256k AAC overshot to +0.1 dBFS on sharp zaps, the low-pass + 320k keeps peaks ~-4 dB).
     - Keep the previous final as `<name>_<oldvoice>.mp4` before overwriting.
