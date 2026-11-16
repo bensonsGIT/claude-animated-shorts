@@ -1,6 +1,6 @@
 # The Man Who Put a Needle in His Eye — Isaac Newton short
 
-69.3 s vertical (1440x2560), Kokoro bm_lewis (British) at normal speed 1.0x (pauses 1.0), word-by-word captions, synthesized score + SFX.
+54.7 s vertical (1440x2560), Chatterbox voice cloned from Kokoro am_michael (American male, exaggeration 0.5, cfg 0.5), every line Whisper-verified, word-by-word captions, synthesized score + SFX.
 Composition `NewtonShort` in `claude-animated-shorts/.claude/worktrees/newton-short/shorts/src/videos/newton/`
 (branch `worktree-newton-short`).
 
@@ -54,7 +54,7 @@ Composition `NewtonShort` in `claude-animated-shorts/.claude/worktrees/newton-sh
 | 13 | Mint desk | letter slapped onto the pile on "never" -> CU on "Neither": he holds the bodkin up again, grinning |
 
 ## Pipeline (to retime / redo)
-1. `shorts/.venv-tts/bin/python ~/newton-short/voice/gen_voice.py bm_lewis 1.0 1.0` -> voice.wav, words.json, beats.json
+1. `~/tts/chatterbox/bin/python ~/newton-short/voice/gen_voice_cb.py am_michael 0.5 0.5` (force-aligned word times), then `asr_check.py voice.wav beats.json 0` and `regen_beat.py <n>` for any mis-heard line
 2. `python3 ~/newton-short/voice/make_timing.py` -> src/videos/newton/timing.ts + ~/newton-short/timing.json
 3. `python3 ~/newton-short/audio/newton_sound.py` -> audio/mix.wav (+ stems, cues.md)
 4. `npx remotion render src/index.ts NewtonShort out/newton/video.mp4 --codec h264 --crf 16 --scale 1.3333333333333333`
