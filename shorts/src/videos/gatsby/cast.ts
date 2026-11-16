@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxPuff, fxRing, Outfit, Expr, FrontOpts, SideOpts } from "../../engine/toon";
 import { GATSBY, GATSBY_WHITE, GATSBY_OFFICER, DAISY, DAISY_CLOCHE, DAISY_BRIDE, TOM_SUIT, NICK, NICK_BARE, MYRTLE, WILSON, OWL, GATZ, POSTMAN, MINISTER, GUEST,
   fxDog, fxRumour, fxHeart, fxFlowers, fxTower, fxMattress, fxLeaf, fxGunShadow, fxBeam } from "../../engine/library/gatsby";
-import { FPS, SHOTS, V3, clamp01, WORD, MARK, carAt } from "./story";
+import { FPS, SHOTS, V3, clamp01, WORD, MARK, carAt, HIT_X } from "./story";
 import { GATE, FOUNT, POOL, POOL_WALL_Z, GRAVE } from "./egg";
 import { TEA } from "./rooms";
 import { SEAT_Y } from "./valley";
@@ -301,7 +301,7 @@ export const gatsbyStage = (id: number, t: number, cam: CamInfo, out: Stage) => 
     const seen = on(t, WORD.in);
     stand(cam, out, G, M.gateWatch, { expr: seen ? "dazed" : on(t, WORD.wander) ? "grin" : "smile", facing: 1, prop: seen ? null : "goblet", headTilt: seen ? 8 : 0 });
     // the stray dog trots in through the gate on "in", toward Gatsby, then sits
-    const t0 = WORD.wander + 0.2, u = clamp01((t - t0) / 1.1), x = GATE[0] + 2.2 - 4.4 * u, z = GATE[2] + 0.05 - 0.9 * u;
+    const t0 = WORD.wander + 0.2, u = clamp01((t - t0) / 1.1), x = GATE[0] + 0.5 - 4.2 * u, z = GATE[2] + 0.05 - 0.9 * u;
     if (t >= t0 - 0.4) {
       const trot = u < 1 ? Math.floor(t * 9) % 3 : 3, wag = Math.floor(t * 6) % 4;
       out.fx.push({ key: `dog${trot}${wag}`, cw: 400, ch: 300, draw: (p) => fxDog(p, trot, -1, wag / 4), x, y: 0.33, z, w: 0.88, h: 0.66 });
@@ -314,10 +314,10 @@ export const gatsbyStage = (id: number, t: number, cam: CamInfo, out: Stage) => 
     stand(cam, out, NK, M.nick3, { expr: on(t, WORD.idea) ? "nervous" : "grin", prop: "goblet", facing: 1 });
     stand(cam, out, G, M.gatsby3, { expr: "smile", facing: -1, prop: "goblet" });
     // the rumours pop up over the guests behind them
-    const R: ["spy" | "crown" | "skull", number, V3][] = [["spy", WORD.no, [-1.35, 2.75, -0.9]], ["crown", WORD.idea + 0.15, [0.45, 3.0, -1.7]], ["skull", WORD.really, [1.45, 2.7, -0.5]]];
+    const R: ["spy" | "crown" | "skull", number, V3][] = [["spy", WORD.no, [-0.95, 2.45, 0.2]], ["crown", WORD.idea + 0.15, [0.3, 2.62, -0.4]], ["skull", WORD.really, [1.05, 2.4, 0.4]]];
     for (const [k, w0, c] of R) {
       const s = popK(t, w0 - 0.05);
-      if (s > 0) out.fx.push({ key: `rum${k}`, cw: 460, ch: 400, draw: (p) => fxRumour(p, k), x: c[0], y: c[1], z: c[2], w: 0.95 * s, h: 0.83 * s });
+      if (s > 0) out.fx.push({ key: `rum${k}`, cw: 460, ch: 400, draw: (p) => fxRumour(p, k), x: c[0], y: c[1], z: c[2], w: 0.92 * s, h: 0.8 * s });
     }
     return;
   }
@@ -389,10 +389,10 @@ export const gatsbyStage = (id: number, t: number, cam: CamInfo, out: Stage) => 
       stand(cam, out, G, seat(-0.3, 0.36), { mode: "sit", expr: id === 15 ? "shock" : "neutral", facing: -1 }, false);
       for (const s of [-1, 1]) out.fx.push({ key: "beam", cw: 512, ch: 256, draw: fxBeam, x: car.x + 2.25 + 3.2, y: 0.03, z: car.z + s * 0.45, w: 6.5, h: 1.6, flat: true, rot: -Math.PI / 2, soft: true });
     }
-    if (id === 14) { // Myrtle comes out of the garage and runs toward the road
-      const u = clamp01((t - (WORD.daisy4 - 0.6)) / 1.2), m: V3 = [M.myrtle[0] - 0.6 * u, 0, M.myrtle[2] + 2.0 * u];
-      if (u > 0) profile(cam, out, MY, m, [m[0] - 1, 0, m[2] + 3], { mode: "march", phase: q((t * 2.2) % 1, 20), expr: "angry" });
-      else stand(cam, out, MY, m, { expr: "angry", facing: -1 });
+    if (id === 14 || id === 15) { // Myrtle runs out into the road, reaching it just as the car does on "hit"
+      const hx = HIT_X + 2.6, u = clamp01((t - (WORD.hit - 1.3)) / 1.3), m: V3 = [hx + 0.8 - 0.8 * u, 0, -3.4 + 4.2 * u];
+      if (u > 0 && u < 1) profile(cam, out, MY, m, [m[0] - 1, 0, m[2] + 3], { mode: "march", phase: q((t * 2.4) % 1, 20), expr: "angry" });
+      else stand(cam, out, MY, m, { expr: u >= 1 ? "shock" : "angry", facing: 1 });
     }
     if (id === 15) burst(out, t, WORD.hit - 0.02, [car.x + 2.6, 1.0, 1.0], 2.2, "#fff8e0", 0.35);
     if (id === 18) {
@@ -424,10 +424,12 @@ export const gatsbyStage = (id: number, t: number, cam: CamInfo, out: Stage) => 
   }
   // ---- the funeral in the rain ----
   if (id === 24 || id === 25) {
-    stand(cam, out, NB, M.nickG, { expr: "neutral", facing: -1 });
-    stand(cam, out, GZ, M.gatz, { expr: "pained", facing: 1 });
-    stand(cam, out, OW, M.owl, { expr: on(t, WORD.funeral) && id === 24 ? "pained" : "neutral", facing: -1 });
-    stand(cam, out, PM, M.postman, { expr: "neutral", facing: 1 });
+    if (id === 24) { // the mourners; the last shot keeps only the coffin, the empty flower stand and the minister
+      stand(cam, out, NB, M.nickG, { expr: "neutral", facing: -1 });
+      stand(cam, out, GZ, M.gatz, { expr: "pained", facing: 1 });
+      stand(cam, out, OW, M.owl, { expr: on(t, WORD.funeral) ? "pained" : "neutral", facing: -1 });
+      stand(cam, out, PM, M.postman, { expr: "neutral", facing: 1 });
+    }
     stand(cam, out, MN, M.minister, { expr: "neutral", facing: 0, prop: "letter" });
     for (let k = 0; k < 10; k++) {
       const u = q((t * 1.3 + hh(k, 71)) % 1, 60), x = GRAVE[0] - 2.5 + 5 * hh(k, 72), z = GRAVE[2] + 1.0 + 2.2 * hh(k, 73);

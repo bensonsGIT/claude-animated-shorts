@@ -441,6 +441,6 @@ export class Egg extends Room {
     this.gateL.rotation.y = -1.3 * o.gate; this.gateR.rotation.y = 1.3 * o.gate;
     const g = Math.max(0, o.green);
     this.green.visible = this.greenCore.visible = g > 0;
-    this.green.scale.setScalar(0.7 + 0.5 * g); (this.green.material as THREE.SpriteMaterial).opacity = Math.min(1, 0.5 + 0.5 * g);
+    this.green.scale.setScalar(0.35 + 0.3 * g); (this.green.material as THREE.SpriteMaterial).opacity = Math.min(1, 0.5 + 0.5 * g);
   }
 }

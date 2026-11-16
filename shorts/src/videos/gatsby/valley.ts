@@ -12,7 +12,7 @@ import { fxEyes } from "../../engine/library/gatsby";
 import { Room, cyl, at } from "../../engine/hall";
 import type { V3 } from "./story";
 
-export const BILLBOARD: V3 = [-6, 6.2, -16];
+export const BILLBOARD: V3 = [-24, 6.4, -6];
 export const BB_W = 10, BB_H = 4.7;
 export const PUMP: V3 = [3.4, 0, -3.4];
 export const GARAGE = { x0: 3, x1: 9, z0: -10, z1: -4.2, h: 3.4 };
@@ -90,7 +90,7 @@ export class Valley extends Room {
     const bm = new THREE.Mesh(new THREE.PlaneGeometry(BB_W, BB_H), twoTone(new THREE.MeshLambertMaterial({ map: eyesTex() })));
     bm.position.set(bx, by, bz); this.root.add(bm);
     // telegraph poles along the road with sagging wires
-    for (let x = -60; x <= 60; x += 15) { deco.add(cyl(0.1, 0.12, 6, 6), wood, at(x, 3, -3.6)); deco.add(boxGeo(V(x - 0.6, 5.6, -3.65), V(x + 0.6, 5.7, -3.55)), wood); }
+    for (let x = -60; x <= 60; x += 15) if (x < -34 || x > -14) { deco.add(cyl(0.1, 0.12, 6, 6), wood, at(x, 3, -3.6)); deco.add(boxGeo(V(x - 0.6, 5.6, -3.65), V(x + 0.6, 5.7, -3.55)), wood); }
     b.build(this.root, false);
     deco.build(this.root, true);
     fix.build(this.root, false);

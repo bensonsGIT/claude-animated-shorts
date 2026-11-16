@@ -79,7 +79,7 @@ export const MARK = {
   dockEnd: [0, DY, 33.4] as V3,
   officer: [45.1, 0, 0.9] as V3, girl: [46.15, 0, 1.05] as V3,
   bride: [49.45, 0, 2.95] as V3, groom: [50.6, 0, 2.9] as V3,
-  nick9: [-0.78, 0, -0.2] as V3, gatsby9: [0.86, 0, -0.1] as V3,
+  nick9: [-0.58, 0, -0.2] as V3, gatsby9: [0.62, 0, -0.1] as V3,
   daisy10: [-0.42, 0, -0.3] as V3, gatsby10: [0.48, 0, -0.32] as V3,
   tom12: [-0.95, 0, -1.6] as V3, gatsby12: [0.95, 0, -1.6] as V3, daisy12: [0, 0, -0.45] as V3,
   myrtle: [4.4, 0, -3.6] as V3,
@@ -93,8 +93,12 @@ const eyesOf = (m: V3, dy = 0): V3 => [m[0], m[1] + EYE + dy, m[2]];
 /** the yellow car in the valley of ashes: one continuous drive along the road (z = 1.0, toward +x) for shots 14-17;
  *  parked far down the road for 18 */
 export const CAR_T0 = BEAT[10] - 0.1;
+/** where the car is on "hit": far enough down the road for shot 14 to see it (and Myrtle) */
+export const HIT_X = -12;
+const CAR_V = (HIT_X + 45) / Math.max(0.5, WORD.hit - CAR_T0);
 export const carAt = (id: number, t: number) => {
-  if (id >= 14 && id <= 17) return { on: true, x: -45 + 16 * (t - CAR_T0), z: 1.0, yaw: 0, bounce: 0.012 * Math.sin(t * 23) };
+  if (id >= 14 && id <= 16) return { on: true, x: -45 + CAR_V * (t - CAR_T0), z: 1.0, yaw: 0, bounce: 0.012 * Math.sin(t * 23) };
+  if (id === 17) return { on: true, x: 11 + 15 * (t - (Math.round(WORD.didnt * FPS) - PRE) / FPS), z: 1.0, yaw: 0, bounce: 0.012 * Math.sin(t * 23) };
   if (id === 18) return { on: true, x: -60, z: 1.0, yaw: 0, bounce: 0 };
   return { on: false, x: 0, z: 0, yaw: 0, bounce: 0 };
 };
@@ -142,31 +146,32 @@ const hold = (pos: V3, look: V3, fov: number, f0: number, rate = 0.0012, pf?: nu
 const rolled = (s: (f: number) => Shot, roll: number) => (f: number): Shot => ({ ...s(f), roll });
 
 const carX = (f: number) => carAt(14, T(f)).x;
+const carX17 = (f: number) => carAt(17, T(f)).x;
 const C = {
   s1a: hold([0, 8.8, 23], [0, 3.0, -8], 46, 0, 0.0006),
   s1b: hold([0.4, 3.0, 15.5], [0.8, 2.2, -8], 46, 0, 0.0008),
-  s2: hold([23.5, 1.5, 3.0], [11.0, 1.35, 2.85], 40, cw("wander"), 0.0016, W("in") - 2),
+  s2: hold([19.6, 1.45, 3.0], [11.0, 1.3, 2.85], 40, cw("wander"), 0.0016, W("in") - 2),
   s3: hold([0.1, 1.62, 6.9], [0.05, 1.38, 1.0], 42, cf(1), 0.0014),
-  s4: hold([19.5, 2.4, 47.6], [0.2, 1.1, 33.3], 34, cf(2), 0.0010),
+  s4: hold([17.0, 2.2, 49.5], [0.4, 1.35, 33.4], 20, cf(2), 0.0010),
   s5: hold([45.6, 1.52, 5.6], [45.6, 1.4, 0.6], 44, cf(3), 0.0012),
   s6: hold([50.0, 1.55, 7.6], [50.0, 1.45, 2.6], 44, cf(4), 0.0012),
   s7: hold([0.2, 2.4, 31.5], [0, 5.4, -14], 44, cf(5), 0.0008, W("mansion") - 2, 0.004),
   s8: hold([-3.6, 1.6, 30.0], [8.5, 1.55, 40.6], 44, cw("stared"), 0.0016, W("dock") - 2),
-  s9: hold([0.05, 1.5, 4.3], [0.05, 1.15, -0.7], 44, cf(6), 0.0012),
-  s10: hold([0, 1.55, 3.4], [0, 1.38, -0.4], 42, cf(7), 0.0016),
+  s9: hold([0.05, 1.5, 4.6], [0.05, 1.15, -0.7], 44, cf(6), 0.0012),
+  s10: hold([0.03, 1.55, 4.0], [0.03, 1.38, -0.4], 42, cf(7), 0.0016),
   s11: hold([0, 2.6, 17.5], [0, 2.4, -6], 46, cw("parties2"), 0.0008),
   s12: hold([0, 1.62, 4.7], [0, 1.25, -1.6], 46, cf(8), 0.001, W("him") - 2),
   s13: hold([0, 1.6, 3.0], [0, 1.45, -1.2], 40, cf(9), 0.0018, W("both") - 2, 0.005),
-  s14: hold([7.0, 1.0, 5.4], [-7, 3.6, -7.5], 50, cf(10), 0.0008),
-  s15: (f: number): Shot => ({ pos: [9.5, 0.7, 2.2], look: [carX(f) - 1, 0.95, 1.0], fov: 50 }),
-  s16: hold([-7.6, 6.1, -10.2], [-8.25, 6.2, -16], 40, cw("killed"), 0.003),
-  s17: (f: number): Shot => ({ pos: [9.5, 1.25, 2.6], look: [Math.max(carX(f), 16), 0.9, 0.9], fov: 46 }),
+  s14: hold([5.0, 1.25, 4.2], [-28, 3.6, -2.4], 46, cf(10), 0.0008),
+  s15: (f: number): Shot => ({ pos: [HIT_X + 7.5, 0.7, 2.0], look: [carX(f) - 1, 0.95, 1.0], fov: 50 }),
+  s16: hold([-25.6, 6.3, -0.4], [-26.25, 6.4, -6], 40, cw("killed"), 0.003),
+  s17: (f: number): Shot => ({ pos: [9.5, 1.25, 2.6], look: [Math.max(carX17(f), 16), 0.9, 0.9], fov: 46 }),
   s18: hold([-59.1, 1.55, 6.4], [-59.0, 1.3, 1.6], 42, cf(11), 0.0014, W("blame") - 2, 0.004),
   s19: hold([3.0, 1.6, 2.6], [3.0, 1.35, -2.8], 44, cf(12), 0.0012),
   s20: hold([-39.6, 2.9, 6.6], [-40.7, 0.3, 0.2], 42, cf(13), 0.0012),
   s21: hold([-37.4, 1.4, 2.4], [-38.7, 1.5, -6.1], 44, cw("husband2"), 0.002),
   s22: hold([-40.2, 4.6, 2.6], [-40.8, 0, 0.3], 40, cw("shot"), 0.0008),
-  s25: hold([154.7, 1.35, 1.6], [153.2, 0.75, -1.3], 42, cf(15), 0.0016, W("flower") - 2, 0.004),
+  s25: hold([152.95, 1.45, 3.2], [153.35, 0.8, -1.3], 40, cf(15), 0.0016, W("flower") - 2, 0.004),
   s24: hold([152.0, 1.6, 6.6], [152.0, 1.05, -1.0], 46, cw("funeral"), 0.0012),
 };
 const CAMS: Record<number, Key[]> = {
@@ -234,7 +239,7 @@ export const DOF: Dof[] = [
   { f: cf(8), cInf: 9, focus: () => eyesOf(M.gatsby12) },
   { f: cf(9), cInf: 12, focus: () => eyesOf(M.daisy12, -0.1) },
   { f: cf(10), cInf: 0 },
-  { f: cw("killed"), cInf: 6, focus: () => [-8.25, 6.2, -16] },
+  { f: cw("killed"), cInf: 6, focus: () => [-26.25, 6.4, -6] },
   { f: cw("didnt"), cInf: 0 },
   { f: cf(11), cInf: 10, focus: () => eyesOf(M.blameG) },
   { f: cf(12), cInf: 10, focus: () => eyesOf(M.tom19) },
@@ -243,7 +248,7 @@ export const DOF: Dof[] = [
   { f: cw("shot"), cInf: 6, focus: () => [-40.8, 0, 0.3] },
   { f: cf(14), cInf: 0 },
   { f: cw("funeral"), cInf: 6, focus: () => eyesOf(M.nickG) },
-  { f: cf(15), cInf: 12, focus: () => [153.75, 1.05, -1.1] },
+  { f: cf(15), cInf: 9, focus: () => [153.75, 1.05, -1.1] },
 ];
 export const dofAt = (f: number) => {
   let i = 0; while (i + 1 < DOF.length && f >= DOF[i + 1].f) i++;
