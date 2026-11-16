@@ -33,9 +33,9 @@ export const Captions: React.FC = () => {
     <AbsoluteFill style={{ justifyContent: "flex-start", alignItems: "center", pointerEvents: "none" }}>
       <div style={{
         position: "absolute", top: "71%", transform: `translateY(-50%) scale(${pop})`, maxWidth: "88%", textAlign: "center",
-        fontFamily: TheBoldFont, fontSize: text.length > 9 ? 124 : 152, lineHeight: 1, letterSpacing: 1,
-        color: gold ? "#ffd84a" : "#ffffff", WebkitTextStroke: "22px #0b0a0c", paintOrder: "stroke fill",
-        textShadow: "0 10px 0 rgba(11,10,12,0.55)",
+        fontFamily: TheBoldFont, fontSize: text.length > 9 ? 88 : 104, lineHeight: 1, letterSpacing: 1,
+        color: gold ? "#ffd84a" : "#ffffff", WebkitTextStroke: "15px #0b0a0c", paintOrder: "stroke fill",
+        textShadow: "0 7px 0 rgba(11,10,12,0.55)",
       }}>{text}</div>
     </AbsoluteFill>
   );

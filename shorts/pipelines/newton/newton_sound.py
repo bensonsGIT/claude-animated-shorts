@@ -161,11 +161,10 @@ def murmur(dur, r, voices=6):
 def build_sfx():
     r = rng(1699)
     S = buf()
-    # ---- study night: candle, crickets outside, a ticking clock ----
+    # ---- study night: candle, a ticking clock (no crickets: removed at the user's request) ----
     place(S, fire_bed(cf(3), r, 0.08), 0.0, 0.25)
-    place(S, G.crickets(cf(3), r, 2), 0.0, 0.18)
     clock(S, 0.3, cf(3) - 0.1, r)
-    cue(0.0, "study at night: candle, crickets, slow clock")
+    cue(0.0, "study at night: candle, slow clock")
     # the bodkin slides in, a squish on "eyeball", a deadpan ding on "purpose"
     place(S, pan(squeak(380, 980, W["eyeball"] + 0.3 - W["slid"], r), 0.25), W["slid"] - 0.05, 0.22); cue(W["slid"], "needle squeak (slides in)")
     place(S, st(squish(r, 0.3, 200, 1100)), W["eyeball"] + 0.05, 0.55); cue(W["eyeball"], "squish")

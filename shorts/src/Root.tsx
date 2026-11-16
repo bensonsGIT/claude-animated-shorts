@@ -7,6 +7,7 @@ import {
 import { BridgeShort, BRIDGE_FRAMES } from "./videos/bridge/Bridge";
 import { TychoShort, TYCHO_FRAMES } from "./videos/tycho/Bridge";
 import { NewtonShort, NEWTON_FRAMES } from "./videos/newton/Bridge";
+import { FranklinShort, FRANKLIN_FRAMES } from "./videos/franklin/Bridge";
 
 // Each <Composition> is an entry in the sidebar!
 
@@ -44,6 +45,14 @@ export const RemotionRoot: React.FC = () => {
         id="NewtonShort"
         component={NewtonShort}
         durationInFrames={NEWTON_FRAMES}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="FranklinShort"
+        component={FranklinShort}
+        durationInFrames={FRANKLIN_FRAMES}
         fps={30}
         width={1080}
         height={1920}
