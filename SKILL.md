@@ -10,18 +10,28 @@ Proven example: **The Bridge That Fell for a Song**. It is an original 67 s shor
 - Script, voice and sound: `~/bridge-short/`.
 - Style research: `references/`.
 
+Later shorts (2026-11-15) are the better starting point now. They are interior stories with captions and the current
+voice/sound workflow; all three live in `shorts/src/videos/` with scripts, voice and sound in `~/<name>-short/`.
+- **Newton** (`newton/`, composition `NewtonShort`): three sets (study, Royal Mint, Newgate cell), periwigs, wall fx, glare veil.
+  Copy it for multi-location stories. Its `make_timing.py` auto-keys every word (`WORD.newton2` ...), cuts = `cf(beat)`.
+- **Franklin** (`franklin/`, `FranklinShort`): one parlour with dressings per shot. Copy it for single-room stories.
+- **Tycho** (`tycho/`, `TychoShort`): hall, banquet, lab; frames remapped from its first cut through `rf()`.
+
 The style reference is a channel studied privately (`references/`: STYLE_BIBLE.md, reports/*.md, frames/).
 - Those videos are private study material. Never upload, publish or send them.
 - Never copy their scripts, characters or shots. Story, characters and voice are always OUR OWN.
 - Never say the channel's name in a voice-over or description.
 
 User rules that apply:
-- No captions or labels in the video.
+- Captions ON (this user overrides the old "no captions" rule): real-time word-by-word subtitles, one bold word at a
+  time, black outline, ~71 % frame height, punchline words gold, SMALL: 104 px (88 px for words > 9 letters), 15 px
+  outline, 7 px shadow at 1080 wide (`Captions.tsx`, `PUNCH` set). No other labels in the video.
 - English only.
-- Voice: one steady tone.
-- Jokes are researched real facts.
-- Standard mix: music +3 dB, SFX -6 dB, voice unchanged.
-- Final export 2K vertical: 1440x2560, `--scale 1.3333`.
+- Voice: Chatterbox cloned from the synthetic Kokoro voice am_michael (natural American male), every line
+  Whisper-checked (see step 3). The user rejected macOS say, flat Kokoro voices and Kokoro at 1.18x.
+- Jokes are researched real facts. When the user supplies the script, use it verbatim.
+- Mix: voice -16 LUFS through the broadcast chain, music bed ~-27 ducked under words, SFX ~-24, master -14 LUFS.
+- Final export 2K vertical: 1440x2560, `--scale 1.3333333333333333` (exactly 4/3; `1.3333` gives a non-integer height and fails).
 - Opus max verifies every check.
 - Save after every step.
 - "Just do it" once the script is approved.
@@ -39,10 +49,24 @@ User rules that apply:
    - **Consequence:** the rule it created.
    - **Callback twist:** the ending.
    - Never describe on screen what the viewer already sees.
-3. **Voice.** Record or generate `voice.wav`, then make its word timings `words.json` (any speech-to-text with word times).
-   - Put them in the project folder, e.g. `~/bridge-short/voice/`.
-   - Hand-fix the word timings. Everything is timed to words.json.
-4. **Shot plan** in `story.ts`: copy `templates/bridge/` (the final bridge source, same as `src/videos/bridge/` of your Remotion project) to `src/videos/<name>/`, register a new composition next to `BridgeShort` in `src/Root.tsx`, and rename it.
+3. **Voice** (Chatterbox, venv `~/tts/chatterbox`; reference `~/tts/refs/ref_am_michael.wav`). Everything is timed to the
+   resulting `words.json`, so lock the voice before the picture.
+   - Write `~/<name>-short/voice/cb_spec.json`: `ref`, `exaggeration` 0.5, `cfg` 0.5, `pause_k` 1.0,
+     `beats` = [[sentence, pause s], ...] (one beat per sentence, the picture cuts on them, "!" on punchlines),
+     `subs` = per-word TTS respellings (captions keep the script spelling), `fuzzy` = names Whisper may spell differently.
+     Respellings that work: years spelled out ("1699," -> "sixteen ninety-nine,"), "Tyco" (Tycho), "Challoner", "lyve" (live wire).
+   - `~/tts/chatterbox/bin/python shorts/pipelines/cb_voice.py spec.json voice/` -> voice.wav, words.json (torchaudio
+     MMS_FA forced alignment), beats.json, cb_report.txt. Each take is transcribed by Whisper (small.en) and retried
+     (up to 6) until Whisper hears the script's words.
+   - Fix any line still flagged (`!!` in the report) or with a mangled name:
+     `cb_regen.py spec.json voice/ N --alt "respelled sentence" --must "regex Whisper must hear"`. It splices the new take and
+     shifts every later word.
+   - Then `make_timing.py` -> `src/videos/<name>/timing.ts` + `~/<name>-short/timing.json` (TOTAL, WORD, BEAT/shots, WORDS for captions).
+   - To audition voices: `~/newton-short/voice/chatterbox/samples.py` (refs from Kokoro voices via make_refs*.py).
+4. **Shot plan** in `story.ts`: copy `src/videos/newton/` (or `franklin/` for one room; `templates/bridge/` only for an outdoor town story) to `src/videos/<name>/`, register a new composition in `src/Root.tsx`, and rename it.
+   - Cuts and gags are keyed to `WORD.<word>` / beat onsets (never to hard frame numbers), so a re-voice retimes the whole film.
+   - 9:16 is narrow: stage two-shots in depth, keep close-ups ~2.5 m from these bean-head cards, frame faces in the upper
+     third (captions sit at 71 %). Check marks with a quick projection before rendering stills.
    - `SHOTS`: id, a/b frames, light day/golden, crowd mode, `tau` story time.
    - `XFADE`: crossfades at place/time changes.
    - `FLASH_AT`: a white flash after the hook.
@@ -64,17 +88,22 @@ User rules that apply:
 7. **Post** (`Bridge.tsx` + `ink.ts` + `lensblur.ts` + `grade.ts`).
    - Composer order: ink → lens pre → lens main → bloom → NEUTRAL tone map → grade (MSAA 4).
    - Every pixel parameter scales with output height / 1920.
-8. **Sound** (`~/bridge-short/audio/`: timeline.py, sfx_gen.py, sfx.py, music.py, instruments.py, dsp.py, mix.py).
+8. **Sound**: copy `~/newton-short/audio/newton_sound.py` (shared libs in `shorts/audio/`: dsp.py, instruments.py, sfx_gen.py).
+   - Reads `timing.json`; every SFX/music event sits on a word time. Voice goes through `voice_chain()` (HP 85 Hz,
+     -2.5 dB at 260 Hz, +4 dB at 3.8 kHz, +2.5 dB air shelf, RMS compressor 3.5:1), music ducked 11 dB on words.
    - Event table → synthesized SFX plus an original score ducked under the voice.
    - Output: mix.wav (48 kHz, exact length), stems and cues.md.
    - Lock the picture's time constants before the sound is made. Any later timing change means re-running the sound.
-9. **Look checks.** Run `node scripts/bridge-stills.mjs out/<name>/x_ 100,400 0.5`.
+9. **Look checks.** Run `STILLS_COMP=<Comp> REMOTION_TMP=<tmp dir> node scripts/bridge-stills.mjs out/<name>/x_ 100,400 0.5`
+   (without STILLS_COMP it renders BridgeShort). Check the last frame of every shot and every gag after any re-voice.
    - Set `BRIDGE_ENTRY=src/sandboxes/<n>/index.tsx` to render a sandbox copy.
    - Make side-by-sides against reference frames with `python scripts/sbs_sheet.py out.jpg --ours ... --ref ...`.
    - Send them to an Opus max verifier: 1-3 images, a ≤200-word verdict.
 10. **Final render.**
-    - `npx remotion render src/index.ts <Comp> out/<name>/video.mp4 --codec h264 --crf 16 --scale 1.3333`
-    - Mux with `-map 0:v:0 -map 1:a:0` (Remotion writes a silent audio track).
+    - `npx remotion render src/index.ts <Comp> out/<name>/video.mp4 --codec h264 --crf 16 --scale 1.3333333333333333` (~8 min for 55 s)
+    - Mux: `ffmpeg -i video.mp4 -i mix.wav -map 0:v:0 -map 1:a:0 -c:v copy -af "lowpass=f=16000:poles=2" -c:a aac -b:a 320k -shortest final.mp4`
+      (Remotion writes a silent audio track; plain 256k AAC overshot to +0.1 dBFS on sharp zaps, the low-pass + 320k keeps peaks ~-4 dB).
+    - Keep the previous final as `<name>_<oldvoice>.mp4` before overwriting.
     - QA: `python scripts/short_qa.py final.mp4 out/<name>/qa shots.json` checks every frame for black, white, frozen and pop frames, plus loudness and sheets.
     - Fix anything it finds, then run a deep Opus audit.
 11. **Deliver.** SendUserFile the final mp4, update memory, write notes.
@@ -164,3 +193,15 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 - Golden rim light done as an offset outer copy turns every hat into a picture frame: inner rim only, head/torso only.
 - Balcony/railing rails at chest height through characters: put the lens ~2.5 m up so rails cross legs, not torsos.
 - Flat holds read as freezes in QA (frozen span ≥12 f): every hold needs a creeping push-in.
+
+## Voice, caption and render gotchas (Newton / Tycho / Franklin, 2026-11-15)
+- Chatterbox install: `uv venv --python 3.11 ~/tts/chatterbox` + `uv pip install chatterbox-tts "setuptools<81"` (its
+  watermarker imports pkg_resources). On a Mac load with device "mps" and patch `torch.load` to map_location the device.
+- Chatterbox mis-speaks ~1 line in 7 ("dolding" for building, a stray "Hm", "Tia" for Tycho, "Legends said").
+  The aligner does not catch these; Whisper does. Never ship a voice without the Whisper pass.
+- MMS_FA can score a correctly spoken spelled-out year at 0.00: trust Whisper for content, the aligner only for timing.
+- Chatterbox is quicker than Kokoro (~15-20 % shorter films). Shots are word-keyed, so they retime, but re-check that
+  gags with fixed lengths (e.g. three tally marks after a word) still finish before their cut.
+- Long hair / periwigs (`hat: "wig" | "periwig"`) must be drawn BEFORE held props, or the hair covers the hands.
+- Every bundle copies public/ to the temp dir: set REMOTION_TMP / TEMP / TMPDIR to a job folder you can delete.
+- Shell cwd can reset between commands: render with absolute paths or cd in the same call, or the render fails on src/index.ts.
