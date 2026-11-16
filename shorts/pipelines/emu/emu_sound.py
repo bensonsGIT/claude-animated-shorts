@@ -161,7 +161,9 @@ def build_sfx():
     # ---- the army arrives ----
     place(S, pan(G.boot(r, 1.0), 0.2), W["meredith"] - 0.05, 0.5)
     place(S, pan(G.clink(r, 1900, 0.12, 1.0), -0.2), W["lewis"] - 0.05, 0.4)
-    for k in range(3): place(S, st(thump(r, 55, 0.35)), W["bullets"] - 0.25 + 0.12 * k + 0.56, 0.6)
+    for k in range(18):  # story.ts AMMO: one box every 0.085 s from just before "and", 0.26 s fall
+        tl = W["and"] - 0.08 + 0.085 * k + 0.26
+        place(S, pan(thump(r, 55 + 10 * (k % 3), 0.3), -0.4 + 0.05 * (k % 5)), tl, 0.5 - 0.012 * k); place(S, pan(G.clink(r, 1400 + 120 * (k % 4), 0.05, 0.6), -0.3), tl + 0.005, 0.12)
     cue(W["bullets"], "ammo boxes thump down")
     # ---- the ambush: bursts, then the jam ----
     t0 = W["ambush"] - 0.1

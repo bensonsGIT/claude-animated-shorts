@@ -124,6 +124,8 @@ export const truckAt = (id: number, t: number) => {
 };
 /** what the farm set shows in shot id at t: the truck and the toppling fence post (shot 2, on "stormed") */
 export const farmPose = (id: number, t: number) => ({ truck: truckAt(id, t), post: id === 2 ? smooth((t - WORD.stormed + 0.1) / 0.35) : id === 3 ? 1 : 0 });
+/** the ammo boxes of shot 4: 18 boxes, one every `step` s from just before "and", each falling `fall` s from `drop` m up */
+export const AMMO = { t0: WORD.and - 0.08, step: 0.085, fall: 0.26, drop: 1.6, n: 18 };
 /** hammer of the Lewis gun at the dam: bursts from "ambush" until it jams */
 export const GUN_FIRE = { t0: WORD.ambush - 0.1, t1: WORD.jammed - 0.05 };
 const EYE = 1.6;

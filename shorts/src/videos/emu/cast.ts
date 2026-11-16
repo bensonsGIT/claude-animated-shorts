@@ -9,7 +9,7 @@ import { MEREDITH, SERGEANT, GUNNER, FARMER, MP, fxEmu, fxCrest, fxMedalBubble, 
 import type { EmuEye } from "../../engine/library/emu";
 import {
   FPS, D0, FILES, ROW_GAP, COUNT, PARK, SHOTS, SNAP, DROP0, DROP1, DROP_H, V3, front, marchPhase, stomp, deckY, dropW, dropU, shapeZ,
-  smooth, clamp01, BridgeState, WORD, MARK, cf, cw, truckAt, GUN_FIRE,
+  smooth, clamp01, BridgeState, WORD, MARK, cf, cw, truckAt, GUN_FIRE, AMMO,
 } from "./story";
 import { AMBUSH_GUN, TRUCK_BED } from "./farm";
 import { BENCH, CREST } from "./parliament";
@@ -488,6 +488,11 @@ const emu = (out: Stage, x: number, z: number, o: EmuOpt = {}, y0 = 0) => {
   out.fx.push({ key: `emu${leg}${dir}${eye}${hat}${medal}${seed % 3}`, cw: 400, ch: 480, draw: (p) => fxEmu(p, leg, dir, eye, hat, medal, seed % 3),
     x, y: y0 + h / 2 - 0.02 * s - sink, z, w, h, rot });
 };
+/** the ammo pyramid of shot 4: rows of 5, 4, 4, 3, 2 boxes (0.47 m apart, 0.3 m high, brick-offset), bottom row first */
+const AMMO_STACK: V3[] = [];
+[5, 4, 4, 3, 2].forEach((n, row) => { for (let c = 0; c < n; c++) AMMO_STACK.push([-2.15 + 0.47 * c + 0.235 * (5 - n), 0.155 + 0.3 * row, 2.6 + 0.02 * row]); });
+/** when box k lands (s): one every AMMO.step from just before "and" */
+const ammoLand = (k: number) => AMMO.t0 + AMMO.step * k + AMMO.fall;
 /** running leg frame at 12 drawings a second, offset per bird */
 const legAt = (t: number, k: number) => Math.floor(t * 12 + k * 1.7) % 3;
 /** a herd: n birds spread over a box, each with its own speed; dir +1 runs toward +x */
@@ -535,13 +540,15 @@ const emuStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
         standAt(cam, out, SGT, [bx + 0.85, by - 1.0 * (1 - pop), 0.35], { mode: "stand", expr: "grin", prop: gun ? "lewis" : null, facing: 1, blink: lidAt(t, 401) }, false);
         standAt(cam, out, GUN, [bx + 0.15, by - 1.0 * (1 - pop), -0.25], { mode: "stand", expr: gun ? "grin" : "smug", prop: gun ? "lewis" : null, facing: 1, blink: lidAt(t, 402) }, false);
       }
-      for (let k = 0; k < 3; k++) {
-        const tb = WORD.bullets - 0.25 + 0.12 * k, d = t - tb;
-        if (d < 0) continue;
-        const y = Math.max(0.15, 1.7 - 0.5 * 9.8 * d * d);
-        out.fx.push({ key: "ammo0", cw: 220, ch: 150, draw: (p) => fxAmmo(p), x: -0.75 + 0.48 * k, y: y + (k === 2 ? 0.3 : 0), z: 2.3 + 0.1 * k, w: 0.46, h: 0.31 });
-        if (y <= 0.15) puff(out, t, tb + Math.sqrt(3.1 / 9.8), [-0.75 + 0.48 * k, 0.15, 2.4], 0.5, 0.4);
-      }
+      // "and ten thousand bullets": ammo boxes rain down one after another and stack into a pyramid left of Meredith
+      AMMO_STACK.forEach(([x, y, z], k) => {
+        const tl = ammoLand(k), d = t - (tl - AMMO.fall);
+        if (d < 0) return;
+        const u = Math.min(1, d / AMMO.fall), yy = y + AMMO.drop * (1 - u * u);
+        const squash = t >= tl && t < tl + 0.08 ? 0.88 : 1;
+        out.fx.push({ key: "ammo0", cw: 220, ch: 150, draw: (p) => fxAmmo(p), x, y: yy - 0.31 * (1 - squash) / 2, z, w: 0.46 / Math.sqrt(squash), h: 0.31 * squash, rot: u < 1 ? 0.25 * (1 - u) * (k % 2 ? 1 : -1) : 0 });
+        if (y < 0.2) puff(out, t, tl, [x, 0.12, z + 0.08], 0.45, 0.35);
+      });
       return;
     }
     // shots 13-14: back again; the pile of empty ammo boxes grows to the claim on "986"; one feather on "bird"
