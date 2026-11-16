@@ -69,7 +69,7 @@ export class World {
     cam.position.set(...c.pos); cam.up.set(0, 1, 0); cam.lookAt(...c.look); cam.rotateZ(c.roll);
     cam.fov = c.fov; cam.near = 0.1; cam.far = 900; cam.updateProjectionMatrix(); cam.updateMatrixWorld();
     cam.layers.enable(NOINK);
-    if (s.set === "egg") this.egg.pose(s.light, { ...eggPose(id, t), camPos: cam.position });
+    if (s.set === "egg") this.egg.pose(s.light, { ...eggPose(id, t), camPos: cam.position, t });
     if (s.set === "valley") this.valley.pose(carAt(id, t), cam.position);
     const focus = V(...c.look), dist = cam.position.distanceTo(focus);
     // ---- light rig ----

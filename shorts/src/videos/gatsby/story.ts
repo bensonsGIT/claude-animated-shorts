@@ -74,7 +74,7 @@ export const layersAt = (f: number): { id: number; alpha: number }[] => {
 const TY = 0.6, DY = 0.15, PY = -0.2;
 export const MARK = {
   terrace: [2.4, TY, -9.9] as V3,
-  gateWatch: [3.6, 0, 2.75] as V3,
+  gateWatch: [10.6, 0, 2.75] as V3,
   nick3: [-0.5, 0, 2.5] as V3, gatsby3: [0.62, 0, 2.3] as V3,
   dockEnd: [0, DY, 33.4] as V3,
   officer: [45.1, 0, 0.9] as V3, girl: [46.15, 0, 1.05] as V3,
@@ -145,7 +145,7 @@ const carX = (f: number) => carAt(14, T(f)).x;
 const C = {
   s1a: hold([0, 8.8, 23], [0, 3.0, -8], 46, 0, 0.0006),
   s1b: hold([0.4, 3.0, 15.5], [0.8, 2.2, -8], 46, 0, 0.0008),
-  s2: hold([16.5, 1.5, 3.0], [4.0, 1.35, 2.85], 40, cw("wander"), 0.0016, W("in") - 2),
+  s2: hold([23.5, 1.5, 3.0], [11.0, 1.35, 2.85], 40, cw("wander"), 0.0016, W("in") - 2),
   s3: hold([0.1, 1.62, 6.9], [0.05, 1.38, 1.0], 42, cf(1), 0.0014),
   s4: hold([19.5, 2.4, 47.6], [0.2, 1.1, 33.3], 34, cf(2), 0.0010),
   s5: hold([45.6, 1.52, 5.6], [45.6, 1.4, 0.6], 44, cf(3), 0.0012),

@@ -20,6 +20,18 @@ RAINY = [(cw("funeral"), DUR)]
 INSIDE = COTTAGE + PLAZA
 '''
 SFX = '''
+
+def crowd_wash(dur, r, layers=10):
+    """a party crowd heard as a soft wash, no synthetic voices: band-limited noise layers, each swelling at its own
+    slow chatter rate, warm (300-1800 Hz), widened"""
+    n = ns(dur); t = np.arange(n) / SR
+    out = np.zeros((2, n))
+    for _ in range(layers):
+        y = bp(r.standard_normal(n), r.uniform(280, 420), r.uniform(1300, 1900), 1)
+        am = 0.55 + 0.45 * np.clip(smooth_noise(n, r, r.uniform(2.5, 4.5)), -1, 1)
+        out += pan(y * am * r.uniform(0.5, 1.0), r.uniform(-0.8, 0.8))
+    return fades(out * np.clip(t / 1.2, 0, 1)[None, :], 0.8, 0.8)
+
 def rain_bed(dur, r, level=1.0, bright=5000):
     n = ns(dur)
     y = lp(hp(r.standard_normal(n), 900), bright) * 0.5
@@ -55,7 +67,7 @@ def build_sfx():
     S = buf()
     # ---- ambiences ----
     for a, b in PARTY:
-        place(S, murmur(b - a, r, 12), a, 0.2)
+        place(S, crowd_wash(b - a, r, 10), a, 0.11)
         t = a + 0.3
         while t < b - 0.2:
             place(S, pan(G.clink(r, r.uniform(2400, 4200), 0.08, 0.8), r.uniform(-0.7, 0.7)), t, 0.12); t += r.uniform(0.35, 0.9)
@@ -78,7 +90,7 @@ def build_sfx():
         place(S, G.water_bed(b - a, r, 0.3, 0.3), a, 0.14); place(S, G.bird_chirps(b - a, r, 0.25, "sparrow"), a, 0.06)
     for a, b in RAINY:
         place(S, rain_bed(b - a, r, 1.0), a, 0.22)
-    cue(0.0, "party murmur + glass clinks; bay water + crickets; rain in the cottage and at the grave")
+    cue(0.0, "party crowd wash + glass clinks; bay water + crickets; rain in the cottage and at the grave")
     # ---- 1-2: the gate swings open, a stray dog trots in ----
     place(S, pan(G.creak(0.55, r, 90, 160), 0.5), W["wander"] - 0.02, 0.45)
     for k in range(8): place(S, pan(tok(r, r.uniform(1700, 2100), 0.4), 0.4 - 0.08 * k), W["wander"] + 0.25 + 0.13 * k, 0.12)

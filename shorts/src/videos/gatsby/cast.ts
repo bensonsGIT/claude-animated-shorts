@@ -6,7 +6,7 @@ import { Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxPuff, fxRing,
 import { GATSBY, GATSBY_WHITE, GATSBY_OFFICER, DAISY, DAISY_CLOCHE, DAISY_BRIDE, TOM_SUIT, NICK, NICK_BARE, MYRTLE, WILSON, OWL, GATZ, POSTMAN, MINISTER, GUEST,
   fxDog, fxRumour, fxHeart, fxFlowers, fxTower, fxMattress, fxLeaf, fxGunShadow, fxBeam } from "../../engine/library/gatsby";
 import { FPS, SHOTS, V3, clamp01, WORD, MARK, carAt } from "./story";
-import { GATE, POOL, POOL_WALL_Z, GRAVE } from "./egg";
+import { GATE, FOUNT, POOL, POOL_WALL_Z, GRAVE } from "./egg";
 import { TEA } from "./rooms";
 import { SEAT_Y } from "./valley";
 import { NOINK } from "../../engine/ink";
@@ -248,6 +248,7 @@ for (let i = 0; i < 400 && CROWD.length < 34; i++) {
   const x = -8 + 16 * hh(i, 41), z = -7 + 19 * hh(i, 42);
   if (Math.abs(x) < 1.6 && z > 0.6 && z < 4.2) continue; // Nick + Gatsby's spot (shot 3)
   if (x > 2.2 && z > -0.6 && z < 3.8) continue; // the line from the gate to Gatsby (shot 2)
+  if (Math.hypot(x - FOUNT[0], z - FOUNT[2]) < 2.6) continue; // the fountain
   if (x < -5.2 && z < -3.2) continue; // the band stand
   if (CROWD.some(([a, c]) => Math.hypot(a - x, c - z) < 0.95)) continue;
   CROWD.push([x, z]);
@@ -262,6 +263,17 @@ const partyCrowd = (cam: CamInfo, t: number, out: Stage, near = 30) => {
     stand(cam, out, w, [x, Math.abs(dance) * 0.06, z], { expr: exprs[i % 6], prop: i % 4 === 1 ? "goblet" : null, wave: i % 5 === 2 ? q(Math.sin(t * 8 + i), 20) : undefined,
       tilt: i % 3 === 0 ? 4 * dance : 0, facing: i % 2 ? 1 : -1 }, d < near);
   });
+};
+/** fireworks bursting over the roof: staggered shells, each a coloured ray burst that grows and fades */
+const fireworks = (out: Stage, t: number) => {
+  const cols = ["#ffd84a", "#ff6a8a", "#7ad8ff", "#a8ff7a", "#ffffff", "#ff9a3a"];
+  for (let k = 0; k < 5; k++) {
+    const per = 1.6 + 0.3 * k, ph = (t + k * 0.47) / per, n = Math.floor(ph), u = ph - n;
+    if (u > 0.55) continue;
+    const x = -14 + 28 * hh(n * 5 + k, 81), y = 27 + 6 * hh(n * 5 + k, 82), size = 7 + 4 * hh(n * 5 + k, 83), col = cols[(n + k) % cols.length];
+    const uu = q(u / 0.55, 30);
+    out.fx.push({ key: `fw${col}${uu}`, cw: 500, ch: 500, draw: (p) => fxBurst(p, uu, col, 14, 20, 240), x, y, z: -30, w: size, h: size });
+  }
 };
 const lawnProps = (out: Stage) => {
   out.fx.push({ key: "tower", cw: 420, ch: 460, draw: fxTower, x: 4.5, y: 0.8 + 0.58, z: -5.3, w: 1.05, h: 1.15 });
@@ -332,7 +344,7 @@ export const gatsbyStage = (id: number, t: number, cam: CamInfo, out: Stage) => 
     burst(out, t, WORD.rich - LEAD, [50.95, 1.15, 3.1], 0.55, "#ffd84a", 0.35);
     return;
   }
-  if (id === 7) { partyCrowd(cam, t, out, 0); return; }
+  if (id === 7) { partyCrowd(cam, t, out, 0); fireworks(out, t); return; }
   // ---- Nick's cottage ----
   if (id === 9) {
     stand(cam, out, NB, M.nick9, { expr: on(t, WORD.tea) ? "shock" : on(t, WORD.invite) ? "grin" : "neutral", prop: on(t, WORD.invite) ? "letter" : null, facing: 1 });
