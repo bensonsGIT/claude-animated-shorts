@@ -384,6 +384,12 @@ const hatBehind = (p: Pen, o: Outfit, H: Blob, cx: number, hc: number, light: nu
     p.shadedFill(lb, col, mul(col, SH_FELT), light, H.a * 1.1);
     p.inkRing(lb, ow * 0.85, thick);
   }
+  if (o.hat === "bob" || o.hat === "cloche") {
+    // Gatsby short (1920s): a chin-length bob, wider than the head, cut straight at the jaw
+    const col = o.hair!, lb = blobPts(cx, hc + 0.18 * H.b, { ...H, a: H.a * 1.15, b: H.b * 0.86, asym: 0, egg: -0.1, seed: H.seed + 5 });
+    p.shadedFill(lb, col, mul(col, SH_FELT), light, H.a * 1.1);
+    p.inkRing(lb, ow * 0.85, thick);
+  }
   if (o.hat === "frizz") {
     const seed = H.seed, u = (2 * H.a) / 100;
     void u;
@@ -440,6 +446,38 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     for (let i = 0; i <= 12; i++) { const t = i / 12; base.push([cx + wb * (2 * t - 1), yb + 3 * u * (1 - (2 * t - 1) ** 2)]); }
     return base;
   };
+  if (o.hat === "bob") { // Gatsby short: bobbed hair = the "hair" crown over the bob drawn behind the head (hatBehind)
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    if (!side) { const s = facing || 1; p.arc(cx - s * 0.36 * W, hc + 0.02 * HH, 9 * u, 9 * u, 200, 340, 2.2 * u, mul(o.hair!, [0.6, 0.58, 0.66])); } // kiss curl
+    return;
+  }
+  if (o.hat === "cloche") { // Gatsby short: a 1920s bell-shaped felt hat pulled down to the brows, ribbon band, tiny brim
+    const col = o.cap ?? "#b8a0c8", yb = crown + 0.33 * HH, wb = 0.56 * W, top = crown - 0.06 * HH;
+    const dome: P2[] = [];
+    for (let i = 0; i <= 16; i++) { const t = Math.PI + (i / 16) * Math.PI; dome.push([cx + wb * 0.98 * Math.cos(t), yb - 0.06 * HH + (yb - 0.06 * HH - top) * Math.sin(t)]); }
+    const body = R([...sag(yb, wb).reverse(), ...dome]);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, wb, 0.4);
+    p.clip(body, () => p.band(R([[cx - wb - 5 * u, yb - 0.08 * HH], [cx + wb + 5 * u, yb - 0.08 * HH]]), mul(col, [0.62, 0.55, 0.68]), 0.07 * HH, 1.2 * u));
+    p.poly(body, null, ow);
+    const [bx, by] = R([[cx, yb + 2 * u]])[0];
+    p.ell(bx, by, wb * 1.06, 0.045 * HH, mul(col, [0.88, 0.86, 0.9]), ow * 0.8, 0, 180, (a * 180) / Math.PI);
+    const [fx, fy] = R([[cx + (facing || 1) * wb * 0.55, yb - 0.08 * HH]])[0];
+    p.ell(fx, fy, 7 * u, 6 * u, "#f2ece4", 1.6 * u); // a little ribbon rosette
+    return;
+  }
+  if (o.hat === "boater") { // Gatsby short: a straw boater: flat-topped crown, flat brim, dark ribbon, over short hair
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    const col = o.cap ?? "#e6d398", yb = crown + 0.2 * HH, wc = 0.38 * W, ht = 0.24 * HH, deg = (a * 180) / Math.PI;
+    const [bx, by] = R([[cx, yb]])[0];
+    p.ell(bx, by, 0.62 * W, 0.07 * HH, mul(col, [0.94, 0.9, 0.84]), ow, 0, 360, deg);
+    const body = R([[cx - wc, yb], [cx - wc, yb - ht], [cx + wc, yb - ht], [cx + wc, yb]]);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, wc, 0.4);
+    p.clip(body, () => p.band(R([[cx - wc - 4 * u, yb - 0.08 * HH], [cx + wc + 4 * u, yb - 0.08 * HH]]), "#2a2a3a", 0.1 * HH, 0.8 * u));
+    p.poly(body, null, ow);
+    const [tx, ty] = R([[cx, yb - ht]])[0];
+    p.ell(tx, ty, wc, 0.035 * HH, mix(col, "#ffffff", 0.15), ow * 0.8, 0, 360, deg);
+    return;
+  }
   if (o.hat === "fur" || o.hat === "furcap") {
     // boyar's tall fur hat (gorlatnaya, wider at the top) / a merchant's low cap with a fur band
     const tallH = o.hat === "fur", yb = crown + (tallH ? 0.24 : 0.2) * HH, ht = (tallH ? 0.95 : 0.42) * HH;

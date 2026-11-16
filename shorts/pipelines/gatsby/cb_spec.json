@@ -1,0 +1,24 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5, "cfg": 0.5, "lead": 0.15, "pause_k": 1.0,
+ "beats": [
+  ["A man threw giant parties every weekend, hoping one woman would wander in!", 0.5],
+  ["It's 1922, and his neighbor Nick has no idea who he really is.", 0.35],
+  ["This is The Great Gatsby, by F. Scott Fitzgerald.", 0.45],
+  ["Five years earlier, a young officer named Jay Gatsby fell for a girl named Daisy, then went to war.", 0.35],
+  ["While he was gone, she married rich Tom Buchanan.", 0.4],
+  ["So Gatsby got rich, bought a mansion across the bay, and stared at the green light on her dock!", 0.45],
+  ["When she never showed, he had Nick invite her over for tea.", 0.35],
+  ["Soon they were seeing each other, and the parties stopped.", 0.45],
+  ["Then, in a sweltering hotel room, Gatsby told Tom that Daisy never loved him!", 0.4],
+  ["Daisy said she'd loved them both.", 0.55],
+  ["Driving Gatsby's yellow car home, Daisy hit and killed Tom's mistress, Myrtle, and didn't stop.", 0.45],
+  ["Gatsby said he'd take the blame.", 0.35],
+  ["Tom told Myrtle's husband whose car it was.", 0.8],
+  ["The next day, Gatsby finally used his pool, and the husband shot him in it.", 0.7],
+  ["Hundreds came to his parties, but almost nobody came to his funeral.", 0.45],
+  ["And the one guest he'd thrown them all for didn't even send a flower!", 0.3]
+ ],
+ "subs": {"1922,": "nineteen twenty-two,"},
+ "fuzzy": ["gatsby", "gatsbys", "daisy", "buchanan", "myrtle", "myrtles", "nick", "fitzgerald", "scott", "nineteen", "twentytwo", "f"]
+}
