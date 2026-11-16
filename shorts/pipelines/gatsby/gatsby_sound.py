@@ -235,16 +235,21 @@ def party_life(S, a, b, r):
         place(S, pan(cork(r), r.uniform(-0.6, 0.6)), a + r.uniform(0.3, max(0.4, b - a - 0.6)), 0.3)
 
 
+CROWD = None
+
+
 def build_sfx():
+    global CROWD
+    CROWD = buf()
     r = rng(1925)
     S = buf()
     # ---- ambiences ----
     for a, b in PARTY:
-        place(S, murmur(b - a, r, 16), a, 0.34)
-        party_life(S, a, b, r)
+        place(CROWD, murmur(b - a, r, 16), a, 0.34)
+        party_life(CROWD, a, b, r)
         t = a + 0.3
         while t < b - 0.2:
-            place(S, pan(G.clink(r, r.uniform(2400, 4200), 0.08, 0.8), r.uniform(-0.7, 0.7)), t, 0.12); t += r.uniform(0.35, 0.9)
+            place(CROWD, pan(G.clink(r, r.uniform(2400, 4200), 0.08, 0.8), r.uniform(-0.7, 0.7)), t, 0.12); t += r.uniform(0.35, 0.9)
     for a, b in BAY:
         place(S, G.water_bed(b - a, r, 0.5, 0.5), a, 0.18); place(S, G.crickets(b - a, r, 3), a, 0.1)
     for a, b in PAST:
@@ -457,14 +462,17 @@ def main():
     V = V * dbg(-16 - integrated(V))
     M = M * dbg(-27 - integrated(M)) * duck_curve(words)
     S = S * dbg(-24 - integrated(S)) * duck_curve(words, -7.0, pre=-0.05, post=0.03, smooth=0.05)
-    mix = V + M + S
+    # the party crowd: a low bed ~17 dB under the voice while it plays, dipped a further 8 dB under every word
+    C = wet(CROWD, 0.18)
+    C = C * dbg(-33 - integrated(C)) * duck_curve(words, -8.0)
+    mix = V + M + S + C
     for _ in range(3):
         mix *= dbg(-14.0 - integrated(mix))
         mix = 0.84 * np.tanh(mix / 0.84)
     tp = true_peak(mix)
     if tp > -1.0:
         mix *= dbg(-1.0 - tp)
-    for name, x in [("voice", V), ("music", M), ("sfx", S), ("mix", mix)]:
+    for name, x in [("voice", V), ("music", M), ("sfx", S), ("crowd", C), ("mix", mix)]:
         write_wav(os.path.join(ROOT, "audio", "stems" if name != "mix" else "", f"{name}.wav"), x)
     with open(os.path.join(ROOT, "audio", "cues.md"), "w") as f:
         f.write("# Sound cues (s)\n\n" + "\n".join(f"- {t:6.2f}  {w}" for t, w in sorted(cues)) + "\n")
