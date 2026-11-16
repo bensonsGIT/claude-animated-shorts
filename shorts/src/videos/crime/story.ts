@@ -21,7 +21,7 @@ const cf = (b: number) => F(BEAT[b]) - PRE;
 const W = (k: keyof typeof WORD) => F(WORD[k]);
 const cw = (k: keyof typeof WORD) => W(k) - PRE;
 const sh = (set: ShotSet, light: LightName, extra: Partial<ShotDef> = {}) => (id: number, a: number, b: number): ShotDef => ({ id, a, b, light, set, ...extra });
-const yard = sh("pb", "golden", { sunAz: 35, sunEl: 18 }), street = sh("pb", "golden", { sunAz: 20, sunEl: 12 }), garret = sh("garret", "morning"), fever = sh("garret", "dark");
+const yard = sh("pb", "day", { sunAz: 140, sunEl: 38 }), street = sh("pb", "day", { sunAz: 145, sunEl: 36 }), garret = sh("garret", "morning"), fever = sh("garret", "dark");
 const pawn = sh("pawn", "sun"), office = sh("office", "sun"), sonya = sh("sonya", "night"), snowy = sh("siberia", "day", { sunAz: 60, sunEl: 25 });
 export const SHOTS: ShotDef[] = [
   yard(1, 0, cf(1)), // "A broke student killed a pawnbroker to prove he was a genius, then never spent a single kopek!"
@@ -61,14 +61,14 @@ export const layersAt = (f: number): { id: number; alpha: number }[] => {
 
 // ---------------- staging marks ----------------
 export const MARK = {
-  yardR: [59.0, 0, -1.15] as V3, lodgeR: [55.0, 0, -0.9] as V3,
+  yardR: [59.15, 0, -1.0] as V3, lodgeR: [55.0, 0, -0.9] as V3,
   walkStreet: [-1.5, 0, -1.2] as V3, rail: [0, 0, 1.45] as V3,
   sofa: [-0.25, 0.02, -1.12] as V3, standUp: [-0.25, 0, -0.85] as V3,
-  landingR: [12.95, 0, 0.5] as V3,
-  lizaveta: [2.15, 0, 0.25] as V3,
-  suspect: [-0.7, 0, -0.1] as V3, porfiry: [0.7, 0, -0.5] as V3, mikolka: [1.2, 0, 0.3] as V3,
+  landingR: [12.85, 0, 0.55] as V3,
+  lizaveta: [1.9, 0, 0.25] as V3,
+  suspect: [-0.7, 0, -0.1] as V3, porfiry: [0.7, 0, -0.5] as V3, mikolka: [0.85, 0, 0.45] as V3,
   clerk: [-1.6, 0, -1.85] as V3, confessR: [-1.0, 0, 0.25] as V3,
-  sonya: [-0.05, 0, -0.35] as V3, sonyaR: [1.25, 0, -0.25] as V3,
+  sonya: [0.2, 0, -0.35] as V3, sonyaR: [1.05, 0, -0.25] as V3,
   kneel: [-70, 0, 1.4] as V3,
   convict: [-3.0, 0, 2.7] as V3, sonyaGate: [0, 0, -4.7] as V3, last: [1.0, 0, 2.0] as V3,
 };
@@ -114,21 +114,21 @@ const hold = (pos: V3, look: V3, fov: number, f0: number, rate = 0.0012, pf?: nu
 const sway = (s: (f: number) => Shot) => (f: number): Shot => ({ ...s(f), roll: 0.05 * Math.sin(f / 9) });
 
 const C = {
-  s1: hold([61.3, 0.75, 2.2], [59.8, 0.75, -1.5], 46, 0, 0.0014, W("genius") - 2),
+  s1: hold([60.6, 1.0, 2.9], [59.55, 0.85, -1.4], 46, 0, 0.0014, W("genius") - 2),
   s2: hold([-15, 5.6, 11.5], [4, 3.8, -6], 46, cf(1), 0.0008),
   s3: hold([0.05, 1.35, 3.0], [-0.15, 1.05, -1.0], 46, cw("cupboard"), 0.0016, W("dostoevsky") - 2),
   s4: hold([0.2, 1.4, 3.0], [0.1, 1.25, -1.0], 44, cf(3), 0.0014),
   s5: hold([58.0, 1.5, 1.6], [54.4, 1.25, -2.0], 44, cf(4), 0.0014, W("axe") - 2),
-  s6: hold([12.55, 1.55, 3.0], [12.2, 1.3, -1.0], 42, cw("visits"), 0.0018, W("old") - 2),
-  s7a: hold([0.3, 1.5, 3.6], [1.1, 1.2, -0.5], 44, cf(5), 0.0016),
+  s6: hold([12.35, 1.55, 3.9], [12.6, 1.3, -0.8], 44, cw("visits"), 0.0018, W("old") - 2),
+  s7a: hold([0.7, 1.5, 3.8], [1.75, 1.2, -0.2], 44, cf(5), 0.0016),
   s7b: hold([-0.8, 1.45, 1.4], [-1.2, 1.45, -2.2], 42, W("too") - 2, 0.002),
-  s8: hold([61.4, 1.35, 1.7], [59.7, 0.55, -1.6], 44, cf(6), 0.0014, W("checks") - 2),
+  s8: hold([60.7, 1.35, 2.9], [59.6, 0.75, -1.4], 44, cf(6), 0.0014, W("checks") - 2),
   s9: sway(hold([0.1, 1.25, 2.6], [-0.2, 1.0, -1.0], 44, cf(7), 0.0022)),
   s10: hold([0.0, 1.62, 4.1], [0.0, 1.3, -0.6], 44, cf(8), 0.0012, W("arrests") - 2, 0.004),
   s11: hold([0.2, 1.62, 4.1], [0.3, 1.2, -0.4], 44, cf(9), 0.0012, W("confesses") - 2),
   s12: hold([0.25, 1.6, -2.6], [0.0, 1.45, 4.0], 42, cf(10), 0.0016, W("free") - 2, 0.004),
-  s13: hold([0.55, 1.5, 3.3], [0.6, 1.2, -0.7], 44, cf(11), 0.0014, W("confesses2") - 2, 0.004),
-  s14: hold([0.15, 1.55, 1.9], [0.0, 1.45, -0.5], 40, cf(12), 0.0018),
+  s13: hold([0.62, 1.5, 3.9], [0.62, 1.2, -0.7], 44, cf(11), 0.0014, W("confesses2") - 2, 0.004),
+  s14: hold([0.3, 1.55, 2.3], [0.2, 1.42, -0.5], 40, cf(12), 0.0018),
   s15: hold([-69.5, 1.75, 6.8], [-70, 1.0, 0.6], 44, cf(13), 0.0014, W("does") - 2),
   s16: hold([-0.6, 1.6, 3.5], [-1.3, 1.2, -1.0], 44, cw("gets"), 0.0016, W("years") - 2),
   s17: hold([-2.6, 1.6, 7.6], [-4.0, 1.3, 1.5], 46, cw("siberia"), 0.0016),

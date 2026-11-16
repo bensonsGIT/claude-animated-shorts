@@ -105,7 +105,7 @@ export class Petersburg extends Room {
     deco.add(cyl(3, 3, 6, 16), walls[0], at(-6, 20, 32)); deco.add(new THREE.SphereGeometry(3.2, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), greenDome, at(-6, 23, 32));
     deco.add(cyl(0.15, 0.15, 3, 6), gold, at(-6, 27.5, 32));
     // gas lamps along the quay
-    for (let x = -40; x <= 40; x += 10) { deco.add(cyl(0.06, 0.08, 3.4, 6), iron, at(x, 1.7, 1.4)); deco.add(boxGeo(V(x - 0.18, 3.4, 1.22), V(x + 0.18, 3.85, 1.58)), lam("pbLamp", () => ({ color: "#f2e0a8" }))); }
+    for (let x = -45; x <= 45; x += 10) { deco.add(cyl(0.06, 0.08, 3.4, 6), iron, at(x, 1.7, 1.4)); deco.add(boxGeo(V(x - 0.18, 3.4, 1.22), V(x + 0.18, 3.85, 1.58)), lam("pbLamp", () => ({ color: "#f2e0a8" }))); }
 
     // ---- the courtyard (x = 60) ----
     {
@@ -125,7 +125,7 @@ export class Petersburg extends Room {
       deco.add(cyl(0.4, 0.38, 0.9, 12), wood, at(cx + 4.8, 0.45, -2.8));
       // the stone: a big flat rock (a separate group that the story can lift)
       const sb = new Batch();
-      sb.add(new THREE.DodecahedronGeometry(0.6, 0).scale(1.2, 0.5, 0.9), lam("pbStone", () => ({ color: "#8e8a86" })), at(0, 0.24, 0));
+      sb.add(new THREE.DodecahedronGeometry(0.42, 0).scale(1.2, 0.5, 0.9), lam("pbStone", () => ({ color: "#8e8a86" })), at(0, 0.17, 0));
       sb.build(this.stone, true);
       this.stone.position.set(...STONE); this.root.add(this.stone);
     }

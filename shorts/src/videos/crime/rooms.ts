@@ -104,7 +104,6 @@ export class Pawn extends Room {
     deco.add(cyl(0.45, 0.45, 0.04, 16), wood, at(-0.8, 0.72, -0.6)); deco.add(cyl(0.05, 0.08, 0.7, 8), wood, at(-0.8, 0.36, -0.6));
     // the door to the hall, right wall, open
     fix.add(boxGeo(V(x1 - 0.02, 0, -0.2), V(x1 + 0.02, 2.15, 0.7)), lam("crHall", () => ({ color: "#2a2228" })));
-    deco.add(boxGeo(V(x1 - 0.85, 0, 0.66), V(x1 - 0.02, 2.1, 0.72)), wood);
     // ---- the landing at x = 12: a dark stair wall, her door on its chain, open a crack ----
     const [lx, , lz] = LANDING;
     s.add(boxGeo(V(lx - 3, 0, lz - 0.4), V(lx + 3, h + 0.5, lz)), lam("crStair", () => ({ color: "#6a6458" })));

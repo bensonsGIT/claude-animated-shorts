@@ -356,7 +356,7 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     }
     if (id === 19) {
       stand(cam, out, RC, M.last, { expr: on(t, WORD.louse) ? "smile_closed" : on(t, WORD.napoleon2) ? "smug" : "neutral", facing: 0 });
-      const c: V3 = [M.last[0] + 0.45, 2.35, M.last[2] - 0.2];
+      const c: V3 = [M.last[0] + 0.2, 2.2, M.last[2] - 0.2];
       if (on(t, WORD.louse)) bubbleAt(out, "louse", fxLouse, c, popK(t, WORD.louse - 0.05), 0.8);
       else bubbleAt(out, "napB", (p) => fxNapoleon(p), c, popK(t, WORD.napoleon2 - 0.05), 0.8);
     }
