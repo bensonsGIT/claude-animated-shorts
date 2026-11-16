@@ -10,6 +10,7 @@ import { short as newton } from "./videos/newton";
 import { short as franklin } from "./videos/franklin";
 import { short as formosus } from "./videos/formosus";
 import { short as meat } from "./videos/meat";
+import { BenthamShort, BENTHAM_FRAMES } from "./videos/bentham/Bridge";
 import { short as peter } from "./videos/peter";
 import { short as emu } from "./videos/emu";
 import { short as wombat } from "./videos/wombat";
@@ -18,8 +19,11 @@ import { short as crime } from "./videos/crime";
 import { short as dancing } from "./videos/dancing";
 import { short as napoleon } from "./videos/napoleon";
 
+/** the Bentham short predates the shared engine (its folder carries its own copy) and exports a component + frame count */
+const bentham = { id: "BenthamShort", component: BenthamShort, frames: BENTHAM_FRAMES };
+
 /** every short: 1080x1920 at 30 fps. A new short adds its folder's `short` here. */
-const SHORTS = [bridge, tycho, newton, franklin, formosus, meat, peter, emu, wombat, gatsby, crime, dancing, napoleon];
+const SHORTS = [bridge, tycho, newton, franklin, formosus, meat, bentham, peter, emu, wombat, gatsby, crime, dancing, napoleon];
 
 // Each <Composition> is an entry in the sidebar!
 

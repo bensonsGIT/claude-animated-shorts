@@ -1,0 +1,25 @@
+# Sound cues (s)
+
+-   0.00  Student Centre: footsteps + student chatter
+-   0.20  music: light pizzicato theme
+-   6.21  double-take 'whoa' + deadpan ding
+-   6.83  phone camera shutter
+-  12.30  scroll unrolls across the floor
+-  17.06  sparkle on 'useful'
+-  18.73  music: dark strings + timpani for the storm
+-  21.21  rain, gents murmur; every head turns (whip swooshes)
+-  25.30  THUNDER crack + roll
+-  26.00  second THUNDER, gasps, the top hat lands
+-  28.60  workshop: fire; padding puffs, coat flop, chair creak + thunk
+-  35.99  glass-eye clink clink, guests gasp
+-  40.81  cloth whoosh; dusty POOF
+-  40.81  music: minor brass sting on 'shrivelled'
+-  45.01  spin swooshes; sparkle on 'wax'
+-  49.09  cloister: birds; wooden thunk on 'feet'
+-  49.67  music: sneaky caper pizzicato
+-  53.19  night: crickets, owl, tiptoes; snatch; giggles on 'hundred'
+-  58.34  cash-register DING
+-  61.40  music: stately organ; brass hit on 'surprise'
+-  63.17  trolley squeak + roll; gasps on 'surprise'
+-  67.43  music: SILENCE for 'He didn't vote.'
+-  74.23  music: theme returns, button on 'by'

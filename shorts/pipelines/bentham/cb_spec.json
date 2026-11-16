@@ -1,0 +1,94 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5,
+ "cfg": 0.5,
+ "lead": 0.15,
+ "pause_k": 1.0,
+ "beats": [
+  [
+   "A man has sat in the same London university for over a hundred and seventy years, and he's been dead the entire time.",
+   0.55
+  ],
+  [
+   "In 1832, a famous philosopher left very specific instructions for his own corpse.",
+   0.35
+  ],
+  [
+   "His name was Jeremy Bentham, and he wanted to be useful even after death.",
+   0.4
+  ],
+  [
+   "First, his body was to be dissected in public, for science!",
+   0.35
+  ],
+  [
+   "His doctor lectured over the corpse while a thunderstorm shook the building.",
+   0.45
+  ],
+  [
+   "Next, his skeleton was padded out, dressed in his own clothes, and seated in his own chair.",
+   0.35
+  ],
+  [
+   "Legend says he had carried his future glass eyes in his pocket for years.",
+   0.45
+  ],
+  [
+   "But the preserved head came out dark, dried and shrivelled!",
+   0.4
+  ],
+  [
+   "So a French artist sculpted him a nicer one out of wax.",
+   0.4
+  ],
+  [
+   "The real head was placed on the floor of the case, right between his feet!",
+   0.5
+  ],
+  [
+   "In 1975, students from a rival college stole it and demanded a hundred pounds for charity.",
+   0.7
+  ],
+  [
+   "The university offered ten.",
+   0.5
+  ],
+  [
+   "The students took the deal!",
+   0.5
+  ],
+  [
+   "In 2013, he was wheeled into a university council meeting as a surprise guest.",
+   0.8
+  ],
+  [
+   "He didn't vote.",
+   0.6
+  ],
+  [
+   "And today, he's still sitting in that London university, in his own clothes, watching everyone walk by!",
+   0.3
+  ]
+ ],
+ "subs": {
+  "1832,": "eighteen thirty-two,",
+  "1975,": "nineteen seventy-five,",
+  "2013,": "twenty thirteen,",
+  "shrivelled!": "shriveled!"
+ },
+ "fuzzy": [
+  "jeremy",
+  "bentham",
+  "benthem",
+  "shrivelled",
+  "shriveled",
+  "a",
+  "pounds",
+  "100",
+  "170",
+  "and",
+  "hundred",
+  "seventy",
+  "170"
+ ]
+}
