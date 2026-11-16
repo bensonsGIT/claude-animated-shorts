@@ -2,13 +2,13 @@
 // cards and contact shadows are the shared card machinery first written for the bridge short), plus gatsbyStage():
 // who stands where, with which face and prop, in every shot. Cards, effects and blobs live on the NOINK layer.
 import * as THREE from "three";
-import { Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxStars, Outfit, FrontOpts, SideOpts } from "../../engine/toon";
+import { Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxStars, Outfit, Expr, FrontOpts, SideOpts } from "../../engine/toon";
 import { RASKOL, RASKOL_BARE, RASKOL_CONVICT, ALYONA, LIZAVETA, PORFIRY, SONYA, SONYA_SHAWL, MIKOLKA, CLERK, CONVICT,
-  fxNapoleon, fxLouse, fxCatMouse, fxShadow2, fxCross, fxPurse2, fxAxe } from "../../engine/library/crime";
+  fxNapoleon, fxLouse, fxCatMouse, fxShadow2, fxCross, fxPurse2, fxAxe, fxDroshky, fxBarge, fxPigeon } from "../../engine/library/crime";
 import { MUSCOVITE, PEASANT } from "../../engine/library/peter";
 import { fxCoin } from "../../engine/library/newton";
 import { FPS, SHOTS, V3, clamp01, smooth, WORD, BEAT, MARK, doorAt } from "./story";
-import { STONE, LODGE } from "./petersburg";
+import { STONE, LODGE, WATER_Y } from "./petersburg";
 import { LANDING } from "./rooms";
 import { NOINK } from "../../engine/ink";
 import type { LightName } from "../../engine/lights";
@@ -247,6 +247,47 @@ const handAt = (cam: CamInfo, m: V3, side: number, y: number, toward = 0.12): V3
 };
 const fxEyesPeek = (p: Pen) => { p.g.fillStyle = "#140e14"; p.g.fillRect(0, 0, 200, 120); for (const x of [70, 130]) { p.ell(x, 60, 20, 14, "#f4ecd8", 0); p.ell(x + 4, 62, 7, 9, "#1a1418", 0); } p.stroke([[50, 38], [92, 46]], 6, "#8a7a6a"); p.stroke([[150, 46], [110, 38]], 6, "#8a7a6a"); };
 
+
+// ---------------- city life: passers-by walking both ways, a droshky, a barge, pigeons ----------------
+const TOWNS = (i: number): Outfit => {
+  const k = i % 5;
+  if (k === 0) return PEASANT;
+  if (k === 1) return MUSCOVITE(i);
+  if (k === 2) return CLERK(i);
+  if (k === 3) return { ...LIZAVETA, dress: ["#5a6a8a", "#8a4a4a", "#6a7a5a"][i % 3], jacket: ["#5a6a8a", "#8a4a4a", "#6a7a5a"][i % 3], cap: ["#d8c8a8", "#c8504a", "#5a7aa8"][i % 3], build: "adult" };
+  return { ...CLERK(i + 1), hat: "battered" as const, hair: "#3a2a20" };
+};
+/** n walkers in a band x0..x1 at depths zs, each walking left or right at its own pace, wrapping round */
+const walkers = (cam: CamInfo, t: number, out: Stage, x0: number, x1: number, zs: [number, number], n: number, seed: number) => {
+  const W2 = x1 - x0;
+  for (let i = 0; i < n; i++) {
+    const dir = hh(i, seed) < 0.5 ? -1 : 1, sp = 0.8 + 0.6 * hh(i, seed + 1), z = zs[0] + (zs[1] - zs[0]) * hh(i, seed + 2);
+    let x = x0 + ((hh(i, seed + 3) * W2 + dir * sp * t) % W2 + W2) % W2;
+    const m: V3 = [x, 0, z];
+    if (cam.pos.distanceTo(new THREE.Vector3(x, 1, z)) < 1.6) continue;
+    profile(cam, out, who(760 + i, TOWNS(i + seed), `w${(i + seed) % 5}${i % 3}`), m, [x + dir * 3, 0, z], { mode: "march", phase: q((t * sp * 1.4 + hh(i, seed + 4)) % 1, 20), expr: (["neutral", "smile", "grin", "stern"] as Expr[])[i % 4], stride: 0.8 });
+    void x;
+  }
+};
+const droshky = (out: Stage, t: number, x0: number, z: number, dir: number, speed = 3.2, span = 70) => {
+  const x = x0 + dir * (((t * speed) % span) - span / 2), leg = Math.floor(t * 8) % 4;
+  out.fx.push({ key: `drosh${leg}${dir}`, cw: 720, ch: 360, draw: (p) => fxDroshky(p, leg, dir), x, y: 1.25, z, w: 3.6, h: 1.8 });
+  blob(out, x, 0, z, 2.6, 0.7);
+};
+const barge = (out: Stage, t: number, x0: number, z: number, dir: number, t0 = 0) => {
+  const x = x0 + dir * 0.9 * (t - t0), k = q((Math.sin(t * 1.5) + 1) / 2, 10);
+  out.fx.push({ key: `barge${dir}${k}`, cw: 620, ch: 260, draw: (p) => fxBarge(p, dir, k), x, y: WATER_Y + 0.75, z, w: 4.4, h: 1.85 });
+};
+const pigeons = (out: Stage, t: number, c: V3, n: number, flyAt?: number) => {
+  for (let i = 0; i < n; i++) {
+    const fly = flyAt !== undefined && t >= flyAt ? t - flyAt : -1;
+    const bx = c[0] + (hh(i, 91) - 0.5) * 2.4, bz = c[2] + (hh(i, 92) - 0.5) * 1.2;
+    const x = bx + (fly > 0 ? (hh(i, 93) - 0.3) * 4 * fly : 0.05 * Math.sin(t * 2 + i)), y = fly > 0 ? 0.2 + 2.6 * fly + 0.4 * fly * fly : 0.17;
+    const wing = fly > 0 ? 1 + (Math.floor(t * 14 + i) % 2) : (Math.floor(t * 3 + i * 7) % 9 === 0 ? 1 : 0);
+    out.fx.push({ key: `pigeon${wing}`, cw: 120, ch: 100, draw: (p) => fxPigeon(p, wing), x, y, z: bz, w: 0.3, h: 0.25 });
+  }
+};
+
 export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
   const M = MARK;
   cam.t = t;
@@ -259,7 +300,9 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
   if (id === 2) { // along the canal: Raskolnikov walking, a few passers-by
     const x = M.walkStreet[0] + 0.9 * (t - BEAT[1]);
     profile(cam, out, RK, [x, 0, M.walkStreet[2]], [x + 3, 0, M.walkStreet[2]], { mode: "march", phase: q((t * 1.6) % 1, 20), expr: "nervous" });
-    crowd(cam, t, out, [[-6, 0, -3], [5, 0, 0.5], [9, 0, -4], [-10, 0, 0.8], [13, 0, -2]], false);
+    walkers(cam, t, out, -20, 20, [-6.4, 1.2], 16, 11);
+    walkers(cam, t, out, -30, 30, [15.0, 15.6], 8, 23); // the far quay
+    droshky(out, t, 4, -3.6, -1); barge(out, t, -7, 8.5, 1, BEAT[1]); pigeons(out, t, [1.2, 0, -0.2], 7, BEAT[1] + 1.4);
     return;
   }
   if (id === 3 || id === 4 || id === 9) { // the garret
@@ -334,6 +377,8 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
   }
   if (id === 12) { // free by the canal railing; a sunbeam
     stand(cam, out, RB, M.rail, { expr: on(t, WORD.free) ? "relief" : "dazed", facing: 0 });
+    walkers(cam, t, out, -5, 5, [14.9, 15.5], 7, 31); barge(out, t, -3.5, 8.0, 1, BEAT[10]); pigeons(out, t, [1.6, 0, 1.0], 5, WORD.free - 0.1);
+    walkers(cam, t, out, -10, 10, [-0.8, 0.2], 4, 47);
     burst(out, t, WORD.free - LEAD, [M.rail[0] + 0.4, 2.3, M.rail[2] + 0.4], 1.1, "#fff4c8", 0.5);
     return;
   }
@@ -354,6 +399,8 @@ export const crimeStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     const ring: V3[] = [];
     for (let i = 0; i < 9; i++) { const a = Math.PI * (0.95 + 1.1 * (i / 8)); ring.push([M.kneel[0] + 2.4 * Math.cos(a) * 1.2, 0, M.kneel[2] - 0.6 + 2.0 * Math.sin(a)]); }
     crowd(cam, t, out, ring, down);
+    walkers(cam, t, out, -84, -56, [-9, -4.5], 10, 53);
+    droshky(out, t, -70, -11, 1, 3.6, 40); pigeons(out, t, [-69, 0, 3.2], 6, WORD.does + 0.1);
     return;
   }
   if (id >= 17) { // Siberia

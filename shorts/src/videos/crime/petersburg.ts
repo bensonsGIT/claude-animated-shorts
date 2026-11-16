@@ -120,6 +120,16 @@ export class Petersburg extends Room {
       fix.add(boxGeo(V(cx - 6.0, 0, lz + 0.35), V(cx - 5.6, 2.1, lz + 0.45)), wood);
       fix.add(boxGeo(V(cx - 6.02, 1.0, lz - 2.0), V(cx - 5.96, 1.9, lz - 1.1)), lam("pbLodgeWin", () => ({ color: "#5a5a6a" })));
       void lx;
+      // washing lines strung across the yard with sheets and shirts
+      const cloths = ["#f2ece0", "#c8d8e8", "#e8c8c8", "#f4f0d8", "#b8c8a8"];
+      for (const [y, z] of [[4.2, -3.2], [5.6, -5.2], [7.0, -2.0]] as const) {
+        deco.add(cyl(0.012, 0.012, 12, 4), iron, at(cx, y, z, 0, 0, Math.PI / 2));
+        for (let i = 0; i < 7; i++) {
+          const x = cx - 5 + i * 1.5 + 0.3 * Math.sin(i * 3 + y), w = 0.5 + 0.35 * ((i * 7) % 3) / 2, h = 0.6 + 0.5 * ((i * 5) % 3) / 2;
+          const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), lam(`pbCloth${(i + Math.round(y)) % 5}`, () => ({ color: cloths[(i + Math.round(y)) % 5], side: THREE.DoubleSide })));
+          m.position.set(x, y - h / 2, z); m.rotation.y = 0.12 * Math.sin(i + y); m.castShadow = true; this.root.add(m);
+        }
+      }
       // a woodpile on the right, a water barrel
       for (let i = 0; i < 18; i++) deco.add(cyl(0.12, 0.12, 1.4, 7), wood, at(cx + 5.2 - (i % 6) * 0.25, 0.13 + Math.floor(i / 6) * 0.24, -5.0, Math.PI / 2, 0, 0));
       deco.add(cyl(0.4, 0.38, 0.9, 12), wood, at(cx + 4.8, 0.45, -2.8));

@@ -63,7 +63,7 @@ export const layersAt = (f: number): { id: number; alpha: number }[] => {
 export const MARK = {
   yardR: [59.15, 0, -1.0] as V3, lodgeR: [55.0, 0, -0.9] as V3,
   walkStreet: [-2.6, 0, -0.8] as V3, rail: [0, 0, 1.45] as V3,
-  sofa: [-0.25, 0.02, -1.12] as V3, standUp: [-0.25, 0, -0.85] as V3,
+  sofa: [-0.25, 0, -0.9] as V3, standUp: [-0.25, 0, -0.85] as V3,
   landingR: [12.85, 0, 0.55] as V3,
   lizaveta: [1.9, 0, 0.25] as V3,
   suspect: [-0.42, 0, -0.1] as V3, porfiry: [0.7, 0, -0.5] as V3, mikolka: [0.85, 0, 0.45] as V3,

@@ -94,6 +94,50 @@ export const fxShadow2 = (p: Pen, kind: "axe" | "arm" | "raise", col = "#1e1828"
     g.beginPath(); g.moveTo(336, 44); g.lineTo(268, 64); g.lineTo(252, 8); g.lineTo(322, 18); g.closePath(); g.fill();
   }
 };
+/** a droshky: a horse pulling a little open cab with a bearded driver, side-on (720 x 360, wheels on y 350, facing right;
+ *  dir -1 mirrors); leg 0-3 = trot cycle */
+export const fxDroshky = (p: Pen, leg = 0, dir = 1) => {
+  const g = p.g; g.save();
+  if (dir < 0) g.transform(-1, 0, 0, 1, 720, 0);
+  const horse = "#7a4a2e", dark = "#3a2418", cab = "#2a2a34";
+  // cab + wheels
+  for (const [x, r] of [[110, 62], [250, 52]] as const) { p.ell(x, 350 - r, r, r, null, 7); for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI + leg * 0.4; p.stroke([[x - r * Math.cos(a), 350 - r - r * Math.sin(a)], [x + r * Math.cos(a), 350 - r + r * Math.sin(a)]], 3); } }
+  p.poly([[60, 250], [290, 250], [300, 200], [180, 190], [150, 130], [70, 140]], cab, 6);
+  p.ell(115, 120, 26, 28, "#ffe0c4", 5); p.poly([[85, 105], [145, 105], [140, 70], [90, 70]], "#3a2a2a", 5); // driver + hat
+  p.poly([[95, 130], [135, 130], [128, 170], [102, 170]], "#6a4a3a", 4); // beard
+  p.stroke([[150, 160], [440, 190]], 4, dark); // reins
+  p.stroke([[290, 245], [460, 235]], 7, dark); // shaft
+  // horse
+  const bob = [0, -6, 0, -6][leg];
+  const legs: [number, number][] = [[[420, 470], [430, 440], [470, 450], [440, 460]][leg] as [number, number], [[600, 610], [590, 630], [620, 600], [600, 620]][leg] as [number, number]];
+  for (const [a, b] of legs) { p.line([[a, 250 + bob], [a - 10, 300], [a + (b - a) * 0.3, 345]], horse, 14, true); p.line([[b, 250 + bob], [b + 10, 300], [b - 6, 345]], horse, 14, true); }
+  p.ell(520, 230 + bob, 110, 48, horse, 7);
+  p.line([[600, 210 + bob], [640, 140 + bob]], horse, 40, true);
+  p.ell(666, 130 + bob, 40, 22, horse, 6, 0, 360, 20);
+  p.dot(670, 120 + bob, 5);
+  p.stroke([[410, 215 + bob], [380, 270 + bob]], 10, dark); // tail
+  p.stroke([[612, 170 + bob], [640, 120 + bob]], 8, dark); // mane
+  p.poly([[600, 110 + bob], [630, 60 + bob], [650, 112 + bob]], "#c8303a", 4); // the duga arch over the collar
+  g.restore();
+};
+/** a canal barge poled by a boatman, side-on (620 x 260, waterline at y 220) */
+export const fxBarge = (p: Pen, dir = 1, k = 0) => {
+  const g = p.g; g.save();
+  if (dir < 0) g.transform(-1, 0, 0, 1, 620, 0);
+  p.poly([[20, 170], [600, 170], [560, 230], [60, 230]], "#6a4a32", 7);
+  for (let i = 0; i < 4; i++) p.poly([[120 + i * 90, 170], [190 + i * 90, 170], [185 + i * 90, 130], [125 + i * 90, 130]], ["#c8a870", "#a8804a", "#d8b880", "#b89058"][i], 4); // sacks
+  p.ell(520, 110, 22, 24, "#ffe0c4", 5); p.poly([[498, 130], [542, 130], [548, 172], [492, 172]], "#5a6a7a", 5); p.ell(520, 88, 26, 10, "#3a3a44", 4);
+  p.stroke([[560 - 30 * k, 40], [470 + 30 * k, 250]], 6, "#8a6a4a"); // the pole
+  g.restore();
+};
+/** a pigeon (120 x 100); wing 0 = folded, 1 = up, 2 = down */
+export const fxPigeon = (p: Pen, wing = 0) => {
+  p.ell(60, 62, 34, 22, "#8a8e9a", 5); p.ell(90, 44, 14, 13, "#7a7e8a", 4); p.dot(94, 42, 2.5);
+  p.poly([[102, 44], [114, 48], [102, 50]], "#c8a060", 2); p.poly([[28, 62], [6, 54], [8, 72]], "#6a6e7a", 3);
+  if (wing === 1) p.poly([[50, 52], [30, 6], [76, 44]], "#9a9eaa", 4);
+  else if (wing === 2) p.poly([[50, 64], [24, 96], [76, 70]], "#9a9eaa", 4);
+  else p.ell(58, 58, 20, 10, "#9a9eaa", 3);
+};
 /** a small brass Orthodox cross (120 x 160) */
 export const fxCross = (p: Pen) => {
   const c = "#e1b84c";

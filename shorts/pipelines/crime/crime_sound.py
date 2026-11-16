@@ -259,6 +259,14 @@ def build_sfx():
         t = a + 0.2
         while t < b:  # a cart on the cobbles somewhere
             place(S, pan(tok(r, r.uniform(500, 700), 0.4), 0.5), t, 0.06); t += 0.27
+    # the droshky's hooves (street establishing shot + the Haymarket)
+    for a, b in [STREET[0]] + HAYM:
+        t = a + 0.1
+        while t < b - 0.1:
+            for d in (0.0, 0.11):
+                place(S, pan(tok(r, r.uniform(380, 460), 0.6), -0.3), t + d, 0.16)
+            t += 0.42
+        place(S, pan(G.creak(b - a, r, 120, 160), -0.2), a, 0.05)  # its wheels
     for a, b in GARRET:
         t = a
         while t < b:
