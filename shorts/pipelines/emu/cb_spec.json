@@ -1,0 +1,93 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5,
+ "cfg": 0.5,
+ "lead": 0.15,
+ "pause_k": 1.0,
+ "beats": [
+  [
+   "In 1932, Australia sent soldiers with machine guns to fight a flock of birds!",
+   0.55
+  ],
+  [
+   "Twenty thousand emus had stormed the wheat farms of Western Australia.",
+   0.35
+  ],
+  [
+   "The army sent Major Meredith, two soldiers, two Lewis guns, and ten thousand bullets.",
+   0.4
+  ],
+  [
+   "At their first big ambush, by a dam, a gun jammed after about a dozen birds!",
+   0.4
+  ],
+  [
+   "The rest split into small groups and ran in every direction.",
+   0.35
+  ],
+  [
+   "An ornithologist later wrote that the emus had switched to guerrilla tactics!",
+   0.45
+  ],
+  [
+   "So the soldiers mounted a gun on a truck and gave chase.",
+   0.3
+  ],
+  [
+   "But the ground was so rough the gunner couldn't aim, and the emus outran the truck!",
+   0.45
+  ],
+  [
+   "After less than a week, the army pulled out.",
+   0.4
+  ],
+  [
+   "In Parliament, one member joked that the medals should go to the emus.",
+   0.5
+  ],
+  [
+   "Meredith went back, and by December he claimed 986 kills.",
+   0.35
+  ],
+  [
+   "That's ten bullets for every bird.",
+   0.5
+  ],
+  [
+   "He said the emus could face machine guns with the invulnerability of tanks!",
+   0.5
+  ],
+  [
+   "Two years later, farmers filed over fifty-seven thousand emu bounty claims in just six months.",
+   0.8
+  ],
+  [
+   "Today, the emu stands on Australia's coat of arms.",
+   0.4
+  ],
+  [
+   "The army lost the war, but the emu got the coat of arms!",
+   0.3
+  ]
+ ],
+ "subs": {
+  "1932,": "nineteen thirty-two,",
+  "986": "nine hundred eighty-six"
+ },
+ "fuzzy": [
+  "meredith",
+  "lewis",
+  "emus",
+  "emu",
+  "emews",
+  "guerrilla",
+  "gorilla",
+  "guerilla",
+  "986",
+  "nineteen",
+  "thirtytwo",
+  "thats",
+  "that",
+  "57000"
+ ]
+}
