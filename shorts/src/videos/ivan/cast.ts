@@ -336,8 +336,9 @@ export const ivanStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     sit(cam, out, IVS, M.bed, BED, { expr: lie ? "pained" : "neutral", facing: lie ? -1 : 1, look: lie ? -0.6 : 0.4 });
     const t0 = BEAT[9] - 0.2, dur = Math.max(3.0, WORD.lie - t0 + 1.4);
     [[WIE, 0], [LI, 0.45], [FI, 0.9]].forEach(([w, d], i) => {
-      const u = clamp01((t - t0 - (d as number)) / dur), x = M.door[0] - 1.2 - 1.0 * u + 0.3 * i, z = M.door[2] + 0.2 + 2.6 * u;
-      if (u >= 1) return;
+      // they keep walking past the lens and leave the frame at the right (never vanish in shot)
+      const u = Math.max(0, (t - t0 - (d as number)) / dur), x = M.door[0] - 1.2 - 0.6 * u + 0.3 * i, z = M.door[2] + 0.2 + 2.6 * u;
+      if (u >= 2.0) return;
       go(true, cam, out, w as Who, [x, 0, z], t, { expr: lie ? "smile" : i === 0 ? "laugh" : "grin", facing: -1 });
     });
     return;
