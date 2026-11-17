@@ -75,7 +75,7 @@ export class World {
       const light = id === 14 ? clamp01((t - l0) / (l1 - l0)) : 0;
       this.house.pose(s.dress ?? "hung", true, light);
     }
-    if (s.set === "court") this.court.pose(id === 15);
+    if (s.set === "court") this.court.pose(id === 16);
     const focus = V(...c.look), dist = cam.position.distanceTo(focus);
     // ---- light rig ----
     const sunDir = this.shotSun(id, s, L);

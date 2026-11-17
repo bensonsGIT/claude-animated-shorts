@@ -26,10 +26,10 @@ cf = lambda b: (round(B[b] * FPS) - PRE) / FPS  # picture cut before narration b
 cw = lambda k: (round(W[k] * FPS) - PRE) / FPS  # picture cut before word k (story.ts cw)
 # sets on the timeline (s), from story.ts SHOTS
 COURT = [(cf(1), cf(2))]
-DRAWING = [(0.0, cf(1)), (cf(2), cf(8))]
+DRAWING = [(0.0, cf(1)), (cf(2), cf(8)), (cf(14), cf(15))]
 SICK = [(cf(8), cf(11)), (cf(12), cf(13))]
 DARK = [(cf(11), cf(12)), (cf(13), cf(14))]
-CARDROOM = [(cf(14), DUR)]
+CARDROOM = [(cf(15), DUR)]
 COTTAGE = SICK + CARDROOM   # small rooms (reverb)
 PLAZA = DRAWING + COURT     # bigger rooms (reverb)
 INSIDE = COTTAGE + PLAZA
@@ -327,7 +327,7 @@ def build_sfx():
     place(S, st(thump(r, 140, 0.08)), W["cards"] - 0.02, 0.2)
     place(S, S2(G.hurrah(r, 140, 1.0)), W["cards"] + 0.05, 0.08)
     # ---- whooshes on the place cuts ----
-    for tx in (cf(1), cf(2), cf(8), cf(11), cf(12), cf(13), cf(14)):
+    for tx in (cf(1), cf(2), cf(8), cf(11), cf(12), cf(13), cf(14), cf(15)):
         place(S, widen(G.whoosh(0.45, r, 0.25, 400, 3500), r), tx - 0.2, 0.08)
     return S
 
@@ -377,7 +377,11 @@ def build_music():
     place(M, I.pad([I.m2f(m) for m in (48, 55, 60, 64, 67, 72)], cf(14) - W["fear"] + 0.4, 0.5, r, 1.6, 0.6, 1600), W["fear"], 0.16)
     for k, m in enumerate((72, 76, 79, 84)): place(M, pan(I.glock(I.m2f(m), 0.6, r, 2.0), 0.0), W["light"] + 0.12 * k, 0.12)
     cue(W["light"], "music: a warm major chord swells into 'light'")
-    waltz(M, cf(14) + 0.3, DUR - 0.05, r, 0.75, bpm=150, lead="vibes"); cue(cf(14), "music: the salon waltz, cheerful and oblivious (loop)")
+    # the philosophical line: the opening waltz tune alone on a slow music box, one note at a time, over a hollow pad
+    place(M, I.pad([I.m2f(m) for m in (45, 52, 57, 60)], cf(15) - cf(14) + 0.3, 0.4, r, 0.8, 0.8, 700), cf(14) + 0.1, 0.1)
+    for k, m in enumerate((67, 72, 71, 72, 76, 74, 72)): place(M, pan(I.musicbox(I.m2f(m), 0.5, r, 1.4), 0.1), cf(14) + 0.3 + 0.55 * k, 0.12)
+    cue(cf(14), "music: the waltz tune alone on a slow music box (the philosophical line)")
+    waltz(M, cf(15) + 0.3, DUR - 0.05, r, 0.75, bpm=150, lead="vibes"); cue(cf(15), "music: the salon waltz, cheerful and oblivious (loop)")
     return M
 
 

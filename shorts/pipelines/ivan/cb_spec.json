@@ -61,6 +61,10 @@
    0.7
   ],
   [
+   "Tolstoy's point: you can do everything right, and still live your whole life wrong.",
+   0.55
+  ],
+  [
    "Then he died, and his colleagues went back to playing cards.",
    0.6
   ]
@@ -74,5 +78,7 @@
   "Ilyich",
   "Gerasim",
   "Tolstoy"
- ]
+ ],
+ "tempo": 1.08,
+ "_note": "voice was sped up 8% after generation (ffmpeg atempo=1.08); words/beats timings scaled to match"
 }

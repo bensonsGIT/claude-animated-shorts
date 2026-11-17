@@ -44,12 +44,16 @@ s0, e0 = int(b["s"] * sr), int(b["e"] * sr)
 d = (len(z) - (e0 - s0)) / sr
 y = np.concatenate([y[:s0], z, y[e0:]])
 first = sum(len(x["text"].split()) for x in B[:A.beat - 1])
-j = 0
-for g, (dw, sw) in enumerate(zip(dws, spoken.split())):
+# the beat's old words (its word count may differ when the line's wording changed): words.json up to the next beat's start
+old_n = sum(1 for w in words[first:] if w["s"] < b["e"] + 0.01)
+new, j = [], 0
+for dw, sw in zip(dws, spoken.split()):
     n = len(L.tw(sw))
-    words[first + g] = {"w": dw, "s": round(b["s"] + al[j][0], 3), "e": round(b["s"] + al[j + n - 1][1], 3)}; j += n
-for w in words[first + len(dws):]:
+    new.append({"w": dw, "s": round(b["s"] + al[j][0], 3), "e": round(b["s"] + al[j + n - 1][1], 3)}); j += n
+rest = words[first + old_n:]
+for w in rest:
     w["s"] = round(w["s"] + d, 3); w["e"] = round(w["e"] + d, 3)
+words = words[:first] + new + rest
 b["e"] = round(b["s"] + len(z) / sr, 3); b["heard"] = heard; b["ok"] = True
 for x in B[A.beat:]:
     x["s"] = round(x["s"] + d, 3); x["e"] = round(x["e"] + d, 3)

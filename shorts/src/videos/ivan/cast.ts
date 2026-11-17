@@ -372,11 +372,15 @@ export const ivanStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     burst(out, t, WORD.light - 0.05, [M.dark[0], 1.4, M.dark[2] - 0.6], 3.2, "#ffffff", 0.5);
     return;
   }
-  if (id === 15) { // that evening: cards at Fedor Vasilievich's; Peter Ivanovich cuts in
+  if (id === 15) { // everything right, the whole life wrong: alone in the perfect drawing room at dusk
+    stand(cam, out, IV, M.ivanR, { expr: on(t, WORD.wrong) ? "dazed" : on(t, WORD.right2) ? "smile" : "neutral" });
+    return;
+  }
+  if (id === 16) { // that evening: cards at Fedor Vasilievich's; Peter Ivanovich cuts in
     const ca = on(t, WORD.cards);
     sit(cam, out, FE, M.pl1, 0.5, { expr: ca ? "laugh" : "smug", facing: 1 });
     sit(cam, out, PL[0], M.pl2, 0.5, { expr: ca ? "grin" : "neutral", facing: -1 });
-    const u = smooth((t - BEAT[14]) / Math.max(1, WORD.back - BEAT[14]));
+    const u = smooth((t - BEAT[15]) / Math.max(1, WORD.back - BEAT[15]));
     if (u < 1) go(true, cam, out, PE, [138.9 + 0.55 * u, 0, -0.4 - 1.2 * u], t, { expr: "neutral", facing: 1 });
     else sit(cam, out, PE, M.peterC, 0.5, { expr: ca ? "grin" : "smile", facing: 1 });
     // the deal: face-down cards slide from Fedor to each place; on "cards" a fan of face cards jumps up

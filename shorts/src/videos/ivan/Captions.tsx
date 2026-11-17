@@ -7,7 +7,7 @@ import { AbsoluteFill, getInputProps, useCurrentFrame, useVideoConfig } from "re
 import { loadFont, TheBoldFont } from "../../load-font";
 import { WORDS } from "./timing";
 
-const PUNCH = new Set(["curtains!", "job", "terrible", "knob", "dying", "lie", "screamed", "light", "cards"]);
+const PUNCH = new Set(["curtains!", "job", "terrible", "knob", "dying", "lie", "screamed", "light", "wrong", "cards"]);
 const HOLD = 0.6; // keep a word up across gaps shorter than this; clear it in longer pauses
 const clean = (w: string) => w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}?!']+$/gu, "");
 

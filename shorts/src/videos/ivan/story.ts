@@ -37,9 +37,10 @@ export const SHOTS: ShotDef[] = [
   dark(12, cf(11), cf(12)), // "For his last three days, he screamed."
   sick(13, cf(12), cf(13)), // "Then his schoolboy son kissed his hand, and he pitied them all."
   dark(14, cf(13), cf(14)), // "He looked for his fear of death, and found light instead!"
-  cards(15, cf(14), TOTAL), // "Then he died, and his colleagues went back to playing cards." -> loops into line 1
+  dusk(15, cf(14), cf(15)), // "Tolstoy's point: you can do everything right, and still live your whole life wrong."
+  cards(16, cf(15), TOTAL), // "Then he died, and his colleagues went back to playing cards." -> loops into line 1
 ];
-export const XFADE: Record<number, number> = { 3: 10, 5: 12, 6: 10, 9: 12, 12: 12, 13: 10, 14: 10, 15: 16 };
+export const XFADE: Record<number, number> = { 3: 10, 5: 12, 6: 10, 9: 12, 12: 12, 13: 10, 14: 10, 15: 16, 16: 14 };
 export const FLASH_AT = cf(1);
 
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
@@ -117,13 +118,15 @@ const C = {
   s12: hold([200, 1.0, 3.4], [200, 0.75, -1.0], 44, cf(11), 0.003, W("screamed") - 2, 0.01),
   s13: hold([40.3, 1.35, 1.5], [40.3, 1.05, -2.2], 42, cf(12), 0.0018, W("pitied") - 2, 0.005),
   s14: hold([200, 1.0, 3.6], [200, 0.85, -1.0], 44, cf(13), 0.0018, W("light") - 2, 0.007),
-  s15: hold(S15[0], S15[1], S15[2], cf(14), 0.0016, W("cards") - 2, 0.006),
+  /** the perfect room, emptied: a slow pull-back away from him */
+  s15: hold([0.6, 1.45, 2.3], [0.6, 1.3, -1.6], 44, cf(14), -0.0028, W("wrong") - 2, 0.004),
+  s16: hold(S15[0], S15[1], S15[2], cf(15), 0.0016, W("cards") - 2, 0.006),
 };
 const CAMS: Record<number, Key[]> = {
   1: [{ f: 0, s: C.s1 }, { f: W("curtains") - 4, dur: 22, s: C.s1b }], 2: [{ f: cf(1), s: C.s2 }], 3: [{ f: cf(2), s: C.s3 }], 4: [{ f: cf(3), s: C.s4 }],
   5: [{ f: cf(4), s: C.s5 }], 6: [{ f: cf(5), s: C.s6 }], 7: [{ f: cf(6), s: C.s7 }], 8: [{ f: cf(7), s: C.s8 }], 9: [{ f: cf(8), s: C.s9 }],
   10: [{ f: cf(9), s: C.s10 }], 11: [{ f: cf(10), s: C.s11 }], 12: [{ f: cf(11), s: C.s12 }], 13: [{ f: cf(12), s: C.s13 }], 14: [{ f: cf(13), s: C.s14 }],
-  15: [{ f: cf(14), s: C.s15 }],
+  15: [{ f: cf(14), s: C.s15 }], 16: [{ f: cf(15), s: C.s16 }],
 };
 const KICKS: [number, number][] = [[WORD.job, 0.4], [WORD.career, 0.35], [WORD.wife, 0.35], [WORD.furniture, 0.5], [WORD.slipped, 0.4], [WORD.knob, 1.0],
   [WORD.dying, 0.5], [WORD.screamed, 1.0], [WORD.cards, 0.4]];
@@ -166,7 +169,8 @@ export const DOF: Dof[] = [
   { f: cf(11), cInf: 6, focus: () => eyesOf(M.dark) },
   { f: cf(12), cInf: 11, focus: () => eyesOf(M.bed, -0.5) },
   { f: cf(13), cInf: 6, focus: () => eyesOf(M.dark) },
-  { f: cf(14), cInf: 6, focus: () => M.table },
+  { f: cf(14), cInf: 7, focus: () => eyesOf(M.ivanR) },
+  { f: cf(15), cInf: 6, focus: () => M.table },
 ];
 export const dofAt = (f: number) => {
   let i = 0; while (i + 1 < DOF.length && f >= DOF[i + 1].f) i++;
