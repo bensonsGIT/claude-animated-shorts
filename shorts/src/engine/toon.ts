@@ -28,6 +28,8 @@ export type Outfit = {
   band?: string;
   /** beard colour + style (Peter short): long to the belly, forked, scruffy, short; stubble = freshly shaved jaw */
   beard?: string; beardStyle?: "long" | "fork" | "scruffy" | "short"; stubble?: boolean;
+  /** Stranger short: a narrow necktie (the borrowed black tie) */
+  tie?: string;
 };
 export type P2 = [number, number];
 
@@ -384,6 +386,21 @@ const hatBehind = (p: Pen, o: Outfit, H: Blob, cx: number, hc: number, light: nu
     p.shadedFill(lb, col, mul(col, SH_FELT), light, H.a * 1.1);
     p.inkRing(lb, ow * 0.85, thick);
   }
+  if (o.hat === "curls") {
+    // 1930s-40s women's hair: a soft mass of curls framing the face down to the jaw, scalloped all round, curl swirls
+    const col = o.hair!, ccx = cx - (side ? 8 * H.a / 50 : 0), ccy = hc + 0.2 * H.b, pts: P2[] = [];
+    for (let i = 0; i < 112; i++) {
+      const t = (i / 112) * Math.PI * 2, k = 1 + 0.055 * Math.abs(Math.cos(7 * t));
+      pts.push([ccx + 1.24 * H.a * k * Math.cos(t), ccy + 1.12 * H.b * k * Math.sin(t)]);
+    }
+    p.shadedFill(pts, col, mul(col, SH_FELT), light, H.a * 1.3, 0.35);
+    p.inkRing(pts, ow * 0.85, thick);
+    const dk = mul(col, [0.66, 0.64, 0.72]), u = H.a / 50;
+    for (let i = 0; i < 9; i++) {
+      const t = Math.PI * (0.05 + (0.9 * i) / 8) + Math.PI / 2, rr = 1.1;
+      p.arc(ccx + rr * H.a * Math.cos(t) * (i % 2 ? 1 : -1), ccy + 0.85 * H.b * Math.sin(t) * 0.6 + 0.25 * H.b, 7 * u, 6 * u, 200, 470, 1.6 * u, dk);
+    }
+  }
   if (o.hat === "frizz") {
     const seed = H.seed, u = (2 * H.a) / 100;
     void u;
@@ -482,6 +499,8 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
       const [tx, ty] = R([[cx, yb - ht - 6 * u]])[0];
       p.ell(tx, ty, 7 * u, 7 * u, "#2b7a4b", 2.5 * u); // green tuft
     }
+  } else if (o.hat === "curls") {
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
   } else if (o.hat === "cap" || o.hat === "hair" || o.hat === "wig" || o.hat === "periwig") {
     const hairy = o.hat !== "cap";
     const cut = crown + (o.hat === "cap" ? 0.3 : o.hat === "periwig" ? 0.27 : o.hat === "wig" ? 0.3 : 0.42) * HH;
@@ -610,7 +629,12 @@ export type Prop = null | "icecream" | "shako" | "goblet" | "magnifier" | ["hamm
    *  pulled out of the coat, k 0 = hand at the chest .. 1 = held up beside the face */
   /** Franklin short: ["touch", k] reaching for the live wire; "writeQuill" seated at the desk; a fork; hand on chest; finger on lips */
   | ["touch", number] | "writeQuill" | "fork" | "chest" | "shush"
-  | "razor" | "purse" | "kopek" | "token" | "bite" | "chin" | ["deal", string] | ["beardOut", number, string];
+  | "razor" | "purse" | "kopek" | "token" | "bite" | "chin" | ["deal", string] | ["beardOut", number, string]
+  /** Stranger short: a cigarette held by the mouth; a coffee cup held in front; a small wooden cross held up */
+  | "cigarette" | "cup" | "cross"
+  /** ["gun", k]: a revolver, k 0 = held down by the leg .. 1 = arm straight out toward the facing side;
+   *  ["knife", k]: a short blade, k 0 = held low .. 1 = raised in front of the chest toward the facing side */
+  | ["gun", number] | ["knife", number];
 
 const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number }> = {
   adult: { a: 118, torso: 1.1, legs: 1.4, tw: 0.8 },
@@ -750,7 +774,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     const H0: P2 = [tcx + 0.15 * T.a, chin + 0.45 * HH], H1: P2 = [tcx + 1.38 * T.a + 20 * u, S[1] - 0.5 * HH];
     const Hd = lerp2(H0, H1, k), E = lerp2([tcx + 0.9 * T.a + 6 * u, S[1] + 0.42 * HH], [tcx + 1.25 * T.a + 16 * u, S[1] + 0.1 * HH], k);
     arms.push({ pts: [S, E, Hd], front: true });
-  } else if (prop === "bite" || prop === "chin") {
+  } else if (prop === "bite" || prop === "chin" || prop === "cigarette") {
     const S = sh(1);
     arms.push({ pts: hang(-1, 0), front: false });
     arms.push({ pts: [S, [tcx + 1.2 * T.a + 14 * u, S[1] + 0.25 * HH], [tcx + 0.3 * T.a, chin + 0.02 * HH]], front: true });
@@ -759,6 +783,14 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     const S = sh(1);
     arms.push({ pts: hang(-1, 0), front: false });
     arms.push({ pts: [S, [tcx + 1.25 * T.a + 18 * u, S[1] - 0.15 * HH], [tcx + 1.05 * T.a + 10 * u, S[1] - 0.7 * HH]], front: true });
+  } else if (Array.isArray(prop) && (prop[0] === "gun" || prop[0] === "knife")) {
+    const sd = facing || 1, S = sh(sd), k = clamp(prop[1], 0, 1);
+    arms.push({ pts: hang(-sd, 0), front: false });
+    const low = hang(sd, 0);
+    const up: [P2, P2, P2] = prop[0] === "gun"
+      ? [S, [tcx + sd * (1.15 * T.a + 24 * u), S[1] + 0.02 * HH], [tcx + sd * (1.25 * T.a + 50 * u), S[1] - 0.04 * HH]]
+      : [S, [tcx + sd * (1.15 * T.a + 14 * u), S[1] + 0.32 * HH], [tcx + sd * (0.9 * T.a + 22 * u), S[1] + 0.12 * HH]];
+    arms.push({ pts: [S, lerp2(low[1], up[1], k), lerp2(low[2], up[2], k)], front: true });
   } else if (prop === "point") {
     // an accusing arm straight out toward the facing side, index finger drawn in front
     const sd = facing || 1, S = sh(sd);
@@ -781,7 +813,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     } else if (prop === "purse") {
       const S = sh(1);
       arms.push({ pts: [S, [tcx + 1.15 * T.a + 8 * u, S[1] + 0.35 * HH], [tcx + 1.0 * T.a + 18 * u, S[1] + 0.2 * HH]], front: true });
-    } else if (prop === "icecream" || prop === "goblet" || prop === "magnifier" || prop === "quill" || prop === "letter" || prop === "scroll" || prop === "candle") {
+    } else if (prop === "icecream" || prop === "goblet" || prop === "magnifier" || prop === "quill" || prop === "letter" || prop === "scroll" || prop === "candle" || prop === "cup" || prop === "cross") {
       const S = sh(1);
       arms.push({ pts: [S, [tcx + 1.05 * T.a + 4 * u, S[1] + 0.45 * HH], [tcx + 0.5 * T.a, S[1] + 0.4 * HH]], front: true });
     } else if (prop === "shovel") {
@@ -846,7 +878,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     }
   }
   // long hair / periwig + band fall over the shoulders: drawn here (head rotation), so held props stay in front of them
-  const longHair = o.hat === "wig" || o.hat === "periwig" || (o.hat === "tricorn" && !!o.hair);
+  const longHair = o.hat === "wig" || o.hat === "periwig" || o.hat === "curls" || (o.hat === "tricorn" && !!o.hair);
   const Ah = A + headTilt, [cpx, cpy] = rotAbout([300, chin], rad(A), [300, hipY]);
   const headRot: typeof p.rot = Ah ? [rad(Ah), 300, chin, cpx - 300, cpy - chin] : null;
   if (longHair) {
@@ -855,6 +887,10 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     hatBehind(p, o, H, 300, hc, light, thick, ow, false);
     if (o.band) for (const sd of [-1, 1]) p.poly([[300, chin - 0.02 * HH], [300 + sd * 15 * u, chin - 0.01 * HH], [300 + sd * 12 * u, chin + 0.24 * HH], [300 + sd * 1.5 * u, chin + 0.25 * HH]], o.band, 2.2 * u);
     p.rot = bodyRot;
+  }
+  if (o.tie) {
+    p.poly([[300 - 6 * u, chin - 2 * u], [300 + 6 * u, chin - 2 * u], [300 + 4 * u, chin + 0.08 * HH], [300 - 4 * u, chin + 0.08 * HH]], o.tie, 1.6 * u);
+    p.poly([[300 - 4 * u, chin + 0.08 * HH], [300 + 4 * u, chin + 0.08 * HH], [300 + 6.5 * u, chin + 0.62 * HH], [300, chin + 0.7 * HH], [300 - 6.5 * u, chin + 0.62 * HH]], o.tie, 1.6 * u);
   }
   if (o.stock && !o.ruff) {
     p.poly([[300 - 15 * u, chin - 3 * u], [300 + 15 * u, chin - 3 * u], [300 + 9 * u, chin + 0.2 * HH], [300, chin + 0.3 * HH], [300 - 9 * u, chin + 0.2 * HH]], o.stock, 2.6 * u);
@@ -889,6 +925,22 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     } else if (prop === "quill") {
       p.poly([[hx - 2 * u, hy + 4 * u], [hx + 30 * u, hy - 46 * u], [hx + 22 * u, hy - 58 * u], [hx + 8 * u, hy - 30 * u]], "#f6f2e8", 1.8 * u);
       p.stroke([[hx - 3 * u, hy + 8 * u], [hx + 24 * u, hy - 52 * u]], 1.2 * u);
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "cigarette") {
+      // a white cigarette poking out of the fist toward the mouth side, a glowing tip and a thin curl of smoke
+      p.band([[hx + 2 * u, hy - 2 * u], [hx + 20 * u, hy - 10 * u]], "#f6f3ea", 2.6 * u, 0.9 * u, "butt");
+      p.dot(hx + 21 * u, hy - 10.5 * u, 1.8 * u, "#ff7a3a");
+      p.stroke(curve([hx + 22 * u, hy - 13 * u], [hx + 28 * u, hy - 30 * u], [hx + 20 * u, hy - 48 * u]), 1.4 * u, "rgba(220,220,230,0.8)");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "cup") {
+      p.poly([[hx - 10 * u, hy - 20 * u], [hx + 10 * u, hy - 20 * u], [hx + 8 * u, hy - 4 * u], [hx - 8 * u, hy - 4 * u]], "#f6f3ea", 2 * u);
+      p.arc(hx + 12 * u, hy - 13 * u, 5 * u, 5 * u, -90, 90, 1.8 * u);
+      p.ell(hx, hy - 20 * u, 10 * u, 2.6 * u, "#6a3a1e", 1.4 * u);
+      for (const dx of [-4, 4]) p.stroke(curve([hx + dx * u, hy - 24 * u], [hx + (dx + 5) * u, hy - 33 * u], [hx + dx * u, hy - 42 * u]), 1.3 * u, "rgba(230,230,236,0.85)");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "cross") {
+      p.band([[hx, hy + 6 * u], [hx, hy - 44 * u]], "#8a5a34", 4 * u, 1.3 * u);
+      p.band([[hx - 12 * u, hy - 30 * u], [hx + 12 * u, hy - 30 * u]], "#8a5a34", 4 * u, 1.3 * u);
       p.dot(hx, hy, 5.5 * u);
     } else if (prop === "letter") {
       p.poly([[hx - 30 * u, hy - 44 * u], [hx + 18 * u, hy - 50 * u], [hx + 22 * u, hy + 8 * u], [hx - 26 * u, hy + 14 * u]], "#f2e8cf", 2 * u);
@@ -976,6 +1028,25 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       p.dot(hx, hy, 6.5 * u);
     } else if (Array.isArray(prop) && prop[0] === "touch") {
       p.dot(hx, hy, 6 * u);
+    } else if (Array.isArray(prop) && prop[0] === "gun") {
+      // a dark revolver: grip in the fist, cylinder, barrel pointing down at rest and out toward the facing side when raised
+      const sd = facing || 1, k = clamp(prop[1], 0, 1), a = rad(-90 + 90 * k);
+      const dir: P2 = [sd * Math.cos(a), -Math.sin(a)], nrm: P2 = [-dir[1], dir[0]];
+      const at = (al: number, ac: number): P2 => [hx + (dir[0] * al + nrm[0] * ac) * u, hy + (dir[1] * al + nrm[1] * ac) * u];
+      p.poly([at(-4, -4), at(4, -6), at(8, 10), at(1, 12)], "#3a2a24", 1.4 * u); // grip
+      p.poly([at(2, -9), at(14, -9), at(14, -2), at(2, -2)], "#4a4e58", 1.4 * u); // cylinder
+      p.band([at(14, -6), at(34, -6)], "#4a4e58", 4 * u, 1.3 * u); // barrel
+      p.dot(...at(9, -7.5), 1.2 * u, "#8a8e98");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (Array.isArray(prop) && prop[0] === "knife") {
+      // a short knife: dark handle in the fist, the steel blade up and out toward the facing side, a white glint
+      const sd = facing || 1, k = clamp(prop[1], 0, 1), a = rad(-70 + 125 * k);
+      const dir: P2 = [sd * Math.cos(a), -Math.sin(a)], nrm: P2 = [-dir[1], dir[0]];
+      const at = (al: number, ac: number): P2 => [hx + (dir[0] * al + nrm[0] * ac) * u, hy + (dir[1] * al + nrm[1] * ac) * u];
+      p.band([at(-8, 0), at(5, 0)], "#3a2a24", 5 * u, 1.3 * u, "round");
+      p.poly([at(5, -3), at(30, -1.5), at(34, 1), at(5, 3)], "#e6ebf2", 1.6 * u);
+      p.dot(...at(28, 0), 1.6 * u, "#ffffff");
+      p.dot(hx, hy, 5.5 * u);
     } else if (Array.isArray(prop) && prop[0] === "rapier") {
       // thin steel blade from the hand toward the facing side, raised en garde, near level in the lunge
       const sd = facing || 1, k = clamp(prop[1], 0, 1), a = rad(52 - 44 * k), L = 1.0 * HH;
@@ -1023,7 +1094,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   if (o.stubble) p.clip(hp, () => { for (let i = 0; i < 70; i++) { const a = rad(20 + 140 * rnd(seed, 60 + i)), r = H.a * (0.55 + 0.42 * rnd(seed, 160 + i)); p.dot(300 + r * Math.cos(a) * (1 + 0.1 * facing), hc + 0.15 * H.b + r * 0.95 * Math.sin(a), 1.5 * u, "#6a6a84"); } });
   hatOn(p, o, hp, H, 300, hc, light, seed, facing, false);
   if (o.beard) beardFront(p, o, 300 + 4 * u * facing, hc, H, chin, HH, u, light, thick, ow);
-  const brim = !!o.hat && !["hair", "bonnet", "cap", "wig", "periwig", "frizz"].includes(o.hat);
+  const brim = !!o.hat && !["hair", "bonnet", "cap", "wig", "periwig", "frizz", "curls"].includes(o.hat);
   faceFront(p, 300, hc, W, expr, facing, look, lid, brim, skin, o.moustache, o.build === "stout", o.nose, o.specs);
   if (prop === "shush") { // index finger across the lips, drawn over the face
     const mx = 300 + 8 * u * facing, my = hc + 20 * u;
@@ -1155,7 +1226,7 @@ export const bodySide = (p: Pen, o: Outfit, opts: SideOpts) => {
   p.shadedFill(hp, skin, mul(skin, SH_SKIN), light, H.a);
   p.inkRing(hp, ow, thick);
   hatOn(p, o, hp, H, hx, hc, light, seed, 1, true);
-  const brim = !!o.hat && !["hair", "bonnet", "cap", "wig", "periwig"].includes(o.hat);
+  const brim = !!o.hat && !["hair", "bonnet", "cap", "wig", "periwig", "curls"].includes(o.hat);
   faceSide(p, hx, hc, W, expr, lid, brim, skin, o.moustache, o.build === "stout");
   p.rot = null;
 };
