@@ -301,7 +301,7 @@ export const napStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
   if (id === 2) { // the hook: the phalanx charging the lens
     const t0 = WORD.bunnies - 0.12;
     for (let i = 0; i < 90; i++) {
-      const [x, z0] = PHX(i), z = z0 + 3 + 9 * (t - t0);
+      const [x, z0] = PHX(i), z = z0 + 3 + 6.5 * (t - t0);
       rabbit(cam, out, i, x, 0, z, "front", gal(t, i, 4), [0, 1], "hungry");
     }
     return;

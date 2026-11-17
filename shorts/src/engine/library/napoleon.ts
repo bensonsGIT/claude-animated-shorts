@@ -1,6 +1,6 @@
 // Cast + effects first drawn for the Napoleon rabbit-hunt short (Berthier's park outside Paris, summer 1806).
 // Any short can import them.
-import { Pen, mul } from "../toon";
+import { Pen, mul, mix, curve, taper, INK } from "../toon";
 import type { Outfit, P2 } from "../toon";
 
 /** Napoleon in his hunting dress (Thiébault: short green coats trimmed with gold braid); plain bicorne, white cravat, breeches */
@@ -163,21 +163,104 @@ export const fxCoach = (p: Pen, leg = 0, dir = 1, face = false) => {
   p.poly([[318, 120], [380, 120], [380, 136], [330, 140]], dark, 4);
   p.poly([[340, 120], [376, 120], [372, 70], [344, 70]], "#6a5a48", 5);
   p.ell(358, 56, 18, 18, "#f0b898", 4); p.poly([[342, 46], [374, 46], [370, 10], [346, 10]], "#1e1c26", 4); p.stroke([[336, 46], [380, 46]], 4);
-  p.stroke([[372, 90], [520, 200]], 3, dark); // reins
-  p.stroke([[330, 250], [470, 250]], 7, dark); // the pole
-  // two horses (the far one darker, a step out of phase)
-  for (const [ox, col, lg] of [[30, "#3a2418", (leg + 2) % 4], [0, "#6a4228", leg]] as const) {
-    const bob = [0, -6, 0, -6][lg];
-    const legs: [number, number][] = [[[460, 500], [470, 470], [500, 480], [480, 490]][lg] as [number, number], [[630, 640], [620, 660], [650, 630], [630, 650]][lg] as [number, number]];
-    for (const [a, b] of legs) { p.line([[a + ox, 270 + bob], [a + ox - 10, 330], [a + ox + (b - a) * 0.3, 395]], col, 14, true); p.line([[b + ox, 270 + bob], [b + ox + 10, 330], [b + ox - 6, 395]], col, 14, true); }
-    p.ell(550 + ox, 250 + bob, 110, 48, col, 7);
-    p.line([[630 + ox, 230 + bob], [670 + ox, 160 + bob]], col, 40, true);
-    p.ell(696 + ox, 150 + bob, 40, 22, col, 6, 0, 360, 20);
-    p.dot(700 + ox, 140 + bob, 5);
-    p.stroke([[440 + ox, 235 + bob], [410 + ox, 290 + bob]], 10, dark);
-    p.stroke([[642 + ox, 190 + bob], [670 + ox, 140 + bob]], 8, dark);
-    p.poly([[540 + ox, 210 + bob], [580 + ox, 210 + bob], [580 + ox, 290 + bob], [540 + ox, 290 + bob]], "#7a2a2a", 3); // the harness saddle-cloth
+  // two horses in a trot: the far one (darker) half a stride out of phase, a little ahead; the pole and traces between
+  const ph = (leg % 4) / 4;
+  fxHorse(p, 582, 400, 0.98, (ph + 0.5) % 1, "#4a2c1c", "#1e140e");
+  p.stroke([[330, 252], [590, 262]], 7, dark); // the pole
+  p.stroke([[318, 228], [470, 286]], 3, dark); // a trace
+  fxHorse(p, 552, 400, 1.0, ph, "#8a5432", "#24160e");
+  p.stroke([[372, 90], [470, 168], [700, 226]], 3, dark); // reins to the bit
+  g.restore();
+};
+
+/** Catmull-Rom spline through the points (closed loop), n samples per span */
+const spline = (pts: P2[], n = 6): P2[] => {
+  const out: P2[] = [], L = pts.length;
+  for (let i = 0; i < L; i++) {
+    const p0 = pts[(i - 1 + L) % L], p1 = pts[i], p2 = pts[(i + 1) % L], p3 = pts[(i + 2) % L];
+    for (let k = 0; k < n; k++) {
+      const t = k / n, t2 = t * t, t3 = t2 * t;
+      out.push([0, 1].map((j) => 0.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3)) as P2);
+    }
   }
+  return out;
+};
+/** a carriage horse, side view facing +x, hooves on (x0, y0), ~312 x 240 design units at s = 1 (girth at x0). ph 0..1 = the
+ *  trot (diagonal pairs: near fore + far hind, then far fore + near hind); coat + black points (mane, tail, lower legs);
+ *  harness: bridle with blinker, breast collar, saddle pad and girth. */
+export const fxHorse = (p: Pen, x0: number, y0: number, s: number, ph: number, coat: string, points: string, harness = true) => {
+  const g = p.g; g.save(); g.translate(x0, y0); g.scale(s, s);
+  const ol0 = p.ol; p.ol = 2.6; // thin ink rims on the limbs (the default 12 swamps a slim leg)
+  const two = Math.PI * 2, bob = -24 - 4 * Math.abs(Math.sin(two * ph)), dark = mul(coat, [0.72, 0.7, 0.76]), lite = mix(coat, "#ffffff", 0.16);
+  const leather = "#2a1a12";
+  /** one leg: [top, joint, fetlock, hoof]; front = knee bends forward when lifted, hind = hock points back */
+  const legPts = (o: number, front: boolean): P2[] => {
+    const u = (ph + o) % 1, A = 22, B = 24;
+    const hx = u < 0.5 ? A * (1 - 4 * u) : -A + 4 * A * (u - 0.5), lift = u < 0.5 ? 0 : B * Math.sin(Math.PI * (u - 0.5) * 2);
+    if (front) {
+      const top: P2 = [44, -90 + bob], knee: P2 = [46 + 0.5 * hx + 0.5 * lift, -50 - 0.6 * lift];
+      const a = (lift / B) * 1.25 - hx * 0.004, fet: P2 = [knee[0] - 36 * Math.sin(a), knee[1] + 36 * Math.cos(a)];
+      return [top, knee, fet, [fet[0] + 4 - 6 * Math.sin(a), fet[1] + 12 * Math.cos(a * 0.8)]];
+    }
+    const top: P2 = [-104, -92 + bob], hock: P2 = [-128 + 0.4 * hx, -54 - 0.45 * lift];
+    const a = (lift / B) * 0.7 + hx * 0.004, fet: P2 = [hock[0] + 8 + 32 * Math.sin(a), hock[1] + 40 * Math.cos(a)];
+    return [top, hock, fet, [fet[0] + 6, fet[1] + 12]];
+  };
+  const drawLeg = (L: P2[], col: string, front: boolean) => {
+    const [top, j, fet, hoof] = L;
+    const [wa, wb] = front ? [24, 10] : [34, 12]; // muscled forearm / gaskin tapering to the knee / hock
+    taper(p, top, j, wa + 5, wb + 5, INK); taper(p, top, j, wa, wb, col);
+    p.line([j, fet], points, 9.5, true); // cannon (black points)
+    p.line([fet, [hoof[0] - 2, hoof[1] - 4]], points, 8.5, true); // pastern
+    p.poly([[hoof[0] - 6, hoof[1] - 6], [hoof[0] + 5, hoof[1] - 6], [hoof[0] + 8, hoof[1] + 1], [hoof[0] - 7, hoof[1] + 1]], "#1a1410", 2.5); // hoof
+    if (front) p.ell(j[0], j[1], 5.5, 5, points, 2.4); // the knee
+    else p.ell(j[0] + 2, j[1], 6.5, 6, col, 2.4); // the hock
+  };
+  // far legs (darker) behind the body
+  drawLeg(legPts(0.5, true), dark, true); drawLeg(legPts(0.0, false), dark, false);
+  // the tail, swishing a little
+  const sw = 6 * Math.sin(two * ph);
+  for (let k = 0; k < 6; k++) p.stroke(curve([-134, -140 + bob], [-160 - k * 2 + sw, -110 + k * 3], [-150 + sw * 1.5 + k * 3, -52 + k * 4], 10), 7 - 0.6 * k, points);
+  // the body, neck and head as one smooth outline
+  const B0: P2[] = [[0, -152], [-45, -142], [-85, -144], [-114, -152], [-140, -138], [-148, -112], [-138, -88], [-110, -78], [-70, -74], [-20, -70], [24, -74],
+    [50, -86], [66, -106], [74, -128], [94, -152], [112, -170], [128, -168], [148, -150], [162, -150], [168, -162], [160, -178], [140, -198], [124, -212],
+    [104, -210], [78, -192], [44, -168], [18, -158]];
+  const body = spline(B0.map(([x, y]) => [x, y + bob] as P2), 5);
+  p.poly(body, coat, 6);
+  p.clip(body, () => {
+    p.ell(-30, -54 + bob, 170, 34, dark, 0); // shaded belly
+    p.ell(-112, -128 + bob, 30, 22, lite, 0); // hindquarter sheen
+    p.ell(30, -132 + bob, 30, 14, lite, 0); // shoulder sheen
+    p.ell(160, -158 + bob, 16, 14, mul(coat, [0.55, 0.5, 0.55]), 0); // dark muzzle
+  });
+  p.poly(body, null, 6);
+  p.stroke([[52, -142 + bob], [40, -100 + bob]], 2.4, dark); // the shoulder line
+  p.stroke(curve([-96, -136 + bob], [-80, -110 + bob], [-100, -84 + bob], 8), 2.4, dark); // the stifle line
+  // ears, mane, forelock
+  p.poly([[116, -208 + bob], [118, -238 + bob], [128, -212 + bob]], coat, 3); p.poly([[124, -212 + bob], [130, -236 + bob], [136, -208 + bob]], dark, 3);
+  for (let k = 0; k < 9; k++) {
+    const t = k / 8, cx = 120 - 110 * t, cy = -212 + 56 * t + 6 * Math.sin(t * Math.PI) + bob;
+    p.stroke([[cx, cy], [cx - 14 - 4 * t, cy + 26 - 6 * t]], 7, points);
+  }
+  p.stroke([[132, -212 + bob], [142, -196 + bob]], 5, points); p.stroke([[128, -210 + bob], [134, -194 + bob]], 4, points);
+  // eye, nostril, mouth
+  p.ell(138, -188 + bob, 5, 4.5, "#1a1210", 1.5); p.dot(139.5, -189.5 + bob, 1.5, "#ffffff");
+  p.arc(160, -160 + bob, 4, 3, 180, 360, 2.2); p.stroke([[150, -152 + bob], [162, -152 + bob]], 1.8);
+  if (harness) {
+    p.stroke([[124, -206 + bob], [148, -156 + bob]], 3.4, leather); // cheek strap
+    p.stroke([[146, -172 + bob], [168, -170 + bob]], 3.4, leather); // noseband
+    p.stroke([[118, -206 + bob], [112, -170 + bob]], 3.4, leather); // throatlatch
+    p.poly([[124, -200 + bob], [134, -200 + bob], [134, -180 + bob], [124, -180 + bob]], "#1a1210", 2.4); // the blinker (behind the eye)
+    p.ell(138, -188 + bob, 5, 4.5, "#1a1210", 1.5); p.dot(139.5, -189.5 + bob, 1.5, "#ffffff");
+    p.ell(152, -152 + bob, 4, 4, "#c9a24a", 1.6); // the bit ring
+    p.stroke(curve([74, -122 + bob], [40, -108 + bob], [-8, -112 + bob], 8), 7, leather); // breast collar
+    p.poly([[-24, -150 + bob], [22, -156 + bob], [26, -118 + bob], [-22, -114 + bob]], "#7a2a2a", 3); // saddle pad
+    p.stroke([[2, -118 + bob], [6, -74 + bob]], 5, leather); // girth
+    p.ell(2, -150 + bob, 7, 5, "#c9a24a", 1.4); // terret ring
+  }
+  // near legs in front of the body
+  drawLeg(legPts(0.0, true), coat, true); drawLeg(legPts(0.5, false), coat, false);
+  p.ol = ol0;
   g.restore();
 };
 /** a tray of breakfast held out (or on the table): a fat pie (220 x 140) */

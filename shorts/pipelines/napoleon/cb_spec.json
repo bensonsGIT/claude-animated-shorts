@@ -22,6 +22,6 @@
   ["They thought Napoleon was the man with their cabbage, and nobody had fed them that day!", 0.5],
   ["Everyone laughed. Berthier was mortified, because...", 0.2]
  ],
- "subs": {"1806.": "eighteen oh six.", "Berthier": "Bear-tee-ay", "Berthier,": "Bear-tee-ay,", "Berthier's": "Bear-tee-ay's"},
+ "subs": {"1806.": "eighteen oh six.", "Berthier": "Bertyay", "Berthier,": "Bertyay,", "Berthier's": "Bertyay's"},
  "fuzzy": ["Berthier", "Berthier's", "Bertier", "Napoleon", "1806", "eighteen", "six"]
 }

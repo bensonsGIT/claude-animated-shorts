@@ -25,7 +25,17 @@ The engine is shared; a short's folder holds only what is its own.
 - New hats, props or expressions go into `engine/toon.ts` as new names. Never change what an existing name draws: Franklin's
   plain tricorn became `tricornFlat` and his desk quill `writeQuill` because later shorts drew `tricorn`/`quill` differently.
 
-Later shorts (2026-11-15) are the better starting point now. They are interior stories with captions and the current
+**Where the code lives (since 2026-11-17):** every short is on ONE branch, `all-shorts` (pushed). A new short is one or
+more commits on top of it. Never leave a short on a private branch: the Bentham short was orphaned when its branch was
+deleted and had to be rescued from a dangling commit. Push as soon as the short renders.
+
+**Best starting point now: `dancing/` or `napoleon/`** (2026-11-16/17). Their `world.ts` is ~140 lines (two or three sets,
+the shared light rig, the card loop) and their `cast.ts` splits cleanly into shared card machinery (everything above the
+`// ===== the <name> short =====` line: copy it verbatim) and the short's own staging below it. `napoleon/` adds an
+outdoor park with a sky dome, an animal herd (150 rabbit cards) and a vehicle card. The 2026-11-15 shorts below still
+show the older multi-room patterns.
+
+Later shorts (2026-11-15) are also usable starting points. They are interior stories with captions and the current
 voice/sound workflow; all three live in `shorts/src/videos/` with scripts, voice and sound in `~/<name>-short/`.
 - **Newton** (`newton/`, composition `NewtonShort`): three sets (study, Royal Mint, Newgate cell), periwigs, wall fx, glare veil.
   Copy it for multi-location stories. Its `make_timing.py` auto-keys every word (`WORD.newton2` ...), cuts = `cf(beat)`.
@@ -54,7 +64,15 @@ User rules that apply:
 ## Pipeline
 1. **Topic and facts.** Pick one surprising true story with a physical cause and effect (it should be visual), plus a simple everyday analogy that explains it.
    - Write the facts with their source at the top of `SCRIPT.md`.
-2. **Script** (~3.7 words/s, 55-70 s). Beat formula from the bridge short:
+   - **Read the primary source itself, not the retellings.** Old memoirs and chronicles are on archive.org as plain text:
+     `curl -sL https://archive.org/stream/<id>/<id>_djvu.txt -o src.txt`, then grep for the passage and read the pages
+     around it. For the Napoleon rabbit hunt every popular article said "July 1807, after Tilsit, up to 3,000 rabbits, they
+     jumped into the coach"; the memoir itself says summer 1806, a thousand rabbits, and that none got onto the coach.
+     Check the date against the source's own chronology (the chapter before and after), and quote its wording in `SCRIPT.md`.
+   - A story that rests on one account is fine if the script says so in its second line ("According to one of his own generals...").
+2. **Script** (55-70 s). **Budget 2.6 words per second with Chatterbox, pauses included: 150-180 words.** (The old
+   "~3.7 words/s" figure was for the faster Kokoro voice. Measured: Napoleon 198 words -> 77 s, Emu -> 75 s, Bentham -> 75 s.
+   A 200-word script always lands near 77 s.) Beat formula from the bridge short:
    - **Hook:** the absurd fact in one line ("Seventy-four soldiers knocked down an iron bridge just by walking across it.").
    - **Setting:** year, place, pride.
    - **Action:** escalation over three or four beats, each a little bigger.
@@ -70,15 +88,35 @@ User rules that apply:
      `beats` = [[sentence, pause s], ...] (one beat per sentence, the picture cuts on them, "!" on punchlines),
      `subs` = per-word TTS respellings (captions keep the script spelling), `fuzzy` = names Whisper may spell differently.
      Respellings that work: years spelled out ("1699," -> "sixteen ninety-nine,"), "Tyco" (Tycho), "Challoner", "lyve" (live wire).
+     - **A `subs` key is the whole token including its punctuation** ("1806." and "Berthier," are different keys from
+       "1806" and "Berthier"). A key that matches nothing leaves the digits in the text and `cb_voice.py` dies with an
+       IndexError when it assembles the words. List every punctuated form that occurs in the script.
+     - **Never respell a name with hyphens** ("Bear-tee-ay"). Chatterbox reads each piece as its own word with a gap between
+       them, and the aligner splits the token too. Write ONE word: Berthier -> "Bertyay"
+       (measured: "Bear-tee-ay" 700-900 ms with three gaps, heard as "Bear TA"; "Bertyay" 400-560 ms with one gap,
+       heard as "Berthier" / "Bertier"). Run `cb_regen.py` with two one-word alternates (`--alt` twice) and a `--must`
+       regex that only one word can satisfy (`\b(ber|bair)[a-z]{2,}`).
+     - **Audition a foreign or unusual name before the full run:** `pipelines/cb_name_test.py` says a carrier sentence
+       with each candidate spelling a few times and prints, per candidate, the name's length, the number of silent gaps
+       inside it and what Whisper heard. Pick the spelling with one short gap or none and a sensible length (a
+       two-syllable name is 350-500 ms, not 700+).
+     - While the voice generates (1-2 min per line on the Mac), run `pipelines/stub_timing.py spec.json
+       src/videos/<name>/timing.ts`: it writes a stand-in timing with every word key, so the shots can be written,
+       type-checked and checked as stills in parallel. Replace it with `make_timing.py` once the voice is done and
+       re-check the stills on the real timing.
    - `~/tts/chatterbox/bin/python shorts/pipelines/cb_voice.py spec.json voice/` -> voice.wav, words.json (torchaudio
      MMS_FA forced alignment), beats.json, cb_report.txt. Each take is transcribed by Whisper (small.en) and retried
      (up to 6) until Whisper hears the script's words.
    - Fix any line still flagged (`!!` in the report) or with a mangled name:
      `cb_regen.py spec.json voice/ N --alt "respelled sentence" --must "regex Whisper must hear"`. It splices the new take and
      shifts every later word.
+     `cb_regen.py` compares Whisper against the line stored in `voice/beats.json`, not the spec: when a line's wording
+     or spelling changes, edit both files. Whisper writes some words its own way ("counter-attacked", "St." for
+     "Saint"); a line it "fails" six times with the right words is a spelling mismatch: change the script's spelling
+     to Whisper's or add the word to `fuzzy`, rather than burning more takes.
    - Then `make_timing.py` -> `src/videos/<name>/timing.ts` + `~/<name>-short/timing.json` (TOTAL, WORD, BEAT/shots, WORDS for captions).
    - To audition voices: `~/newton-short/voice/chatterbox/samples.py` (refs from Kokoro voices via make_refs*.py).
-4. **Shot plan** in `story.ts`: copy `src/videos/newton/` (or `franklin/` for one room) to `src/videos/<name>/`, rename the export in its `index.tsx`, and add its `short` to `SHORTS` in `src/Root.tsx`. Only the short's own files are copied; the engine stays in `src/engine/`.
+4. **Shot plan** in `story.ts`: copy `src/videos/dancing/` or `napoleon/` (lean `world.ts`; `newton/` for the older multi-room pattern, `franklin/` for one room) to `src/videos/<name>/`, rename the export in its `index.tsx`, and add its `short` to `SHORTS` in `src/Root.tsx`. Only the short's own files are copied; the engine stays in `src/engine/`.
    - Cuts and gags are keyed to `WORD.<word>` / beat onsets (never to hard frame numbers), so a re-voice retimes the whole film.
    - 9:16 is narrow: stage two-shots in depth, keep close-ups ~2.5 m from these bean-head cards, frame faces in the upper
      third (captions sit at 71 %). Check marks with a quick projection before rendering stills.
@@ -90,6 +128,11 @@ User rules that apply:
    - `DOF`/`dofAt`: lens blur per beat.
    - `FOREGROUND`: near framing props.
    - Every visual reaction lands 0-3 frames before its word.
+   - Pick word keys that occur once in the script for cuts (`cw("bunched")`); a repeated word needs its numbered key
+     (`napoleon2`), and `make_timing.py` prints the full key list.
+   - Three stills per shot (first frames, middle, last 2 frames) on contact sheets (`scripts/sheet.py`) catch nearly
+     every staging fault in one pass: a subject outside the 9:16 frame, a card standing between the lens and the
+     subject (it fills a third of the frame), a gag that has not started yet at the cut, a hat that floats above a head.
 5. **World.**
    - `lights.ts`: LIGHTS plus the LOOK sky/river/cloud palette per light.
    - `shade.ts`: two-tone shading and `untone()`.
@@ -100,10 +143,28 @@ User rules that apply:
    - `engine/toon.ts` (+ `engine/library/*.ts` for earlier shorts' casts): the Canvas2D `Pen` drawing API, 600x1000 design canvas, soles at y = 975, bean heads, stick limbs, plum variable-width outline, face library.
    - `cast.ts`: camera-facing billboards, crowds, effect cards, blinks, walk cycles. All billboards go on the `NOINK` layer.
    - `cardshade.ts`: cards lit by the scene light, no emissive.
+   - **Animals and vehicles are fx cards** drawn by a function in `engine/library/<short>.ts` (`fxEmu`, `fxRabbit`,
+     `fxHorse`, `fxCoach`). What makes one read as the real animal:
+     - Draw the body, neck and head as ONE closed spline silhouette (`spline()` in `library/napoleon.ts`), then
+       `p.clip()` soft shading into it (darker belly, lighter rump and shoulder, dark muzzle). Ellipses glued together
+       read as a toy.
+     - Legs have joints: upper leg as a `taper()` from muscle to knee/hock (drawn twice: ink a few units wider, then
+       the coat colour), a thin cannon, a pastern, a hoof. Far-side legs darker and drawn BEFORE the body, near-side after.
+     - `Pen.line` adds an ink rim of `p.ol` (12 units by default) on each side: a slim limb becomes a black sausage.
+       Set `p.ol` to 2-3 while drawing limbs and restore it.
+     - Give it the things people look for: ears, mane, tail, eye with a white dot, nostril, and for a carriage horse
+       the harness (bridle, blinker, breast collar, saddle pad, girth, reins that END at the bit).
+     - Render the gait as four consecutive phases side by side before using it; one still hides a broken leg cycle.
+   - **Herds** (emus, rabbits): one card per animal in `stage()`, positions from a seeded hash, and a texture key
+     quantised to coat | pose | phase/8 | direction | eye | resolution tier so 150 animals share a few dozen canvases.
+     Choose the resolution tier by distance; skip contact shadows past ~12 m.
 7. **Post** (`engine/ShortVideo.tsx` + `ink.ts` + `lensblur.ts` + `grade.ts`). Per-short overlays (glare, dim) and the flash timing go in the short's `index.tsx`.
    - Composer order: ink → lens pre → lens main → bloom → NEUTRAL tone map → grade (MSAA 4).
    - Every pixel parameter scales with output height / 1920.
-8. **Sound**: copy `~/newton-short/audio/newton_sound.py` (shared libs in `shorts/audio/`: dsp.py, instruments.py, sfx_gen.py).
+8. **Sound**: write `pipelines/<name>/<name>_parts.py` like `pipelines/napoleon/napoleon_parts.py`: it holds only this
+   short's header, set timeline, `build_sfx()` and score, and splices them over the shared helpers and mix section of
+   `pipelines/dancing/dancing_sound.py` to produce `<name>_sound.py` (shared libs in `shorts/audio/`: dsp.py, instruments.py, sfx_gen.py).
+   - Check a helper's return type before placing it: `I.snare_roll()` returns a list of (time, velocity) hits, not audio.
    - Reads `timing.json`; every SFX/music event sits on a word time. Voice goes through `voice_chain()` (HP 85 Hz,
      -2.5 dB at 260 Hz, +4 dB at 3.8 kHz, +2.5 dB air shelf, RMS compressor 3.5:1), music ducked 11 dB on words.
    - Event table → synthesized SFX plus an original score ducked under the voice.
@@ -118,6 +179,10 @@ User rules that apply:
     - `npx remotion render src/index.ts <Comp> out/<name>/video.mp4 --codec h264 --crf 16 --scale 1.3333333333333333` (remotion.config.ts sets the angle GL renderer; without it the Mac falls back to a ~15x slower GL path)
     - Mux: `ffmpeg -i video.mp4 -i mix.wav -map 0:v:0 -map 1:a:0 -c:v copy -af "lowpass=f=16000:poles=2" -c:a aac -b:a 320k -shortest final.mp4`
       (Remotion writes a silent audio track; plain 256k AAC overshot to +0.1 dBFS on sharp zaps, the low-pass + 320k keeps peaks ~-4 dB).
+    - **Measure the muxed file, every time:** `ffmpeg -i final.mp4 -af ebur128=peak=true -f null - 2>&1 | grep -E "I:|Peak:"`.
+      Sharp transients (whip cracks, snares) still overshot to +1.1 dBFS through AAC although the mix.wav peaked at -3.5.
+      If the peak is above -1 dBFS, add a limiter to the chain: `-af "lowpass=f=16000:poles=2,alimiter=limit=0.6:attack=1:release=50:level=false"`
+      (peak -3.7 dBFS, loudness unchanged).
     - Keep the previous final as `<name>_<oldvoice>.mp4` before overwriting.
     - QA: `python scripts/short_qa.py final.mp4 out/<name>/qa shots.json` checks every frame for black, white, frozen and pop frames, plus loudness and sheets.
     - Fix anything it finds, then run a deep Opus audit.
@@ -196,6 +261,16 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 - Scratch `.ts` files inside `out/` break `tsc`: name them `.txt`.
 - 2K renders run ~4 fps (≈10 min for 67 s). Stills at 0.5 take 3-8 s each after a ~40 s bundle.
 - Film grain at 2.5 % made the 2K file 910 MB instead of ~250 MB and will turn to mush on YouTube; the reference has none. Keep it off.
+
+## Shell and git gotchas in a worktree session (2026-11-17)
+- The session guard rejects compound git commands, `git -C <other path>`, loops and heredocs that contain git, and
+  `cd <computed path> && git ...`. Run one plain git command per call from the worktree, and put anything longer in a
+  script file (Python or zsh) and run that.
+- `git archive <commit>` run from a subfolder exports only that subfolder (an untracked folder gives an empty tar).
+- zsh: `"$var:a..."` applies a path modifier to `$var` (`limit=$lim:attack` became a file path). Write `${var}` or the literal value.
+  zsh also does not word-split `$list` in `for f in $list`.
+- To compare a worktree with a commit when git is blocked there: `git archive <commit> | tar -x -C tmp/` from the repo
+  root, then `diff -rq` with node_modules/out/public excluded.
 
 ## Readability traps the verifier caught (check every new prop/shot for these)
 - **A swing drawn as one rope that disappears behind the kid reads as a HANGING.** Always two ropes to a wide plank
