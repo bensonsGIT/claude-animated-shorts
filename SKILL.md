@@ -96,6 +96,10 @@ User rules that apply:
        (measured: "Bear-tee-ay" 700-900 ms with three gaps, heard as "Bear TA"; "Bertyay" 400-560 ms with one gap,
        heard as "Berthier" / "Bertier"). Run `cb_regen.py` with two one-word alternates (`--alt` twice) and a `--must`
        regex that only one word can satisfy (`\b(ber|bair)[a-z]{2,}`).
+     - **Say a hard name once.** Each line is generated separately, so an invented spelling is pronounced a little
+       differently every time (five "Berthier"s were heard as Berthier / Bertier / Bertiei / Burtye / "Bertie I's", and the
+       user noticed). Introduce the person by name in one line and use the title after that ("the marshal", "the pope",
+       "the major"). If a name must recur, check the takes against EACH OTHER, not only against the script.
      - **Audition a foreign or unusual name before the full run:** `pipelines/cb_name_test.py` says a carrier sentence
        with each candidate spelling a few times and prints, per candidate, the name's length, the number of silent gaps
        inside it and what Whisper heard. Pick the spelling with one short gap or none and a sensible length (a

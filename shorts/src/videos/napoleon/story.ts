@@ -28,21 +28,21 @@ export const SHOTS: ShotDef[] = [
   park(4, cf(2), cf(3)), // "Napoleon was at the height of his power, and his court competed to keep him entertained."
   park(5, cf(3), cf(4)), // "His chief of staff, Marshal Berthier, offered a rabbit shoot on his estate just outside Paris."
   park(6, cf(4), cf(5)), // "The estate had everything, except rabbits."
-  park(7, cf(5), cf(6)), // "So Berthier bought a thousand of them, and set them loose that very morning."
+  park(7, cf(5), cf(6)), // "So the marshal bought a thousand of them, and set them loose that very morning."
   park(8, cf(6), cf(7)), // "After a splendid breakfast, the Emperor raised his gun."
   park(9, cf(7), cw("bunched")), // "But the rabbits didn't run. They"
   park(10, cw("bunched"), cw("napoleon2")), // "bunched up, turned around, and charged straight at"
   park(11, cw("napoleon2"), cf(8)), // "Napoleon!"
-  park(12, cf(8), cf(9)), // "Berthier counterattacked with a squad of coachmen cracking long whips."
+  park(12, cf(8), cf(9)), // "The marshal counter-attacked with a squad of coachmen cracking long whips."
   park(13, cf(9), cw("split")), // "It worked, until the rabbits"
   park(14, cw("split"), cf(10)), // "split into wings, swept around both flanks, and hit the Emperor from behind!"
   park(15, cf(10), cf(11)), // "They piled up between his legs until he staggered."
   park(16, cf(11), END16), // "The conqueror of conquerors retreated to his carriage, and left the rabbits the field."
   park(17, END16, cf(12)), // (the rabbits hold the field)
-  park(18, cf(12), cf(13)), // "Then the truth came out. Berthier's buyer didn't know one rabbit from another."
+  park(18, cf(12), cf(13)), // "Then the truth came out. The marshal's buyer didn't know one rabbit from another."
   park(19, cf(13), cf(14)), // "He'd bought tame hutch rabbits, not wild ones."
   park(20, cf(14), cf(15)), // "They thought Napoleon was the man with their cabbage, and nobody had fed them that day!"
-  park(21, cf(15), cw("because")), // "Everyone laughed. Berthier was mortified,"
+  park(21, cf(15), cw("because")), // "Everyone laughed. The marshal was mortified,"
   tent(22, cw("because"), TOTAL), // "because..." -> loops into line 1
 ];
 export const XFADE: Record<number, number> = { 4: 8, 6: 10, 7: 10, 8: 12, 12: 8, 16: 8, 18: 14, 19: 10, 20: 10, 21: 10, 22: 8 };

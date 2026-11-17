@@ -47,6 +47,9 @@ must describe things the toon/set system can draw.
   Count the words and give the estimate as words ÷ 2.6. One sentence per line = one voice beat;
   the picture cuts on beats. English only. No questions to the viewer. Never open with "Did you know".
 - Put "!" on punchline lines (Chatterbox delivers them harder).
+- **A hard-to-pronounce name (foreign, or one that needs a TTS respelling) is spoken ONCE**, where the person is introduced;
+  every later line uses the title or role ("the marshal", "the pope", "his buyer"). The voice is generated line by line and
+  says a respelled name differently each time; Ben noticed five different "Berthier"s. Easy names (Napoleon, Newton) can recur.
 - Give each shot a cut word that occurs only once in the script (shots are keyed to words; a repeated word needs a
   numbered key). Avoid ending a line on a word the next line starts with.
 - Spell compound words the way a transcriber would ("counter-attacked", not "counterattacked"): the voice check compares
