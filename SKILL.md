@@ -72,7 +72,8 @@ User rules that apply:
      jumped into the coach"; the memoir itself says summer 1806, a thousand rabbits, and that none got onto the coach.
      Check the date against the source's own chronology (the chapter before and after), and quote its wording in `SCRIPT.md`.
    - A story that rests on one account is fine if the script says so in its second line ("According to one of his own generals...").
-2. **Script** (55-70 s). **Budget 2.6 words per second with Chatterbox, pauses included: 150-180 words.** (The old
+2. **Script** (55-70 s). **Budget 2.6 words per second with raw Chatterbox, pauses included: 150-180 words; 2.85 w/s
+   (165-195 words) with the house 8 % speed-up (step 3).** (The old
    "~3.7 words/s" figure was for the faster Kokoro voice. Measured: Napoleon 198 words -> 77 s, Emu -> 75 s, Bentham -> 75 s.
    A 200-word script always lands near 77 s.) Beat formula from the bridge short:
    - **Hook:** the absurd fact in one line ("Seventy-four soldiers knocked down an iron bridge just by walking across it.").
@@ -121,6 +122,14 @@ User rules that apply:
      or spelling changes, edit both files. Whisper writes some words its own way ("counter-attacked", "St." for
      "Saint"); a line it "fails" six times with the right words is a spelling mismatch: change the script's spelling
      to Whisper's or add the word to `fuzzy`, rather than burning more takes.
+   - **Speed-up (house delivery since the Ivan Ilych short, 2026-11-17: Ben asked to "speed up the delivery slightly"):**
+     after the voice passes, time-stretch it 8 % with the pitch kept, `ffmpeg -i voice.wav -af atempo=1.08 out.wav`, and
+     divide every time in `words.json` and `beats.json` (and `duration`) by 1.08. Keep the unsped files beside them
+     (`voice_unsped.wav` ...). Then re-run Whisper over the whole sped file to be sure it still hears every word
+     (Ivan Ilych: clean). A later `cb_regen.py` must run on the UNSPED files, then speed up again.
+   - Adding or rewording a line after the voice is done: edit the beat's text in BOTH `cb_spec.json` and `voice/beats.json`,
+     then `cb_regen.py spec voice/ N` (it now handles a beat whose word count changed). To add a new line cheaply, regenerate
+     the last beat as "new line. old line." and split it into two beats at the old line's first word (pad the gap to ~0.55 s).
    - Then `make_timing.py` -> `src/videos/<name>/timing.ts` + `~/<name>-short/timing.json` (TOTAL, WORD, BEAT/shots, WORDS for captions).
    - To audition voices: `~/newton-short/voice/chatterbox/samples.py` (refs from Kokoro voices via make_refs*.py).
 4. **Shot plan** in `story.ts`: copy `src/videos/dancing/` or `napoleon/` (lean `world.ts`; `newton/` for the older multi-room pattern, `franklin/` for one room) to `src/videos/<name>/`, rename the export in its `index.tsx`, and add its `short` to `SHORTS` in `src/Root.tsx`. Only the short's own files are copied; the engine stays in `src/engine/`.
@@ -300,6 +309,30 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 - Golden interiors go lavender; use the `lab` preset for daylit marble rooms.
 - Stills render in under a second each after the bundle, so contact sheets of mid + end + every gag word are cheap: do
   all three passes before the final render.
+
+## Ivan Ilych short lessons (2026-11-17)
+Template: `src/videos/ivan/` (house.ts drawing room / sickroom / dark tube, court.ts judges' room / card room).
+- **No clipping (Ben: "Ivan clips into his bed and other characters too").** A card is a vertical plane; any 3D box it passes
+  through cuts it in half. Place every card clear of geometry, with ~0.1 m margin for its yaw toward the camera:
+  - a sitter goes ~0.1 m IN FRONT of the seat's front face, `y = seat height - 0.2` (the sit pose's hips are 0.2 m above
+    the card's feet), so the legs dangle in front of the sofa / bed;
+  - people at a table sit ~0.12 m BEHIND its far edge (the table top hides their legs);
+  - someone on a ladder stands on the FRONT edge of the top board; a card inside a tube stays above its floor;
+  - walking paths must start and end clear of tables and cabinets.
+- **Every sitter needs a visible seat** (Ben: "his colleagues are sitting on air"): build a chair whose seat top is at the
+  hip height and whose seat runs from just behind the card plane backwards (court.ts `CHAIRS`). Under a round pedestal table
+  the empty space shows the legs, so chairs are not optional there.
+- Props in front of faces read as clipping too: candles on a card table go to the table's sides, not between the lens and a face.
+- **Lying people** are one fx card that draws `bodyFront` on a rotated canvas (`g.save(); g.translate(..); g.rotate(..);
+  bodyFront(p, ..); g.restore()`): library/ivan.ts `fxLegsUp` (Ivan on the sofa, legs on Gerasim's shoulders, Gerasim
+  on a drawn stool). Put the card just in front of the 3D sofa.
+- A walking group leaves the frame (path continues past the lens edge); a card that disappears mid-frame is a QA pop.
+- **Captions PUNCH**: `clean()` strips trailing `.`/`,`, so list punch words bare ("wrong", not "wrong."); only `!`/`?` stay.
+  The Gambler's PUNCH list ("die.", "alive,") never matched for this reason.
+- A "light at the end of the tunnel": an open cone (CylinderGeometry, BackSide, dark) receding from the lens with rib
+  rings, plus an unlit HDR disc at the far end that rushes toward the camera and grows until it fills the frame (`House.pose`
+  light 0..1); the bloom does the glow.
+- Camera pull-back for a reflective line: `hold()` with a NEGATIVE rate dollies out.
 
 ## Readability traps the verifier caught (check every new prop/shot for these)
 - **A swing drawn as one rope that disappears behind the kid reads as a HANGING.** Always two ropes to a wide plank
