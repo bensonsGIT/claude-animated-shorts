@@ -22,7 +22,8 @@ must describe things the toon/set system can draw.
 - Avoid well-known myths (horned Viking helmets, short Napoleon, "medieval people never bathed", "let them eat cake").
 - Done so far (don't repeat): Broughton bridge (1831), Tycho Brahe, Franklin's turkey, Newton (bodkin / Mint / Chaloner),
   Formosus (Cadaver Synod), Kentucky Meat Shower (1876), Bentham's auto-icon, Peter the Great's beard tax, the Great Emu War
-  (1932), wombat cube poo, the Dancing Plague (1518), Napoleon and the rabbits (1806).
+  (1932), wombat cube poo, the Dancing Plague (1518), Napoleon and the rabbits (1806), Caligula's seashells (AD 40).
+  Pitched with Caligula, not made: the 1904 Olympic marathon (car ride, strychnine), the Pig War (1859).
   Pitched but not made: the Falaise pig trial (1386; Ben dropped it), Byron's bear at Cambridge, Mike the headless chicken,
   Napoleon vs. the Mechanical Turk.
 - Stories with animals in numbers (emus, rabbits) and one vehicle have worked well: the herd is the gag.
@@ -40,10 +41,18 @@ must describe things the toon/set system can draw.
   - Date the event from the source's own chronology (what the chapter says before and after), not from the retellings.
   - Quote the source's wording in the Facts section, and list the popular embellishments you left out under "Not used".
   - Say who the witness was and whether they were there or had a grudge; put the attribution in line 2 of the script.
+- **Ancient history:** the Loeb texts of Suetonius, Cassius Dio, Plutarch, Tacitus etc. are on LacusCurtius
+  (`penelope.uchicago.edu/Thayer/E/Roman/Texts/...`, Latin under `/L/`). WebFetch refuses to quote more than 125 characters,
+  so `curl -sL` the page and grep the chapter yourself. Check every popular "fact" against the text: "Caligula declared
+  war on Neptune" is a modern gloss; neither ancient source names Neptune. Ancient biographers are late and hostile:
+  attribute in line 2 and list the modern readings (e.g. mutiny, mistranslation) under "Debated".
+- A twist that brings the story forward to a later date (the lighthouse that stood until 1644) needs its own sources;
+  give the year and whether the link to the person is certain or traditional.
 
 ## 3. Script rules
 - 12-16 numbered lines, **150-180 words** (Chatterbox runs 2.6 words per second with pauses: 150 words ≈ 58 s,
-  180 ≈ 70 s. Measured: 198 words → 77 s, and the Emu and Bentham scripts → 75 s. Over 180 words always overruns 70 s).
+  180 ≈ 70 s. Measured: 198 words → 77 s, the Emu and Bentham scripts → 75 s, Caligula 178 words → 67.5 s. Over 180 words
+  always overruns 70 s).
   Count the words and give the estimate as words ÷ 2.6. One sentence per line = one voice beat;
   the picture cuts on beats. English only. No questions to the viewer. Never open with "Did you know".
 - Put "!" on punchline lines (Chatterbox delivers them harder).
@@ -69,18 +78,20 @@ must describe things the toon/set system can draw.
 ## 4. Voice spec (draft `cb_spec.json`)
 Give the draft spec so the voice can be generated straight away:
 ```json
-{ "ref": "~/tts/refs/ref_am_michael.wav", "exaggeration": 0.5, "cfg": 0.5, "pause_k": 1.0,
+{ "ref": "/Users/benson/tts/refs/ref_am_michael.wav", "exaggeration": 0.5, "cfg": 0.5, "pause_k": 1.0,
   "beats": [["<line 1>", 0.45], ["<line 2>", 0.35]],
   "subs": {"897": "eight ninety-seven", "Tiber": "Tyber"},
   "fuzzy": ["<names Whisper may spell differently>"] }
 ```
+- `ref` must be an absolute path: the voice scripts don't expand `~` and crash with FileNotFoundError.
 - Pause ~0.3-0.5 s, longer (0.6-0.9) before the twist.
 - `subs` = TTS respellings only (captions keep the script spelling). Always spell out years ("sixteen ninety-nine").
   - **A key is the whole token with its punctuation.** If the script has "1806." and "Berthier," then those, with the full
     stop and the comma, are the keys ("1806" alone matches nothing and the voice run crashes). List every punctuated form.
   - **A respelling is ONE word, never hyphenated.** "Bear-tee-ay" was spoken as three separate chunks and Ben heard it;
     "Bertyay" came out as one continuous word. For a foreign or unusual name give two one-word candidates and note
-    "audition with `pipelines/cb_name_test.py` before the full run".
+    "audition with `pipelines/cb_name_test.py` before the full run". Include the plain spelling as a third candidate:
+    "Suetonius" as written was heard correctly in every take.
   Known fixes: Tycho → "Tyco", Chaloner → "Challoner", live (wire) → "lyve", St. → "Saint", Berthier → "Bertyay",
   Formosus → "For-mo-sus" (hyphenated, from before the one-word rule: if it is ever re-voiced, try "Formosus" or "Formohsus").
 - `fuzzy`: every proper name and regnal number (e.g. "the","sixth","vi" for "Stephen the Sixth").
@@ -96,6 +107,12 @@ Characters are flat 2D bean-head cards with plum ink in a 3D set, drawn in Canva
 Secondary characters must differ clearly (hair colour, beard, coat colour) so the cards don't merge. Crowds: say how many and what kind.
 - Existing hats also include: tricorn, bicorne, bicorne_plume, tudor, fur, furcap, slouch, peaked, brimhat, boater, cloche, battered.
   Existing props also include: fowling gun, whip, Lewis gun, pitchfork, point.
+- **Ancient Rome kit** (Caligula short): hats laurel (wreath over hair), galea (legionary helmet, short red plume),
+  galea_cent (centurion's sideways fan crest); Outfit fields cuirass "muscle" | "segmented", cape, kilt (tunic skirt +
+  leather strips), scutum (curved shield), drape + clavus (toga + purple stripe), phalerae, torc, plaid; props
+  ["gladius", k] (raised .. thrust down), shell (held up), shells (helmet full of shells), cloth (white surrender cloth),
+  unroll (endless letter), coin, purse. Fx: trireme (rowing, with a figure on the bow), eagle standard, crab, gull,
+  thought bubbles, guards' shadow silhouettes, moon, rain.
 - **Animals and vehicles**: say which views are needed (side run, running at the camera, sitting, on its back) and what
   makes the animal recognisable (a horse needs an arched neck, mane, tail, jointed legs, hooves and harness; Ben sent the
   first horse back for looking like a toy). Existing: emu, rabbit (8 coats, 4 poses), carriage horse + coach, droshky, ox-wagon, vultures.
@@ -105,8 +122,10 @@ Secondary characters must differ clearly (hair colour, beard, coat colour) so th
 - Reuse an existing set where it fits: great hall / banquet / lab (`tycho/`), parlour (`franklin/`), study / Royal Mint /
   prison cell (`newton/`), basilica / crypt / Tiber bank (`formosus/`), outback farm + dam / Parliament (`emu/`), frontier farm
   (`meat/`), Moscow / wharf (`peter/`), half-timbered town lane + square + council chamber (`dancing/`), French park with
-  hutches, pavilion and drive / campaign tent with a map table (`napoleon/`). Mark new sets **NEW** with 2-3 key props.
-- Recommend the template to copy: `dancing/` or `napoleon/` (leanest, current layout) for most stories; `franklin/` for one room.
+  hutches, pavilion and drive / campaign tent with a map table (`napoleon/`), sea beach with surf, chalk cliff, a lighthouse
+  that builds / burns / collapses, ballistas (`caligula/beach.ts`), Roman Senate house, torch-lit palace corridor,
+  scholar's study (`caligula/rome.ts`). Mark new sets **NEW** with 2-3 key props.
+- Recommend the template to copy: `caligula/` or `napoleon/` (leanest, current layout) for most stories; `franklin/` for one room.
 
 ## 7. Shot list (story.ts SHOTS)
 One table row per shot, ~16-24 shots (several per beat is fine):
@@ -124,6 +143,11 @@ One table row per shot, ~16-24 shots (several per beat is fine):
 - A fast gag must still be on screen at the cut: say where the subject is at the END of the shot (the rabbits charging the
   lens had all run past it, leaving an empty lawn for the last frames).
 - Never stand a second character between the lens and the subject; at 9:16 it fills a third of the frame.
+- Cards only have a front view. A crowd that leaves must walk TOWARD the camera (put the camera where they are going),
+  never away from it, or they look like they are walking backwards.
+- The frame is only ~0.5 × the distance wide (fov 44): a 6 m boat or coach card needs the camera ≥ 20 m away, and its
+  whole path has to fit in that width.
+- A shadow on a side wall seen down a corridor reads as a sliver; use a silhouette card facing the camera behind the subject.
 
 ## 8. Output format (save as `~/<name>-short/SCRIPT.md`, same layout as `~/formosus-short/SCRIPT.md`)
 1. **Title** (under 60 characters, person + bizarre fact) and one-line spec (1440x2560, Chatterbox am_michael, captions, composition `<Name>Short`)

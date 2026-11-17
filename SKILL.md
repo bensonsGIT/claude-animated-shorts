@@ -29,7 +29,9 @@ The engine is shared; a short's folder holds only what is its own.
 more commits on top of it. Never leave a short on a private branch: the Bentham short was orphaned when its branch was
 deleted and had to be rescued from a dangling commit. Push as soon as the short renders.
 
-**Best starting point now: `dancing/` or `napoleon/`** (2026-11-16/17). Their `world.ts` is ~140 lines (two or three sets,
+**Best starting point now: `caligula/`, `napoleon/` or `dancing/`** (2026-11-16/17). `caligula/` adds a sea beach (surf
+bands, emissive water), a chalk cliff with an animated lighthouse (build / fire / collapse) and Roman interiors, plus
+the Roman costume kit in `engine/toon.ts`. Their `world.ts` is ~140 lines (two or three sets,
 the shared light rig, the card loop) and their `cast.ts` splits cleanly into shared card machinery (everything above the
 `// ===== the <name> short =====` line: copy it verbatim) and the short's own staging below it. `napoleon/` adds an
 outdoor park with a sky dome, an animal herd (150 rabbit cards) and a vehicle card. The 2026-11-15 shorts below still
@@ -84,7 +86,8 @@ User rules that apply:
    - Never describe on screen what the viewer already sees.
 3. **Voice** (Chatterbox, venv `~/tts/chatterbox`; reference `~/tts/refs/ref_am_michael.wav`). Everything is timed to the
    resulting `words.json`, so lock the voice before the picture.
-   - Write `~/<name>-short/voice/cb_spec.json`: `ref`, `exaggeration` 0.5, `cfg` 0.5, `pause_k` 1.0,
+   - Write `~/<name>-short/voice/cb_spec.json`: `ref` (an ABSOLUTE path: `~` is not expanded and the run dies with
+     FileNotFoundError), `exaggeration` 0.5, `cfg` 0.5, `pause_k` 1.0,
      `beats` = [[sentence, pause s], ...] (one beat per sentence, the picture cuts on them, "!" on punchlines),
      `subs` = per-word TTS respellings (captions keep the script spelling), `fuzzy` = names Whisper may spell differently.
      Respellings that work: years spelled out ("1699," -> "sixteen ninety-nine,"), "Tyco" (Tycho), "Challoner", "lyve" (live wire).
@@ -169,6 +172,10 @@ User rules that apply:
    short's header, set timeline, `build_sfx()` and score, and splices them over the shared helpers and mix section of
    `pipelines/dancing/dancing_sound.py` to produce `<name>_sound.py` (shared libs in `shorts/audio/`: dsp.py, instruments.py, sfx_gen.py).
    - Check a helper's return type before placing it: `I.snare_roll()` returns a list of (time, velocity) hits, not audio.
+     `hum()`, `I.pad()`, `G.applause()`, `G.water_bed()` are already stereo (never wrap them in `pan()`: broadcast error),
+     and `G.column_stomp()` returns `(stereo, pre)`: place it at `t - pre`.
+   - The mix normalises every stem: an EMPTY `CROWD` stem gives -inf LUFS and a NaN mix. Put something in it (a murmur).
+   - `make_timing.py` writes the key `end` for the last word's end and overwrites a spoken word "end" ("in the end").
    - Reads `timing.json`; every SFX/music event sits on a word time. Voice goes through `voice_chain()` (HP 85 Hz,
      -2.5 dB at 260 Hz, +4 dB at 3.8 kHz, +2.5 dB air shelf, RMS compressor 3.5:1), music ducked 11 dB on words.
    - Event table → synthesized SFX plus an original score ducked under the voice.
@@ -189,6 +196,9 @@ User rules that apply:
       (peak -3.7 dBFS, loudness unchanged).
     - Keep the previous final as `<name>_<oldvoice>.mp4` before overwriting.
     - QA: `python scripts/short_qa.py final.mp4 out/<name>/qa shots.json` checks every frame for black, white, frozen and pop frames, plus loudness and sheets.
+      Run it with a Python that has numpy (`~/tts/chatterbox/bin/python`). The third argument is a DICT, not a list:
+      `{"shots": [{"id","a","b"}...], "flash": [a, b], "xfade": [[a, b]...], "planned": [[a, b]...]}`; put deliberate
+      blackouts and lightning flashes in `planned` so they aren't reported.
     - Fix anything it finds, then run a deep Opus audit.
 11. **Deliver.** SendUserFile the final mp4, update memory, write notes.
 
@@ -275,6 +285,21 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
   zsh also does not word-split `$list` in `for f in $list`.
 - To compare a worktree with a commit when git is blocked there: `git archive <commit> | tar -x -C tmp/` from the repo
   root, then `diff -rq` with node_modules/out/public excluded.
+- A fresh worktree has no `node_modules`: symlink it, `ln -s ~/claude-animated-shorts/shorts/node_modules shorts/node_modules`
+  (gitignored). `public/` is tracked and only ~4 MB, so it comes with the checkout.
+- The guard also rejects `python3 - <<EOF` heredocs that write files; put multi-file patches in a .py file in the job's
+  tmp folder and run that.
+
+## Caligula short lessons (2026-11-17)
+- Under the `golden` preset a big Lambert sea plane renders black (low backlit sun); give the water an emissive colour per sky.
+- Cards only have a front view: a crowd that leaves must walk TOWARD the camera; walking away reads as walking backwards.
+- The 9:16 frame is ~0.5 × the distance wide at fov 44: a 6 m vehicle card plus its path needs the camera ~20 m away.
+- Shadows on a side wall seen down a corridor are slivers; a camera-facing opaque silhouette card behind the subject reads.
+- Put things that must move as one in one THREE.Group (beach.ts `edge`: the cliff edge + the lighthouse that fall
+  together); check the rotation sign so it tips toward the camera / sea, not inland.
+- Golden interiors go lavender; use the `lab` preset for daylit marble rooms.
+- Stills render in under a second each after the bundle, so contact sheets of mid + end + every gag word are cheap: do
+  all three passes before the final render.
 
 ## Readability traps the verifier caught (check every new prop/shot for these)
 - **A swing drawn as one rope that disappears behind the kid reads as a HANGING.** Always two ropes to a wide plank
