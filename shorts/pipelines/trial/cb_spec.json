@@ -1,0 +1,86 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5,
+ "cfg": 0.5,
+ "pause_k": 1.0,
+ "tempo": 1.08,
+ "beats": [
+  [
+   "A man is arrested on his birthday, and nobody ever tells him why!",
+   0.5
+  ],
+  [
+   "This is The Trial, by Franz Kafka.",
+   0.4
+  ],
+  [
+   "Josef K. is a bank officer, and the guards arresting him eat his breakfast!",
+   0.5
+  ],
+  [
+   "His first hearing is in a slum tenement, on a Sunday.",
+   0.35
+  ],
+  [
+   "He gives a fiery speech, then sees everyone wears court badges!",
+   0.5
+  ],
+  [
+   "Then, at his bank, he finds the guards being whipped, because he complained.",
+   0.4
+  ],
+  [
+   "Next day he opens the door: same guards, same whip!",
+   0.6
+  ],
+  [
+   "His lawyer works from a sickbed and never files a petition.",
+   0.35
+  ],
+  [
+   "A court painter has never seen a single real acquittal!",
+   0.45
+  ],
+  [
+   "The court has offices in nearly every attic, even behind the painter's bed.",
+   0.5
+  ],
+  [
+   "A priest tells him of a man who waits his whole life at a door to the law.",
+   0.4
+  ],
+  [
+   "Dying, the man learns the door was meant only for him; now it's shutting.",
+   0.8
+  ],
+  [
+   "A year later, two men in top hats walk him to a quarry.",
+   0.4
+  ],
+  [
+   "They bring a butcher's knife; his last words: like a dog!",
+   0.9
+  ],
+  [
+   "Kafka's point: you don't need to believe the system is true, only necessary.",
+   0.9
+  ],
+  [
+   "And nobody ever told him why.",
+   0.4
+  ]
+ ],
+ "subs": {
+  "Josef": "Joseph",
+  "K.": "Kay."
+ },
+ "fuzzy": [
+  "Josef",
+  "Joseph",
+  "Kafka",
+  "Kafka's",
+  "Franz",
+  "K",
+  "Kay"
+ ]
+}
