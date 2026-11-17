@@ -28,6 +28,18 @@ export type Outfit = {
   band?: string;
   /** beard colour + style (Peter short): long to the belly, forked, scruffy, short; stubble = freshly shaved jaw */
   beard?: string; beardStyle?: "long" | "fork" | "scruffy" | "short"; stubble?: boolean;
+  /** Caligula short (AD 40): body armour drawn over the jacket colour: a moulded muscle cuirass or iron segmented plates */
+  cuirass?: "muscle" | "segmented";
+  /** a cloak hanging behind the body from the shoulders (paludamentum) */
+  cape?: string;
+  /** a short tunic skirt below the torso with leather strips (pteruges) */
+  kilt?: string;
+  /** a big curved legionary shield (scutum) held on the left in front of the body: its face colour */
+  scutum?: string;
+  /** a toga: a broad fold slung from the left shoulder to the right hip (drape colour), optional purple edge (clavus) */
+  drape?: string; clavus?: string;
+  /** a centurion's silver medals on the chest; a Celtic gold neck ring; checked cloth on the torso */
+  phalerae?: boolean; torc?: string; plaid?: string;
 };
 export type P2 = [number, number];
 
@@ -497,6 +509,51 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.ell(tx, ty, wc, 0.035 * HH, mix(col, "#ffffff", 0.15), ow * 0.8, 0, 360, deg);
     return;
   }
+  if (o.hat === "laurel") { // Caligula short (AD 40): a laurel wreath round the head over short combed-forward hair
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    const [wx, wy] = R([[cx, crown + 0.3 * HH]])[0], rx = (side ? 0.4 : 0.53) * W, ry = 0.1 * HH, deg = (a * 180) / Math.PI;
+    for (let i = 0; i <= 16; i++) {
+      const ang = rad(196 + (148 * i) / 16), x = wx + rx * Math.cos(ang), y = wy + ry * Math.sin(ang) + 2 * u;
+      const up = i % 2 ? -1 : 1;
+      p.ell(x, y + up * 4 * u, 8 * u, 4 * u, i % 3 ? "#5e9a40" : "#4a8434", 1.4 * u, 0, 360, deg + (ang * 180) / Math.PI + 90 + up * 30);
+    }
+    for (const s of side ? [-1] : [-1, 1]) p.ell(wx + s * rx * 0.98, wy + 6 * u, 5 * u, 7 * u, "#d9b04a", 1.4 * u); // the gold ties
+    return;
+  }
+  if (o.hat === "galea" || o.hat === "galea_cent") {
+    // Caligula short: an Imperial-Gallic legionary helmet: bronze bowl to the brows, a brow ridge, a flared neck guard, hinged
+    // cheek guards beside the face; a short red plume (legionary) or a wide transverse fan crest (centurion)
+    const col = o.cap ?? "#c9a050", dk = mul(col, [0.66, 0.62, 0.68]), yb = crown + 0.36 * HH, wb = (side ? 0.5 : 0.56) * W, cent = o.hat === "galea_cent";
+    const deg = (a * 180) / Math.PI;
+    if (cent) { // the fan crest, side to side over the bowl
+      const [fx, fy] = R([[cx, crown - 0.02 * HH]])[0];
+      p.ell(fx, fy, (side ? 0.18 : 0.78) * W, 0.36 * HH, "#c8303a", ow, 180, 360, deg);
+      for (let i = 1; i < 10; i++) { const ang = rad(180 + i * 18); p.stroke([[fx, fy], [fx + (side ? 0.16 : 0.72) * W * Math.cos(ang), fy + 0.33 * HH * Math.sin(ang)]], 1.6 * u, "#8a1e2a"); }
+    }
+    const neck = R([[cx - wb, yb - 0.04 * HH], [cx - 0.72 * W, yb + 0.1 * HH], [cx + 0.72 * W, yb + 0.1 * HH], [cx + wb, yb - 0.04 * HH]]);
+    p.shadedFill(neck, mul(col, [0.86, 0.84, 0.86]), dk, light, 0.7 * W, 0.4); p.poly(neck, null, ow * 0.9);
+    const dome: P2[] = [];
+    for (let i = 0; i <= 18; i++) { const t = Math.PI + (i / 18) * Math.PI; dome.push([cx + wb * Math.cos(t), yb + (yb - (crown - 0.05 * HH)) * Math.sin(t)]); }
+    const body = R(dome);
+    p.shadedFill(body, col, dk, light, wb, 0.4);
+    p.clip(body, () => {
+      p.band(R([[cx - wb - 4 * u, yb - 0.05 * HH], [cx + wb + 4 * u, yb - 0.05 * HH]]), mul(col, [1.08, 1.04, 0.96]), 0.06 * HH, 1 * u); // brow ridge
+      p.stroke(R([[cx, crown - 0.02 * HH], [cx, yb - 0.1 * HH]]), 1.6 * u, dk); // the crown seam
+      p.dot(R([[cx - 0.3 * wb, crown + 0.08 * HH]])[0][0], R([[cx - 0.3 * wb, crown + 0.08 * HH]])[0][1], 4 * u, "rgba(255,248,220,0.7)");
+    });
+    p.poly(body, null, ow);
+    if (!side) for (const s of [-1, 1]) { // cheek guards
+      const cg = R([[cx + s * 0.54 * W, yb - 0.02 * HH], [cx + s * 0.34 * W, yb + 0.02 * HH], [cx + s * 0.31 * W, hc + 0.28 * HH], [cx + s * 0.4 * W, hc + 0.36 * HH], [cx + s * 0.52 * W, hc + 0.12 * HH]]);
+      p.shadedFill(cg, col, dk, light, 0.2 * W, 0.4); p.poly(cg, null, ow * 0.8);
+      const [rx, ry] = R([[cx + s * 0.44 * W, yb + 0.08 * HH]])[0]; p.dot(rx, ry, 2.2 * u, dk);
+    }
+    if (!cent) { // the knob + a short red plume
+      const [kx, ky] = R([[cx, crown - 0.06 * HH]])[0];
+      p.ell(kx, ky - 0.08 * HH, 0.09 * W, 0.12 * HH, "#c8303a", ow * 0.8, 0, 360, deg);
+      p.ell(kx, ky + 0.01 * HH, 5 * u, 4 * u, dk, 1.4 * u);
+    }
+    return;
+  }
   if (o.hat === "bicorne" || o.hat === "bicorne_plume") {
     // Napoleon short (1806): a black felt bicorne worn side to side ("en bataille"), a crescent wider than the head; plain with a
     // tricolour cockade (Napoleon), or gold-laced with a white feather trim along the top edge (a marshal: bicorne_plume)
@@ -727,7 +784,11 @@ export type Prop = null | "icecream" | "shako" | "goblet" | "magnifier" | ["hamm
   | "lewis" | "pitchfork"
   /** Napoleon short: ["fowling", k] a long hunting gun in both hands, k 0 = carried low (muzzle down-left) .. 1 = raised
    *  (muzzle up-left); ["whip", k] a coachman's long whip overhead, k 0 = lash curled back .. 1 = cracked forward */
-  | ["fowling", number] | ["whip", number];
+  | ["fowling", number] | ["whip", number]
+  /** Caligula short: ["gladius", k] a short sword, k 0 = raised high at the sky .. 1 = thrust down at the sand; "shell" a big
+   *  spiral shell held up like a trophy; "shells" an upturned helmet full of shells held in both hands; "cloth" a white cloth
+   *  waved overhead (surrender); "unroll" a very long letter unrolled down to the floor in both hands; "coin" a silver coin held up */
+  | ["gladius", number] | "shell" | "shells" | "cloth" | "unroll" | "coin";
 
 const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number }> = {
   adult: { a: 118, torso: 1.1, legs: 1.4, tw: 0.8 },
@@ -890,6 +951,22 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     const S = sh(1);
     arms.push({ pts: hang(-1, 0), front: false });
     arms.push({ pts: [S, [tcx + 1.25 * T.a + 18 * u, S[1] - 0.15 * HH], [tcx + 1.3 * T.a + 20 * u, S[1] - 0.6 * HH]], front: true });
+  } else if (Array.isArray(prop) && prop[0] === "gladius") {
+    // sword arm on the facing side: raised high (k 0) .. thrust down at the ground in front (k 1)
+    const sd = facing || 1, k = clamp(prop[1], 0, 1), S = sh(sd);
+    arms.push({ pts: hang(-sd, 0), front: false });
+    const E = lerp2([tcx + sd * (1.2 * T.a + 16 * u), S[1] - 0.18 * HH], [tcx + sd * (1.2 * T.a + 18 * u), S[1] + 0.3 * HH], k);
+    const Hd = lerp2([tcx + sd * (1.15 * T.a + 12 * u), S[1] - 0.72 * HH], [tcx + sd * (1.45 * T.a + 40 * u), S[1] + 0.42 * HH], k);
+    arms.push({ pts: [S, E, Hd], front: true });
+  } else if (prop === "shell" || prop === "cloth" || prop === "coin") {
+    const S = sh(1);
+    arms.push({ pts: hang(-1, 0), front: false });
+    arms.push({ pts: [S, [tcx + 1.45 * T.a + 24 * u, S[1] + 0.05 * HH], [tcx + 1.32 * T.a + 18 * u, S[1] - 0.5 * HH]], front: true });
+  } else if (prop === "shells") {
+    // both hands under an upturned helmet at the belly
+    for (const sd of [-1, 1]) { const S = sh(sd); arms.push({ pts: [S, [tcx + sd * (1.1 * T.a + 6 * u), S[1] + 0.4 * HH], [tcx + sd * 0.42 * T.a, S[1] + 0.62 * HH]], front: true }); }
+  } else if (prop === "unroll") {
+    for (const sd of [-1, 1]) { const S = sh(sd); arms.push({ pts: [S, [tcx + sd * (1.3 * T.a + 14 * u), S[1] + 0.2 * HH], [tcx + sd * (1.1 * T.a + 10 * u), S[1] + 0.05 * HH]], front: true }); }
   } else if (prop === "fist") {
     // a fist shaken overhead
     const S = sh(1);
@@ -939,7 +1016,25 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     const s0: P2 = [tcx - 0.75 * T.a, torsoBot - 0.2 * HH];
     p.band([s0, [s0[0] - Math.sin(rad(25)) * 0.8 * HH, s0[1] + Math.cos(rad(25)) * 0.8 * HH]], "#c9ccd2", 3 * u, 1.2 * u, "round");
   }
+  if (o.cape && mode !== "sit") { // Caligula short: a cloak hanging behind from the shoulders to the calves, flaring a little
+    const S0 = sh(-1), S1 = sh(1), yb = mode === "fall" ? torsoBot : sole - 0.55 * HH, fl = 0.22 * T.a + (mode === "march" ? 6 * u * Math.sin(two * phase) : 0);
+    const cp: P2[] = [[S0[0] - 6 * u, S0[1] - 4 * u], [S1[0] + 6 * u, S1[1] - 4 * u], [S1[0] + 12 * u + fl, yb], [300, yb + 8 * u], [S0[0] - 12 * u - fl, yb]];
+    p.gradFill(cp, o.cape, mul(o.cape, SH_CLOTH), light);
+    for (const s of [-1, 1]) p.stroke([[300 + s * 0.6 * T.a, S0[1] + 0.3 * HH], [300 + s * (0.9 * T.a + fl * 0.5), yb - 6 * u]], 1.6 * u, mul(o.cape, [0.6, 0.58, 0.66]));
+    p.poly(cp, null, ow * 0.9);
+  }
   for (const a of arms) if (!a.front) drawArm(a);
+  if (o.kilt && !dress) { // Caligula short: tunic skirt + a fringe of leather strips (pteruges) over the thighs
+    const y0 = torsoBot - 0.18 * HH, y1 = mode === "sit" ? torsoBot + 0.12 * HH : torsoBot + 0.42 * HH, w0 = 0.95 * T.a, w1 = (mode === "sit" ? 1.35 : 1.12) * T.a;
+    const kp: P2[] = [[tcx - w0, y0], [tcx + w0, y0], [tcx + w1, y1], [tcx - w1, y1]];
+    p.gradFill(kp, o.kilt, mul(o.kilt, SH_CLOTH), light);
+    p.poly(kp, null, ow * 0.8);
+    const n = 7;
+    for (let i = 0; i < n; i++) {
+      const x0 = tcx - w0 + ((i + 0.5) / n) * 2 * w0, x1 = tcx - w1 * 0.92 + ((i + 0.5) / n) * 2 * w1 * 0.92, ym = y0 + (y1 - y0) * 0.72;
+      p.poly([[x0 - 0.1 * T.a, y0], [x0 + 0.1 * T.a, y0], [x1 + 0.11 * T.a, ym], [x1 - 0.11 * T.a, ym]], "#7a4a2a", 1.8 * u);
+    }
+  }
   // torso / dress: shaded fill -> clothing clipped to it -> thick-thin ink ring
   if (dress) {
     const D: Blob = { a: 0.5 * W * 0.98, b: 0.5 * ((sole - 0.35 * HH) - (chin - 0.2 * HH)), nTop: 2.0, nBot: 3.0, egg: 0.35, asym: 0.03 * facing, rot: 0, noise: 0.006, seed: seed + 9 };
@@ -959,6 +1054,31 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
         p.poly([[xc - 3.5 * u, yc - 3.5 * u], [xc + 3.5 * u, yc - 3.5 * u], [xc + 3.5 * u, yc + 3.5 * u], [xc - 3.5 * u, yc + 3.5 * u]], "#d9dde0", 1.5 * u);
       }
       if (o.sash) p.band([[tcx - 1.3 * T.a, torsoBot - 0.32 * HH], [tcx + 1.3 * T.a, torsoBot - 0.32 * HH]], o.sash, 0.13 * HH, 1.8 * u);
+      const dk = mul(o.jacket, [0.66, 0.64, 0.72]), lt = mix(o.jacket, "#ffffff", 0.35);
+      if (o.plaid) for (let i = -6; i <= 6; i++) {
+        p.stroke([[tcx + i * 0.2 * T.a, chin - 0.3 * HH], [tcx + i * 0.2 * T.a, torsoBot + 0.1 * HH]], (i % 2 ? 1.4 : 3) * u, o.plaid);
+        p.stroke([[tcx - 1.3 * T.a, chin + 0.1 * HH + (i + 6) * 0.1 * HH], [tcx + 1.3 * T.a, chin + 0.1 * HH + (i + 6) * 0.1 * HH]], (i % 2 ? 1.4 : 3) * u, o.plaid);
+      }
+      if (o.cuirass === "muscle") { // moulded chest: two pectoral arcs, a navel tick and ab lines, a polished highlight
+        for (const s of [-1, 1]) p.arc(tcx + s * 0.38 * T.a, chin + 0.36 * HH, 0.36 * T.a, 0.14 * HH, 20, 160, 2.2 * u, dk);
+        for (let i = 0; i < 2; i++) p.stroke([[tcx - 0.3 * T.a, chin + (0.62 + 0.18 * i) * HH], [tcx + 0.3 * T.a, chin + (0.62 + 0.18 * i) * HH]], 1.6 * u, dk);
+        p.stroke([[tcx, chin + 0.52 * HH], [tcx, torsoBot - 0.16 * HH]], 1.6 * u, dk);
+        p.ell(tcx - 0.45 * T.a, chin + 0.28 * HH, 0.12 * T.a, 0.07 * HH, lt, 0);
+        p.band([[tcx - 1.3 * T.a, torsoBot - 0.1 * HH], [tcx + 1.3 * T.a, torsoBot - 0.1 * HH]], mul(o.jacket, [0.8, 0.78, 0.82]), 0.08 * HH, 1.2 * u);
+      } else if (o.cuirass === "segmented") { // lorica segmentata: hoops round the belly, plates over the shoulders, brass hinges
+        for (let i = 0; i < 5; i++) { const y = chin + (0.5 + 0.17 * i) * HH; p.stroke([[tcx - 1.3 * T.a, y], [tcx + 1.3 * T.a, y + 0.02 * HH]], 1.8 * u, dk); }
+        for (const s of [-1, 1]) for (let i = 0; i < 3; i++) p.arc(tcx + s * 0.62 * T.a, chin + 0.02 * HH + i * 0.1 * HH, 0.4 * T.a, 0.1 * HH, 200, 340, 1.6 * u, dk);
+        p.stroke([[tcx, chin + 0.12 * HH], [tcx, chin + 0.46 * HH]], 1.8 * u, dk);
+        for (const s of [-1, 1]) p.dot(tcx + s * 0.22 * T.a, chin + 0.3 * HH, 2.4 * u, "#d9b04a");
+      }
+      if (o.phalerae) for (const [dx, dy] of [[-0.3, 0.3], [0.3, 0.3], [-0.3, 0.52], [0.3, 0.52], [0, 0.42]]) { p.ell(tcx + dx * T.a, chin + dy * HH, 5 * u, 5 * u, "#dfe3ea", 1.4 * u); p.dot(tcx + dx * T.a - 1.5 * u, chin + dy * HH - 1.5 * u, 1.4 * u, "#ffffff"); }
+      if (o.drape) { // toga fold from the left shoulder across to the right hip
+        const a0: P2 = [tcx - 0.9 * T.a, chin - 0.05 * HH], a1: P2 = [tcx + 1.2 * T.a, torsoBot - 0.05 * HH];
+        p.band([a0, a1], o.drape, 0.5 * HH, 1.4 * u);
+        if (o.clavus) p.band([[a0[0] + 0.05 * T.a, a0[1] + 0.2 * HH], [a1[0] + 0.05 * T.a, a1[1] + 0.2 * HH]], o.clavus, 0.06 * HH, 0.6 * u);
+        for (let i = 0; i < 3; i++) p.stroke([[a0[0] + 0.2 * T.a, a0[1] + (0.1 + 0.1 * i) * HH], [a1[0] - 0.4 * T.a, a1[1] - (0.12 - 0.1 * i) * HH]], 1.4 * u, mul(o.drape, [0.75, 0.74, 0.8]));
+      }
+      if (o.cuirass || o.drape || o.plaid) return;
       for (let i = 0; i < 4; i++) {
         const y = chin + 0.12 * HH + i * 0.2 * HH;
         if (o.sash && Math.abs(y - (torsoBot - 0.32 * HH)) < 0.08 * HH) continue;
@@ -967,6 +1087,22 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     });
     if (o.sash) { const s = facing || 1; p.poly([[tcx + s * 0.55 * T.a, torsoBot - 0.3 * HH], [tcx + s * 0.75 * T.a, torsoBot + 0.05 * HH], [tcx + s * 0.45 * T.a, torsoBot + 0.02 * HH]], o.sash, 1.6 * u); }
     p.inkRing(tp, ow, thick);
+  }
+  if (o.torc) p.arc(300, chin + 0.06 * HH, 0.42 * T.a, 0.1 * HH, 10, 170, 4 * u, o.torc);
+  if (o.scutum && mode !== "sit" && mode !== "fall") { // the big curved shield on the left arm, covering hip to shoulder
+    const sx0 = tcx - 1.55 * T.a, sx1 = tcx + 0.2 * T.a, sy0 = chin + 0.05 * HH, sy1 = torsoBot + 0.62 * HH, bw = 0.12 * T.a;
+    const sp: P2[] = [[sx0, sy0], ...curve([sx0 + 0.3 * (sx1 - sx0), sy0 - bw], [(sx0 + sx1) / 2, sy0 - bw * 1.2], [sx1 - 0.3 * (sx1 - sx0), sy0 - bw], 6),
+      [sx1, sy0], [sx1 + bw * 0.4, (sy0 + sy1) / 2], [sx1, sy1], ...curve([sx1 - 0.3 * (sx1 - sx0), sy1 + bw], [(sx0 + sx1) / 2, sy1 + bw * 1.2], [sx0 + 0.3 * (sx1 - sx0), sy1 + bw], 6), [sx0, sy1], [sx0 - bw * 0.4, (sy0 + sy1) / 2]];
+    p.gradFill(sp, o.scutum, mul(o.scutum, SH_CLOTH), light);
+    const cxs = (sx0 + sx1) / 2, cys = (sy0 + sy1) / 2, gold = "#e2b84a";
+    p.clip(sp, () => {
+      p.stroke([[sx0 + 6 * u, sy0 + 4 * u], [sx0 + 6 * u, sy1 - 4 * u]], 3 * u, gold); p.stroke([[sx1 - 6 * u, sy0 + 4 * u], [sx1 - 6 * u, sy1 - 4 * u]], 3 * u, gold);
+      for (const s of [-1, 1]) { // the eagle wings + thunderbolts, simplified to gold zigzags above and below the boss
+        p.stroke([[cxs - 0.5 * (sx1 - sx0) * 0.6, cys + s * 0.28 * (sy1 - sy0)], [cxs - 8 * u, cys + s * 0.12 * (sy1 - sy0)], [cxs + 8 * u, cys + s * 0.2 * (sy1 - sy0)], [cxs + 0.5 * (sx1 - sx0) * 0.6, cys + s * 0.3 * (sy1 - sy0)]], 2.6 * u, gold);
+      }
+    });
+    p.poly(sp, null, ow);
+    p.ell(cxs, cys, 13 * u, 13 * u, "#c9ccd2", 2 * u); p.dot(cxs - 3 * u, cys - 3 * u, 3 * u, "#ffffff");
   }
   if (o.ruff) {
     // pleated millstone collar under the chin: scalloped rim + radial pleats (the head is drawn over its top half)
@@ -1103,6 +1239,56 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       for (const dx2 of [-12, 0, 12]) p.band([[hx + dx2 * u - 2 * u, hy - 68 * u], [hx + dx2 * u - 2 * u, hy - 100 * u]], "#9aa0a8", 2.6 * u, 1.1 * u, "round");
       p.band([[hx - 15 * u, hy - 68 * u], [hx + 11 * u, hy - 68 * u]], "#9aa0a8", 3 * u, 1.1 * u, "round");
       p.dot(hx, hy, 5.5 * u);
+    } else if (Array.isArray(prop) && prop[0] === "gladius") {
+      // a broad short Roman sword: leaf-shaped steel blade, gold guard, wooden grip, round pommel
+      const sd = facing || 1, k = clamp(prop[1], 0, 1), a = rad(-78 + 140 * k), dx = sd * Math.cos(a), dy = Math.sin(a), nx = -dy, ny = dx;
+      const L = 0.78 * HH, at = (s: number, w: number): P2 => [hx + dx * s + nx * w, hy + dy * s + ny * w];
+      p.band([at(-16 * u, 0), at(0, 0)], "#6a4428", 5 * u, 1.3 * u, "round");
+      p.ell(at(-19 * u, 0)[0], at(-19 * u, 0)[1], 4.5 * u, 4.5 * u, "#d9b04a", 1.4 * u);
+      p.poly([at(6 * u, -5 * u), at(0.55 * L, -6.5 * u), at(0.86 * L, -4 * u), at(L, 0), at(0.86 * L, 4 * u), at(0.55 * L, 6.5 * u), at(6 * u, 5 * u)], "#e2e6ee", 1.8 * u);
+      p.stroke([at(10 * u, 0), at(0.9 * L, 0)], 1.4 * u, "#9aa2b0");
+      p.band([at(4 * u, -10 * u), at(4 * u, 10 * u)], "#d9b04a", 4 * u, 1.3 * u, "round");
+      p.dot(at(0.7 * L, -2 * u)[0], at(0.7 * L, -2 * u)[1], 2 * u, "#ffffff");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "shell") {
+      // a big spiral conch held up: cream whorls narrowing to a point, a pink flared lip
+      const cy = hy - 34 * u;
+      p.poly([[hx - 20 * u, cy + 26 * u], [hx - 26 * u, cy + 2 * u], [hx - 14 * u, cy - 22 * u], [hx + 2 * u, cy - 40 * u], [hx + 10 * u, cy - 20 * u], [hx + 22 * u, cy + 4 * u], [hx + 14 * u, cy + 28 * u]], "#f4e2c8", 2.4 * u);
+      for (let i = 0; i < 4; i++) p.arc(hx - 2 * u, cy - 16 * u + i * 11 * u, (10 + i * 4) * u, 5 * u, 10, 170, 1.6 * u, "#b88a62");
+      p.ell(hx + 10 * u, cy + 12 * u, 9 * u, 15 * u, "#f2a8b0", 2 * u, 0, 360, -15);
+      p.dot(hx - 8 * u, cy - 6 * u, 3 * u, "rgba(255,255,255,0.8)");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "cloth") {
+      const w = 6 * u * Math.sin(hx * 0.05 + hy * 0.03);
+      p.poly([[hx, hy - 4 * u], [hx + 4 * u, hy - 40 * u], [hx + 40 * u, hy - 34 * u + w], [hx + 36 * u, hy - 6 * u + w]], "#f6f4ee", 2 * u);
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "coin") {
+      p.ell(hx + 2 * u, hy - 14 * u, 10 * u, 10 * u, "#d8dce4", 1.8 * u);
+      p.ell(hx + 2 * u, hy - 14 * u, 6 * u, 6 * u, null, 1 * u);
+      p.dot(hx - 2 * u, hy - 18 * u, 2.4 * u, "#ffffff");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "shells") {
+      if (hx > 300) { // drawn once: the helmet bowl between the hands, heaped with shells
+        const L = arms[0].pts[2], mx = (L[0] + hx) / 2, my = (L[1] + hy) / 2 + 4 * u, rw = Math.abs(hx - L[0]) / 2 + 6 * u;
+        const shellCols = ["#f4e2c8", "#f2a8b0", "#e8c890", "#d8d0e8", "#f6f2ec", "#e0b090"];
+        for (let i = 0; i < 9; i++) {
+          const sx = mx + (i - 4) * rw * 0.22, sy = my - 6 * u - (4 - Math.abs(i - 4)) * 4 * u - (i % 2) * 5 * u;
+          p.ell(sx, sy, 7 * u, 6 * u, shellCols[i % 6], 1.6 * u, 180, 360);
+          p.stroke([[sx - 4 * u, sy], [sx, sy - 5 * u], [sx + 4 * u, sy]], 1 * u, "#9a7a5a");
+        }
+        p.ell(mx, my, rw, 22 * u, "#c9a050", 2.6 * u, 0, 180);
+        p.stroke([[mx - rw, my], [mx + rw, my]], 3 * u, "#a8823a");
+      }
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "unroll") {
+      if (hx > 300) { // the rod between the hands and the endless letter down to the floor
+        const L = arms[0].pts[2], x0 = L[0], x1 = hx, y0 = Math.min(L[1], hy);
+        p.poly([[x0 + 4 * u, y0], [x1 - 4 * u, y0], [x1 - 6 * u, sole + 6 * u], [x0 + 6 * u, sole + 6 * u]], "#f2e8cf", 2 * u);
+        for (let y = y0 + 12 * u; y < sole - 6 * u; y += 11 * u) p.stroke([[x0 + 14 * u, y], [x1 - (14 + (y % 3) * 6) * u, y]], 1.4 * u, "#6a5640");
+        p.ell((x0 + x1) / 2, sole + 8 * u, (x1 - x0) / 2, 9 * u, "#e6d8b8", 2 * u);
+        p.band([[x0 - 6 * u, y0], [x1 + 6 * u, y0]], "#b8925a", 7 * u, 1.4 * u, "round");
+      }
+      p.dot(hx, hy, 5.5 * u);
     } else if (prop === "fist") {
       p.ell(hx, hy, 9 * u, 8 * u, skin, 2.4 * u);
     } else if (prop === "meat" || prop === "meatHold") {
@@ -1194,7 +1380,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   if (o.stubble) p.clip(hp, () => { for (let i = 0; i < 70; i++) { const a = rad(20 + 140 * rnd(seed, 60 + i)), r = H.a * (0.55 + 0.42 * rnd(seed, 160 + i)); p.dot(300 + r * Math.cos(a) * (1 + 0.1 * facing), hc + 0.15 * H.b + r * 0.95 * Math.sin(a), 1.5 * u, "#6a6a84"); } });
   hatOn(p, o, hp, H, 300, hc, light, seed, facing, false);
   if (o.beard) beardFront(p, o, 300 + 4 * u * facing, hc, H, chin, HH, u, light, thick, ow);
-  const brim = !!o.hat && !["hair", "bonnet", "cap", "wig", "periwig", "frizz"].includes(o.hat);
+  const brim = !!o.hat && !["hair", "bonnet", "cap", "wig", "periwig", "frizz", "laurel"].includes(o.hat);
   faceFront(p, 300, hc, W, expr, facing, look, lid, brim, skin, o.moustache, o.build === "stout", o.nose, o.specs);
   if (prop === "shush") { // index finger across the lips, drawn over the face
     const mx = 300 + 8 * u * facing, my = hc + 20 * u;

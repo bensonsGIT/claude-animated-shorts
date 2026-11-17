@@ -1,0 +1,30 @@
+{
+  "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+  "exaggeration": 0.5,
+  "cfg": 0.5,
+  "pause_k": 1.0,
+  "beats": [
+    ["A Roman emperor once marched his army to the beach, to conquer the ocean!", 0.55],
+    ["According to the historian Suetonius, it happened in the year 40.", 0.35],
+    ["The emperor was Caligula, nicknamed Little Boots, and he badly wanted a war.", 0.35],
+    ["A runaway British prince surrendered, so he told the Senate Britain had submitted.", 0.4],
+    ["He lined up his legions on the coast of Gaul, catapults aimed at the waves.", 0.35],
+    ["He even sailed out a little way, then turned straight back.", 0.4],
+    ["Nobody knew what was coming.", 0.6],
+    ["Then came the order: pick up seashells!", 0.4],
+    ["The soldiers filled their helmets and their tunics.", 0.35],
+    ["He called them spoils of the sea, owed to Jupiter's temple and his own palace!", 0.4],
+    ["He built a lighthouse to mark the victory, and paid each man a hundred silver coins.", 0.3],
+    ["\"Go away happy,\" he said. \"Go away rich!\"", 0.55],
+    ["Less than a year later, his own guards killed him.", 0.8],
+    ["The shells are long gone. But that lighthouse stood for sixteen centuries.", 0.4],
+    ["Then, in 1644, the cliff under it collapsed, and took the tower down.", 0.5],
+    ["So in the end, the ocean beat...", 0.2]
+  ],
+  "subs": {
+    "40.": "forty.",
+    "1644,": "sixteen forty four,",
+    "Suetonius,": "Sweetohnius,"
+  },
+  "fuzzy": ["Suetonius", "Sweetonius", "Suetonius'", "Caligula", "Gaul", "Jupiter's", "40", "forty", "1644", "sixteen", "forty-four", "seashells", "sea"]
+}
