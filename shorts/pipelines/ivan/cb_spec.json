@@ -1,0 +1,78 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5,
+ "cfg": 0.5,
+ "pause_k": 1.0,
+ "beats": [
+  [
+   "A Russian judge died because he wanted perfect curtains!",
+   0.5
+  ],
+  [
+   "His colleagues' first thought was who would get his job.",
+   0.45
+  ],
+  [
+   "This is The Death of Ivan Ilych, by Leo Tolstoy.",
+   0.45
+  ],
+  [
+   "The judge did everything right: good career, proper wife, fashionable furniture.",
+   0.35
+  ],
+  [
+   "His life was simple, ordinary, and therefore terrible.",
+   0.5
+  ],
+  [
+   "Then came a big promotion, and a grand new home to decorate.",
+   0.35
+  ],
+  [
+   "Showing the upholsterer how to hang drapes, he climbed a ladder, slipped, and banged his side on a window knob.",
+   0.4
+  ],
+  [
+   "Just a bruise. Then a strange taste. Then a pain that never left.",
+   0.4
+  ],
+  [
+   "Doctors debated a floating kidney or the appendix. Nobody said dying.",
+   0.4
+  ],
+  [
+   "His family pretended he was just sick, and that lie hurt worse than the pain.",
+   0.4
+  ],
+  [
+   "Only the servant Gerasim told the truth, and held his master's legs on his shoulders all night.",
+   0.45
+  ],
+  [
+   "For his last three days, he screamed.",
+   0.9
+  ],
+  [
+   "Then his schoolboy son kissed his hand, and he pitied them all.",
+   0.5
+  ],
+  [
+   "He looked for his fear of death, and found light instead!",
+   0.7
+  ],
+  [
+   "Then he died, and his colleagues went back to playing cards.",
+   0.6
+  ]
+ ],
+ "subs": {
+  "Ilych,": "Ilyich,"
+ },
+ "fuzzy": [
+  "Ivan",
+  "Ilych",
+  "Ilyich",
+  "Gerasim",
+  "Tolstoy"
+ ]
+}

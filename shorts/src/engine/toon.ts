@@ -42,6 +42,8 @@ export type Outfit = {
   phalerae?: boolean; torc?: string; plaid?: string;
   /** Gambler short (1860s): a general's orders: a red ribbon across the chest and a silver star on the left breast */
   orders?: boolean;
+  /** Ivan Ilych short: a servant's clean hessian apron from the chest to the knees (bib, waist ties, neck strap) */
+  apron?: string;
 };
 export type P2 = [number, number];
 
@@ -1171,6 +1173,15 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     });
     if (o.sash) { const s = facing || 1; p.poly([[tcx + s * 0.55 * T.a, torsoBot - 0.3 * HH], [tcx + s * 0.75 * T.a, torsoBot + 0.05 * HH], [tcx + s * 0.45 * T.a, torsoBot + 0.02 * HH]], o.sash, 1.6 * u); }
     p.inkRing(tp, ow, thick);
+  }
+  if (o.apron && !dress) { // Ivan Ilych short: Gerasim's apron, bib on the chest, skirt over the thighs
+    const ay0 = chin + 0.3 * HH, ayw = torsoBot - 0.12 * HH, ay1 = mode === "sit" ? torsoBot + 0.1 * HH : torsoBot + 0.55 * HH;
+    const bw = 0.48 * T.a, sw = 0.95 * T.a;
+    for (const sd of [-1, 1]) p.stroke([[tcx + sd * bw * 0.8, ay0], [tcx + sd * 0.22 * T.a, chin + 0.02 * HH]], 1.8 * u, mul(o.apron, SH_CLOTH));
+    const ap: P2[] = [[tcx - bw, ay0], [tcx + bw, ay0], [tcx + bw * 1.05, ayw], [tcx + sw, ayw + 0.04 * HH], [tcx + sw * 1.04, ay1], [tcx - sw * 1.04, ay1], [tcx - sw, ayw + 0.04 * HH], [tcx - bw * 1.05, ayw]];
+    p.gradFill(ap, o.apron, mul(o.apron, SH_CLOTH), light);
+    p.stroke([[tcx - sw, ayw + 0.02 * HH], [tcx + sw, ayw + 0.02 * HH]], 2.2 * u, mul(o.apron, [0.75, 0.72, 0.7]));
+    p.poly(ap, null, ow * 0.8);
   }
   if (o.torc) p.arc(300, chin + 0.06 * HH, 0.42 * T.a, 0.1 * HH, 10, 170, 4 * u, o.torc);
   if (o.scutum && mode !== "sit" && mode !== "fall") { // the big curved shield on the left arm, covering hip to shoulder
