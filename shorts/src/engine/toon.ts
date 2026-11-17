@@ -27,7 +27,7 @@ export type Outfit = {
   /** plain white falling band / cravat under the chin (17th-century England) */
   band?: string;
   /** beard colour + style (Peter short): long to the belly, forked, scruffy, short; stubble = freshly shaved jaw */
-  beard?: string; beardStyle?: "long" | "fork" | "scruffy" | "short"; stubble?: boolean;
+  beard?: string; beardStyle?: "long" | "fork" | "scruffy" | "short" | "whiskers"; stubble?: boolean;
   /** Caligula short (AD 40): body armour drawn over the jacket colour: a moulded muscle cuirass or iron segmented plates */
   cuirass?: "muscle" | "segmented";
   /** a cloak hanging behind the body from the shoulders (paludamentum) */
@@ -40,6 +40,8 @@ export type Outfit = {
   drape?: string; clavus?: string;
   /** a centurion's silver medals on the chest; a Celtic gold neck ring; checked cloth on the torso */
   phalerae?: boolean; torc?: string; plaid?: string;
+  /** Gambler short (1860s): a general's orders: a red ribbon across the chest and a silver star on the left breast */
+  orders?: boolean;
 };
 export type P2 = [number, number];
 
@@ -438,6 +440,20 @@ const hatBehind = (p: Pen, o: Outfit, H: Blob, cx: number, hc: number, light: nu
     p.inkRing(bb, ow * 0.85, thick);
     return;
   }
+  if (o.hat === "mobcap") { // Gambler short (Granny, Martha): a puffed white linen mobcap, its gathered crown seen round the head
+    const u = H.a / 50, col = o.cap ?? "#f6f4ee";
+    const bb = blobPts(cx - (side ? 8 * u : 0), hc - 0.3 * H.b, { ...H, a: H.a * 1.2, b: H.b * 0.95, asym: 0, egg: 0.1, noise: 0.02, seed: H.seed + 3 });
+    p.shadedFill(bb, col, mul(col, SH_CLOTH), light, H.a * 1.2);
+    p.inkRing(bb, ow * 0.85, thick);
+    return;
+  }
+  if (o.hat === "chignon") { // Gambler short (Blanche): hair "black as Indian ink", "enough for two coiffures": a wide mass behind the head
+    const u = H.a / 50, col = o.hair!;
+    const bb = blobPts(cx - (side ? 8 * u : 0), hc - 0.1 * H.b, { ...H, a: H.a * 1.3, b: H.b * 1.1, asym: 0, egg: 0.05, noise: 0.02, seed: H.seed + 5 });
+    p.shadedFill(bb, col, mul(col, SH_FELT), light, H.a * 1.3);
+    p.inkRing(bb, ow * 0.85, thick);
+    return;
+  }
   if (o.hat === "mitre" && !side) { // two lappets hanging behind the head
     const col = o.cap!;
     for (const sd of [-1, 1]) p.poly([[cx + sd * 0.55 * H.a, hc], [cx + sd * 0.85 * H.a, hc], [cx + sd * 0.9 * H.a, hc + 1.25 * H.b], [cx + sd * 0.6 * H.a, hc + 1.25 * H.b]], col, ow * 0.7);
@@ -458,6 +474,39 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     for (let i = 0; i <= 12; i++) { const t = i / 12; base.push([cx + wb * (2 * t - 1), yb + 3 * u * (1 - (2 * t - 1) ** 2)]); }
     return base;
   };
+  if (o.hat === "mobcap") { // Gambler short: grey hair at the temples under a white mobcap: puffed crown, ruffled frill, a dark ribbon bow
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    const col = o.cap ?? "#f6f4ee", yb = crown + 0.15 * HH, wb = 0.6 * W, deg = (a * 180) / Math.PI, top = crown - 0.1 * HH;
+    const dome: P2[] = [];
+    for (let i = 0; i <= 16; i++) { const t = Math.PI + (i / 16) * Math.PI; dome.push([cx + wb * Math.cos(t), yb + (yb - top) * Math.sin(t)]); }
+    const body = R(dome);
+    p.shadedFill(body, col, mul(col, SH_CLOTH), light, wb, 0.4);
+    p.clip(body, () => { for (let i = 1; i < 6; i++) p.stroke(R([[cx - wb + (2 * wb * i) / 6, yb], [cx - wb * 0.6 + (1.2 * wb * i) / 6, top + 0.08 * HH]]), 1.2 * u, mul(col, [0.82, 0.82, 0.88])); });
+    p.poly(body, null, ow);
+    for (let i = 0; i <= 10; i++) { // the frill along the front edge
+      const t = i / 10, [fx, fy] = R([[cx - wb + 2 * wb * t, yb + 2 * u]])[0];
+      p.ell(fx, fy, 7.5 * u, 6 * u, mix(col, "#ffffff", 0.3), 1.4 * u);
+    }
+    if (!side) { const s = facing || 1, [rx, ry] = R([[cx + s * 0.55 * wb, yb - 0.1 * HH]])[0]; p.ell(rx - 6 * u, ry, 7 * u, 4.5 * u, "#3a2a3a", 1.4 * u, 0, 360, deg + 25); p.ell(rx + 6 * u, ry, 7 * u, 4.5 * u, "#3a2a3a", 1.4 * u, 0, 360, deg - 25); }
+    return;
+  }
+  if (o.hat === "chignon") { // Gambler short (Blanche): the hair crown swept up into a high bun over the mass behind the head
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    const col = o.hair!, deg = (a * 180) / Math.PI, [bx, by] = R([[cx - (side ? 10 * u : 0), crown - 0.05 * HH]])[0];
+    p.ell(bx, by, 0.34 * W, 0.16 * HH, col, ow, 0, 360, deg);
+    p.arc(bx, by + 2 * u, 0.2 * W, 0.07 * HH, 200, 340, 1.8 * u, mix(col, "#ffffff", 0.3));
+    return;
+  }
+  if (o.hat === "bald") { // Gambler short (Potapitch: "a bald, red head"): bare crown with a shine, a grey fringe over the ears
+    const col = o.hair ?? "#c8c4bc";
+    for (const s of side ? [-1] : [-1, 1]) {
+      const pts = R([[cx + s * 0.4 * W, hc - 0.14 * HH], [cx + s * 0.53 * W, hc - 0.04 * HH], [cx + s * 0.53 * W, hc + 0.12 * HH], [cx + s * 0.44 * W, hc + 0.08 * HH], [cx + s * 0.4 * W, hc - 0.04 * HH]]);
+      p.shadedFill(pts, col, mul(col, SH_FELT), light, 0.1 * W, 0.35); p.poly(pts, null, ow * 0.8);
+    }
+    const [gx, gy] = R([[cx - 0.14 * W, crown + 0.1 * HH]])[0];
+    p.ell(gx, gy, 0.11 * W, 0.045 * HH, "rgba(255,255,255,0.5)", 0, 0, 360, (a * 180) / Math.PI - 20);
+    return;
+  }
   if (o.hat === "bob") { // Gatsby short: bobbed hair = the "hair" crown over the bob drawn behind the head (hatBehind)
     hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
     if (!side) { const s = facing || 1; p.arc(cx - s * 0.36 * W, hc + 0.02 * HH, 9 * u, 9 * u, 200, 340, 2.2 * u, mul(o.hair!, [0.6, 0.58, 0.66])); } // kiss curl
@@ -739,6 +788,14 @@ const beardFront = (p: Pen, o: Outfit, cx: number, hc: number, H: Blob, chin: nu
   const st = o.beardStyle ?? "long", col = o.beard!;
   const L = st === "long" ? 1.0 : st === "fork" ? 0.9 : st === "scruffy" ? 0.42 : 0.24;
   const a = H.a, top = hc + 0.1 * H.b, ys = chin + L * HH;
+  if (o.beardStyle === "whiskers") { // Gambler short (the General): dyed side-whiskers down each cheek, the chin shaved
+    for (const s of [-1, 1]) {
+      const pts: P2[] = [[cx + s * 0.97 * a, hc - 0.02 * H.b], [cx + s * 0.99 * a, hc + 0.35 * H.b], [cx + s * 0.86 * a, hc + 0.78 * H.b], [cx + s * 0.66 * a, hc + 0.7 * H.b],
+        [cx + s * 0.76 * a, hc + 0.35 * H.b], [cx + s * 0.8 * a, hc + 0.02 * H.b]];
+      p.shadedFill(pts, col, mul(col, SH_FELT), light, a * 0.4, 0.35); p.poly(pts, null, ow * 0.45);
+    }
+    return;
+  }
   const right: P2[] = [[cx + 1.0 * a, top], [cx + 1.04 * a, hc + 0.5 * H.b], [cx + 0.9 * a, chin + 0.12 * L * HH]];
   if (st === "fork") right.push([cx + 0.62 * a, ys - 0.2 * HH], [cx + 0.34 * a, ys], [cx + 0.14 * a, ys - 0.16 * HH], [cx, ys - 0.42 * L * HH]);
   else if (st === "scruffy") right.push([cx + 0.6 * a, ys - 0.08 * HH], [cx + 0.42 * a, ys - 0.02 * HH], [cx + 0.25 * a, ys - 0.07 * HH], [cx + 0.1 * a, ys], [cx, ys - 0.04 * HH]);
@@ -788,7 +845,11 @@ export type Prop = null | "icecream" | "shako" | "goblet" | "magnifier" | ["hamm
   /** Caligula short: ["gladius", k] a short sword, k 0 = raised high at the sky .. 1 = thrust down at the sand; "shell" a big
    *  spiral shell held up like a trophy; "shells" an upturned helmet full of shells held in both hands; "cloth" a white cloth
    *  waved overhead (surrender); "unroll" a very long letter unrolled down to the floor in both hands; "coin" a silver coin held up */
-  | ["gladius", number] | "shell" | "shells" | "cloth" | "unroll" | "coin";
+  | ["gladius", number] | "shell" | "shells" | "cloth" | "unroll" | "coin"
+  /** Gambler short (1860s): an open fan at the chest; a croupier's rake pushed out over the table (facing side); a footman's
+   *  silver tray raised on the right hand; an armful of banknotes; pockets turned out (both palms up); a pocket watch held up;
+   *  two money sacks hugged to the belly */
+  | "fan" | "rake" | "tray" | "notes" | "pockets" | "watch" | "sacks";
 
 const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number }> = {
   adult: { a: 118, torso: 1.1, legs: 1.4, tw: 0.8 },
@@ -972,6 +1033,23 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     const S = sh(1);
     arms.push({ pts: hang(-1, 0), front: false });
     arms.push({ pts: [S, [tcx + 1.25 * T.a + 18 * u, S[1] - 0.15 * HH], [tcx + 1.05 * T.a + 10 * u, S[1] - 0.7 * HH]], front: true });
+  } else if (prop === "fan" || prop === "watch") {
+    // the right hand up beside the chin, clear of the face (the head is drawn over anything inside its outline)
+    const S = sh(1);
+    arms.push({ pts: hang(-1, 0), front: false });
+    arms.push({ pts: [S, [tcx + 1.2 * T.a + 12 * u, S[1] + 0.32 * HH], [tcx + 1.02 * T.a + 8 * u, S[1] + (prop === "fan" ? 0.12 : -0.08) * HH]], front: true });
+  } else if (prop === "rake") {
+    const sd = facing || 1, S = sh(sd);
+    arms.push({ pts: hang(-sd, 0), front: false });
+    arms.push({ pts: [S, [tcx + sd * (1.15 * T.a + 14 * u), S[1] + 0.34 * HH], [tcx + sd * (1.3 * T.a + 30 * u), S[1] + 0.5 * HH]], front: true });
+  } else if (prop === "tray") {
+    const S = sh(1);
+    arms.push({ pts: hang(-1, 0), front: false });
+    arms.push({ pts: [S, [tcx + 1.4 * T.a + 18 * u, S[1] + 0.3 * HH], [tcx + 1.38 * T.a + 22 * u, S[1] - 0.06 * HH]], front: true });
+  } else if (prop === "notes" || prop === "sacks") {
+    for (const sd of [-1, 1]) { const S = sh(sd); arms.push({ pts: [S, [tcx + sd * (1.15 * T.a + 8 * u), S[1] + 0.38 * HH], [tcx + sd * 0.5 * T.a, S[1] + 0.6 * HH]], front: true }); }
+  } else if (prop === "pockets") {
+    for (const sd of [-1, 1]) { const S = sh(sd); arms.push({ pts: [S, [tcx + sd * (1.2 * T.a + 12 * u), S[1] + 0.34 * HH], [tcx + sd * (1.4 * T.a + 28 * u), S[1] + 0.46 * HH]], front: true }); }
   } else if (prop === "point") {
     // an accusing arm straight out toward the facing side, index finger drawn in front
     const sd = facing || 1, S = sh(sd);
@@ -1077,6 +1155,12 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
         p.band([a0, a1], o.drape, 0.5 * HH, 1.4 * u);
         if (o.clavus) p.band([[a0[0] + 0.05 * T.a, a0[1] + 0.2 * HH], [a1[0] + 0.05 * T.a, a1[1] + 0.2 * HH]], o.clavus, 0.06 * HH, 0.6 * u);
         for (let i = 0; i < 3; i++) p.stroke([[a0[0] + 0.2 * T.a, a0[1] + (0.1 + 0.1 * i) * HH], [a1[0] - 0.4 * T.a, a1[1] - (0.12 - 0.1 * i) * HH]], 1.4 * u, mul(o.drape, [0.75, 0.74, 0.8]));
+      }
+      if (o.orders) { // a red ribbon from the right shoulder to the left hip, a silver eight-point star on the left breast
+        p.band([[tcx + 1.1 * T.a, chin - 0.05 * HH], [tcx - 1.1 * T.a, torsoBot - 0.05 * HH]], "#c8303a", 0.1 * HH, 1.2 * u);
+        const sx = tcx - 0.42 * T.a, sy = chin + 0.36 * HH, st: P2[] = [];
+        for (let i = 0; i < 16; i++) { const r = (i % 2 ? 5 : 12) * u, an = rad(-90 + i * 22.5); st.push([sx + r * Math.cos(an), sy + r * Math.sin(an)]); }
+        p.poly(st, "#e8eaf0", 1.2 * u); p.dot(sx, sy, 3.5 * u, "#c8303a");
       }
       if (o.cuirass || o.drape || o.plaid) return;
       for (let i = 0; i < 4; i++) {
@@ -1258,6 +1342,61 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       p.ell(hx + 10 * u, cy + 12 * u, 9 * u, 15 * u, "#f2a8b0", 2 * u, 0, 360, -15);
       p.dot(hx - 8 * u, cy - 6 * u, 3 * u, "rgba(255,255,255,0.8)");
       p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "fan") {
+      // an open folding fan, black lace with a gold edge, spread up and out from the hand
+      const r = 40 * u, sticks: P2[] = [[hx, hy]];
+      for (let i = 0; i <= 8; i++) { const an = rad(-150 + i * 15); sticks.push([hx + r * Math.cos(an), hy - 6 * u + r * Math.sin(an)]); }
+      p.poly(sticks, "#2e2434", 1.8 * u);
+      for (let i = 0; i <= 8; i++) { const an = rad(-150 + i * 15); p.stroke([[hx, hy], [hx + r * 0.96 * Math.cos(an), hy - 6 * u + r * 0.96 * Math.sin(an)]], 1 * u, "#6a5a70"); }
+      p.stroke(sticks.slice(1), 2.2 * u, "#d9b04a");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "watch") {
+      // a gold pocket watch on its chain from the waistcoat
+      const wx = hx + 2 * u, wy = hy - 14 * u;
+      p.stroke(curve([wx, wy + 9 * u], [hx - 26 * u, hy + 40 * u], [tcx + 0.2 * T.a, chin + 0.62 * HH], 10), 1.4 * u, "#d9b04a");
+      p.ell(wx, wy, 11 * u, 11 * u, "#e2b84a", 1.8 * u); p.ell(wx, wy, 8 * u, 8 * u, "#f8f4ea", 1 * u);
+      p.stroke([[wx, wy], [wx, wy - 6 * u]], 1.2 * u); p.stroke([[wx, wy], [wx + 4 * u, wy + 1 * u]], 1.2 * u);
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "rake") {
+      // the croupier's rake: a long thin handle pushed out and down, a flat crosspiece at the end
+      const sd = facing || 1, ex = hx + sd * 62 * u, ey = hy + 44 * u;
+      p.band([[hx - sd * 14 * u, hy - 10 * u], [ex, ey]], "#6a4a2a", 3 * u, 1.2 * u, "round");
+      p.band([[ex - 3 * u, ey - 12 * u], [ex + 3 * u, ey + 12 * u]], "#5a3a20", 4 * u, 1.2 * u, "round");
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "tray") {
+      // a silver salver on the flat hand with a wine bottle and a glass
+      const ty = hy - 6 * u;
+      p.poly([[hx + 8 * u, ty - 52 * u], [hx + 16 * u, ty - 52 * u], [hx + 16 * u, ty - 36 * u], [hx + 22 * u, ty - 26 * u], [hx + 22 * u, ty], [hx + 2 * u, ty], [hx + 2 * u, ty - 26 * u], [hx + 8 * u, ty - 36 * u]], "#3a5a3a", 1.6 * u);
+      p.poly([[hx - 22 * u, ty - 26 * u], [hx - 10 * u, ty - 26 * u], [hx - 13 * u, ty - 12 * u], [hx - 15 * u, ty - 2 * u], [hx - 17 * u, ty - 12 * u]], "rgba(230,240,250,0.85)", 1.4 * u);
+      p.ell(hx, ty, 36 * u, 6 * u, "#d0d4dc", 1.8 * u);
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "notes") {
+      if (hx > 300) { // drawn once: a fan of banknotes heaped between the hands
+        const L = arms[0].pts[2], mx = (L[0] + hx) / 2, my = (L[1] + hy) / 2;
+        for (let i = 0; i < 9; i++) {
+          const an = rad(-60 + i * 15), cx2 = mx + (i - 4) * 7 * u, cy2 = my - 14 * u - (4 - Math.abs(i - 4)) * 3 * u;
+          const pts = rotPts([[cx2 - 13 * u, cy2 - 24 * u], [cx2 + 13 * u, cy2 - 24 * u], [cx2 + 13 * u, cy2 + 14 * u], [cx2 - 13 * u, cy2 + 14 * u]], an * 0.6, cx2, cy2 + 14 * u);
+          p.poly(pts, i % 3 === 1 ? "#cfe0c0" : i % 3 === 2 ? "#e8d8b0" : "#d8e4d0", 1.4 * u);
+          const c0 = lerp2(pts[0], pts[2], 0.5); p.ell(c0[0], c0[1], 5 * u, 7 * u, null, 1 * u, 0, 360, (an * 0.6 * 180) / Math.PI);
+        }
+      }
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "sacks") {
+      if (hx > 300) { // drawn once: two fat money sacks tied at the neck, gold coins at the mouth
+        const L = arms[0].pts[2];
+        for (const [k, s] of [[0.28, 0.9], [0.72, 1]] as const) {
+          const mx = L[0] + (hx - L[0]) * k, my = (L[1] + hy) / 2 - 6 * u, r = 22 * u * s;
+          p.poly([[mx - 6 * u, my - r * 1.3], [mx + 6 * u, my - r * 1.3], [mx + r, my - r * 0.2], [mx + r * 0.9, my + r * 0.8], [mx, my + r], [mx - r * 0.9, my + r * 0.8], [mx - r, my - r * 0.2]], "#b08a5a", 2 * u);
+          p.band([[mx - 8 * u, my - r * 1.05], [mx + 8 * u, my - r * 1.05]], "#6a4a2a", 3 * u, 1 * u);
+          p.ell(mx - 4 * u, my - r * 1.38, 5 * u, 4 * u, "#e2b84a", 1.2 * u); p.ell(mx + 5 * u, my - r * 1.42, 5 * u, 4 * u, "#e2b84a", 1.2 * u);
+        }
+      }
+      p.dot(hx, hy, 5.5 * u);
+    } else if (prop === "pockets") {
+      // both trouser pockets turned out: white linings hanging at the hips, palms up and empty
+      const sd = hx > 300 ? 1 : -1, px = tcx + sd * 0.72 * T.a, py = torsoBot + 0.02 * HH;
+      p.poly([[px - 9 * u, py], [px + 9 * u, py], [px + sd * 4 * u, py + 26 * u], [px - sd * 6 * u, py + 22 * u]], "#f4f1ea", 1.6 * u);
+      p.dot(hx, hy, 5.5 * u);
     } else if (prop === "cloth") {
       const w = 6 * u * Math.sin(hx * 0.05 + hy * 0.03);
       p.poly([[hx, hy - 4 * u], [hx + 4 * u, hy - 40 * u], [hx + 40 * u, hy - 34 * u + w], [hx + 36 * u, hy - 6 * u + w]], "#f6f4ee", 2 * u);
@@ -1380,7 +1519,7 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
   if (o.stubble) p.clip(hp, () => { for (let i = 0; i < 70; i++) { const a = rad(20 + 140 * rnd(seed, 60 + i)), r = H.a * (0.55 + 0.42 * rnd(seed, 160 + i)); p.dot(300 + r * Math.cos(a) * (1 + 0.1 * facing), hc + 0.15 * H.b + r * 0.95 * Math.sin(a), 1.5 * u, "#6a6a84"); } });
   hatOn(p, o, hp, H, 300, hc, light, seed, facing, false);
   if (o.beard) beardFront(p, o, 300 + 4 * u * facing, hc, H, chin, HH, u, light, thick, ow);
-  const brim = !!o.hat && !["hair", "bonnet", "cap", "wig", "periwig", "frizz", "laurel"].includes(o.hat);
+  const brim = !!o.hat && !["hair", "bonnet", "cap", "wig", "periwig", "frizz", "laurel", "bald", "chignon"].includes(o.hat);
   faceFront(p, 300, hc, W, expr, facing, look, lid, brim, skin, o.moustache, o.build === "stout", o.nose, o.specs);
   if (prop === "shush") { // index finger across the lips, drawn over the face
     const mx = 300 + 8 * u * facing, my = hc + 20 * u;

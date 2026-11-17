@@ -1,0 +1,28 @@
+{
+  "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+  "exaggeration": 0.5,
+  "cfg": 0.5,
+  "pause_k": 1.0,
+  "beats": [
+    ["A whole family in a German casino town was waiting for Granny to die.", 0.45],
+    ["The broke General needed her fortune to marry a French beauty called Blanche.", 0.4],
+    ["Then Granny arrived, very much alive, carried in her armchair!", 0.4],
+    ["This is The Gambler, by Fyodor Dostoyevsky.", 0.45],
+    ["She went straight to the roulette table and bet on zero.", 0.3],
+    ["Zero hit, and then hit again!", 0.4],
+    ["Two days later, she'd lost nearly a hundred thousand roubles.", 0.5],
+    ["Then the family's tutor sat down, and red came up again and again.", 0.3],
+    ["He broke the bank: two hundred thousand francs!", 0.45],
+    ["Blanche took him to Paris, and in three weeks the money was gone.", 0.5],
+    ["Months later, Granny finally died, and the General got his inheritance.", 0.3],
+    ["Then he died of a stroke, and his new wife, Blanche, kept every franc!", 0.5],
+    ["The tutor ended up in debtors' prison, then working as a footman.", 0.5],
+    ["The author, a gambler himself, dictated this book in twenty-six days to beat a deadline.", 0.35],
+    ["Then he married the stenographer.", 0.7],
+    ["The tutor got ten gold coins from a friend, and started waiting all over again.", 0.3]
+  ],
+  "subs": {
+    "roubles.": "rubles."
+  },
+  "fuzzy": ["Fyodor", "Dostoyevsky", "Dostoevsky", "Blanche", "Blanche,", "Blanche.", "roubles", "rubles", "debtors'", "debtors", "twenty-six", "she'd", "family's", "stenographer"]
+}
