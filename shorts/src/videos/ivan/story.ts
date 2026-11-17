@@ -54,16 +54,16 @@ export const layersAt = (f: number): { id: number; alpha: number }[] => {
 // ---------------- staging marks ----------------
 export const MARK = {
   widow: [-0.05, 0, -1.55] as V3, coffin: [0.6, 1.0, -2.3] as V3, drapes: [0.6, 2.7, -3.8] as V3,
-  fedor: [99.35, 0, -2.15] as V3, peter: [100.2, 0, -2.3] as V3, shebek: [101.05, 0, -2.15] as V3,
+  fedor: [99.35, 0, -2.15] as V3, peter: [100.2, 0, -2.1] as V3, shebek: [101.05, 0, -2.15] as V3,
   ivanR: [0.6, 0, -1.6] as V3, ivan4: [0.25, 0, -1.6] as V3, wife4: [1.0, 0, -1.85] as V3, chair4: [-0.4, 0, -1.05] as V3,
-  sofa: [-3.0, 0, -3.25] as V3,
+  sofa: [-3.0, 0, -2.75] as V3,
   ivan6: [0.1, 0, -1.3] as V3, uph6: [1.45, 0, -1.1] as V3, bolts: [1.05, 0, -1.7] as V3,
-  ladder: [2.05, 1.14, -3.2] as V3, uph7: [0.5, 0, -2.3] as V3, knob: [1.6, 2.05, -3.86] as V3,
+  ladder: [2.05, 1.145, -3.0] as V3, uph7: [0.5, 0, -2.3] as V3, knob: [1.6, 2.05, -3.86] as V3,
   ivan8: [0.4, 0, -1.2] as V3,
-  bed: [40.0, 0, -2.45] as V3, doc1: [39.15, 0, -1.5] as V3, doc2: [40.85, 0, -1.5] as V3, door: [43.2, 0, -2.7] as V3,
-  vasya: [40.62, 0, -2.0] as V3, wife13: [41.35, 0, -2.6] as V3,
-  dark: [200, -0.55, 0] as V3,
-  table: [140.6, 0.76, -1.6] as V3, pl1: [140.0, 0.3, -2.35] as V3, pl2: [141.2, 0.3, -2.35] as V3, peterC: [139.75, 0.3, -1.55] as V3,
+  bed: [40.0, 0, -1.88] as V3, doc1: [39.15, 0, -1.5] as V3, doc2: [40.85, 0, -1.5] as V3, door: [43.2, 0, -2.7] as V3,
+  vasya: [40.62, 0, -1.72] as V3, wife13: [41.5, 0, -1.55] as V3,
+  dark: [200, -0.5, 0] as V3,
+  table: [140.6, 0.76, -1.6] as V3, pl1: [140.0, 0.3, -2.62] as V3, pl2: [141.2, 0.3, -2.62] as V3, peterC: [139.45, 0.3, -1.6] as V3,
 };
 const EYE = 1.6;
 export const eyesOf = (m: V3, dy = 0): V3 => [m[0], m[1] + EYE + dy, m[2]];
@@ -100,14 +100,14 @@ const hold = (pos: V3, look: V3, fov: number, f0: number, rate = 0.0012, pf?: nu
 
 /** shot 1 and shot 15 share this framing (the coffin between the drapes / the card table between the drapes) */
 const S1: [V3, V3, number] = [[0.6, 1.45, 4.0], [0.6, 1.45, -2.6], 44];
-const S15: [V3, V3, number] = [[140.6, 1.45, 4.0], [140.6, 1.45, -2.6], 44];
+const S15: [V3, V3, number] = [[140.35, 1.45, 4.0], [140.35, 1.45, -2.6], 44];
 const C = {
   s1: hold(S1[0], S1[1], S1[2], 0, 0.0016),
   s1b: hold([0.6, 1.7, 2.6], [0.6, 2.75, -3.8], 44, W("curtains") - 4, 0.002),
   s2: hold([100.2, 1.75, 3.1], [100.2, 1.75, -2.1], 44, cf(1), 0.0016, W("job") - 2, 0.006),
   s3: hold([0.6, 1.6, 2.7], [0.6, 1.45, -1.6], 44, cf(2), 0.0022),
   s4: hold([0.35, 1.5, 3.0], [0.35, 1.3, -1.6], 44, cf(3), 0.0016, W("furniture") - 2, 0.005),
-  s5: hold([-3.0, 1.4, 1.5], [-3.0, 1.05, -3.25], 42, cf(4), 0.0016, W("terrible") - 2, 0.007),
+  s5: hold([-3.0, 1.4, 1.9], [-3.0, 1.05, -2.75], 42, cf(4), 0.0016, W("terrible") - 2, 0.007),
   s6: hold([0.45, 1.55, 2.9], [0.45, 1.25, -1.3], 44, cf(5), 0.0016, W("promotion") - 2, 0.005),
   s7: hold([1.15, 1.95, 3.4], [1.25, 1.65, -3.2], 44, cf(6), 0.0012, W("knob") - 2, 0.004),
   s8: hold([0.4, 1.6, 1.45], [0.4, 1.5, -1.2], 40, cf(7), 0.0016, W("left") - 2, 0.003),

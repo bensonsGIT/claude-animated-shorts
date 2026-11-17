@@ -92,9 +92,9 @@ export class Court extends Room {
     deco.add(cyl(0.08, 0.14, ty - 0.06, 10), wood, at(tx, (ty - 0.06) / 2, tz));
     deco.add(cyl(0.35, 0.35, 0.04, 16), wood, at(tx, 0.02, tz));
     for (const s of [-1, 1]) {
-      deco.add(cyl(0.05, 0.06, 0.04, 10), brass, at(tx + s * 0.55, ty + 0.045, tz - 0.35));
-      deco.add(cyl(0.025, 0.025, 0.2, 8), wax, at(tx + s * 0.55, ty + 0.16, tz - 0.35));
-      this.flame(tx + s * 0.55, ty + 0.33, tz - 0.35, 0.05, 0.11, 2.4); this.glow(tx + s * 0.55, ty + 0.33, tz - 0.35, 1.4, 0.4);
+      deco.add(cyl(0.05, 0.06, 0.04, 10), brass, at(tx + s * 0.78, ty + 0.045, tz + 0.3));
+      deco.add(cyl(0.025, 0.025, 0.2, 8), wax, at(tx + s * 0.78, ty + 0.16, tz + 0.3));
+      this.flame(tx + s * 0.78, ty + 0.33, tz + 0.3, 0.05, 0.11, 2.4); this.glow(tx + s * 0.78, ty + 0.33, tz + 0.3, 1.4, 0.4);
     }
     deco.add(cyl(0.05, 0.08, 1.4, 10), brass, at(kx - 2.4, 0.7, -3.2)); // a standing lamp at the left
     deco.add(cyl(0.18, 0.32, 0.36, 14), lam("ivShade", () => ({ color: "#f2d8a0", emissive: "#a87a30" })), at(kx - 2.4, 1.58, -3.2));

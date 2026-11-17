@@ -337,7 +337,7 @@ export const ivanStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     const t0 = BEAT[9] - 0.2, dur = Math.max(3.0, WORD.lie - t0 + 1.4);
     [[WIE, 0], [LI, 0.45], [FI, 0.9]].forEach(([w, d], i) => {
       // they keep walking past the lens and leave the frame at the right (never vanish in shot)
-      const u = Math.max(0, (t - t0 - (d as number)) / dur), x = M.door[0] - 1.2 - 0.6 * u + 0.3 * i, z = M.door[2] + 0.2 + 2.6 * u;
+      const u = Math.max(0, (t - t0 - (d as number)) / dur), x = M.door[0] - 1.2 - 0.6 * u + 0.3 * i, z = M.door[2] + 0.75 + 2.1 * u;
       if (u >= 2.0) return;
       go(true, cam, out, w as Who, [x, 0, z], t, { expr: lie ? "smile" : i === 0 ? "laugh" : "grin", facing: -1 });
     });
@@ -347,12 +347,12 @@ export const ivanStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     const sh = on(t, WORD.shoulders);
     const ie = sh ? "relief" : "pained", ge = "smile" as const;
     out.fx.push({ key: `legs${ie}|${lidAt(t, IVS.i)}|${lidAt(t, GE.i)}`, cw: 1400, ch: 1000, draw: (p) => fxLegsUp(p, { expr: ie, blink: lidAt(t, IVS.i) }, { expr: ge, blink: lidAt(t, GE.i) }),
-      x: M.bed[0] + 0.25, y: 0.93, z: M.bed[2] + 0.55, w: 2.6, h: 1.86 });
-    blob(out, M.bed[0] + 0.9, 0, M.bed[2] + 0.6, 1.2);
+      x: M.bed[0] + 0.25, y: 0.93, z: -1.9, w: 2.6, h: 1.86 });
+    blob(out, M.bed[0] + 0.9, 0, -1.85, 1.2);
     return;
   }
   if (id === 12) { // the black sack: he screams, sinking
-    const sc = on(t, WORD.screamed), y = M.dark[1] - 0.25 * clamp01((t - BEAT[11]) / 2.5);
+    const sc = on(t, WORD.screamed), y = M.dark[1];
     stand(cam, out, IVS, [M.dark[0], y, M.dark[2]], { expr: sc ? "yell" : "pained", tilt: sc ? 4 * Math.sin(t * 20) : 0 }, false);
     return;
   }
@@ -377,7 +377,7 @@ export const ivanStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     sit(cam, out, FE, M.pl1, 0.5, { expr: ca ? "laugh" : "smug", facing: 1 });
     sit(cam, out, PL[0], M.pl2, 0.5, { expr: ca ? "grin" : "neutral", facing: -1 });
     const u = smooth((t - BEAT[14]) / Math.max(1, WORD.back - BEAT[14]));
-    if (u < 1) go(true, cam, out, PE, [139.0 + 0.75 * u, 0, -0.4 - 1.15 * u], t, { expr: "neutral", facing: 1 });
+    if (u < 1) go(true, cam, out, PE, [138.9 + 0.55 * u, 0, -0.4 - 1.2 * u], t, { expr: "neutral", facing: 1 });
     else sit(cam, out, PE, M.peterC, 0.5, { expr: ca ? "grin" : "smile", facing: 1 });
     // the deal: face-down cards slide from Fedor to each place; on "cards" a fan of face cards jumps up
     const T0 = M.table, seats: V3[] = [[T0[0] - 0.45, 0, T0[2] + 0.1], [T0[0] + 0.45, 0, T0[2] - 0.2], [T0[0] - 0.1, 0, T0[2] - 0.45]];
