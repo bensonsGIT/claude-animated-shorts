@@ -497,6 +497,28 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.ell(tx, ty, wc, 0.035 * HH, mix(col, "#ffffff", 0.15), ow * 0.8, 0, 360, deg);
     return;
   }
+  if (o.hat === "bicorne" || o.hat === "bicorne_plume") {
+    // Napoleon short (1806): a black felt bicorne worn side to side ("en bataille"), a crescent wider than the head; plain with a
+    // tricolour cockade (Napoleon), or gold-laced with a white feather trim along the top edge (a marshal: bicorne_plume)
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    const plume = o.hat === "bicorne_plume", col = "#1a1820", gold = "#d9b04a", yb = crown + 0.24 * HH, hw = (side ? 0.4 : 0.82) * W, ht = 0.52 * HH;
+    const top = curve([cx - hw, yb - 0.03 * HH], [cx, yb - ht], [cx + hw, yb - 0.03 * HH], 18);
+    const bot = curve([cx + hw, yb - 0.03 * HH], [cx, yb + 0.08 * HH], [cx - hw, yb - 0.03 * HH], 12);
+    const body = R([...top, ...bot.slice(1)]);
+    p.shadedFill(body, col, mul(col, SH_FELT), light, hw, 0.4);
+    if (plume) p.clip(body, () => p.stroke(R(curve([cx - hw, yb - 0.02 * HH], [cx, yb - ht + 0.05 * HH], [cx + hw, yb - 0.02 * HH], 18)), 3 * u, gold));
+    p.poly(body, null, ow);
+    if (plume) for (let i = 1; i < 12; i++) { // the feather trim: a row of white puffs along the crest
+      const t = i / 12, [fx, fy] = R([curve([cx - hw, yb - 0.03 * HH], [cx, yb - ht], [cx + hw, yb - 0.03 * HH], 12)[i]])[0];
+      p.ell(fx, fy - 2 * u, (5 + 2 * Math.sin(t * Math.PI)) * u, 4.5 * u, "#f6f2ea", 1.4 * u);
+    }
+    if (!side) { // the cockade, toward the hat's front corner
+      const s = facing ? -facing : -1, [kx, ky] = R([[cx + s * 0.42 * hw, yb - 0.24 * HH]])[0];
+      p.ell(kx, ky, 8 * u, 8 * u, "#c8303a", 1.6 * u); p.ell(kx, ky, 5.5 * u, 5.5 * u, "#f6f2ea", 0); p.ell(kx, ky, 3 * u, 3 * u, "#2a4a9a", 0);
+      if (plume) p.stroke(R([[cx + s * 0.42 * hw, yb - 0.17 * HH], [cx + s * 0.42 * hw, yb - 0.02 * HH]]), 2.4 * u, gold); // the gold loop
+    }
+    return;
+  }
   if (o.hat === "fur" || o.hat === "furcap") {
     // boyar's tall fur hat (gorlatnaya, wider at the top) / a merchant's low cap with a fur band
     const tallH = o.hat === "fur", yb = crown + (tallH ? 0.24 : 0.2) * HH, ht = (tallH ? 0.95 : 0.42) * HH;
@@ -702,7 +724,10 @@ export type Prop = null | "icecream" | "shako" | "goblet" | "magnifier" | ["hamm
   | ["touch", number] | "writeQuill" | "fork" | "chest" | "shush"
   | "razor" | "purse" | "kopek" | "token" | "bite" | "chin" | ["deal", string] | ["beardOut", number, string]
   /** Emu War short: a Lewis gun carried across the body (two hands); a pitchfork shaken overhead */
-  | "lewis" | "pitchfork";
+  | "lewis" | "pitchfork"
+  /** Napoleon short: ["fowling", k] a long hunting gun in both hands, k 0 = carried low (muzzle down-left) .. 1 = raised
+   *  (muzzle up-left); ["whip", k] a coachman's long whip overhead, k 0 = lash curled back .. 1 = cracked forward */
+  | ["fowling", number] | ["whip", number];
 
 const BUILD: Record<Build, { a: number; torso: number; legs: number; tw: number }> = {
   adult: { a: 118, torso: 1.1, legs: 1.4, tw: 0.8 },
@@ -846,6 +871,16 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
     const S = sh(1);
     arms.push({ pts: hang(-1, 0), front: false });
     arms.push({ pts: [S, [tcx + 1.2 * T.a + 14 * u, S[1] + 0.25 * HH], [tcx + 0.3 * T.a, chin + 0.02 * HH]], front: true });
+  } else if (Array.isArray(prop) && prop[0] === "fowling") {
+    const SR = sh(1), SL = sh(-1), k = clamp(prop[1], 0, 1);
+    const HR = lerp2([tcx + 0.62 * T.a, SR[1] + 0.82 * HH], [tcx + 0.72 * T.a, SR[1] + 0.42 * HH], k);
+    const HL = lerp2([tcx - 0.55 * T.a, SL[1] + 0.95 * HH], [tcx - 1.0 * T.a - 8 * u, SL[1] + 0.02 * HH], k);
+    arms.push({ pts: [SR, [tcx + 1.2 * T.a + 8 * u, SR[1] + lerp2([0, 0.5 * HH], [0, 0.3 * HH], k)[1]], HR], front: true });
+    arms.push({ pts: [SL, [tcx - 1.1 * T.a - 6 * u, SL[1] + lerp2([0, 0.5 * HH], [0, 0.3 * HH], k)[1]], HL], front: true });
+  } else if (Array.isArray(prop) && prop[0] === "whip") {
+    const S = sh(1);
+    arms.push({ pts: hang(-1, 0), front: false });
+    arms.push({ pts: [S, [tcx + 1.25 * T.a + 18 * u, S[1] - 0.15 * HH], [tcx + 1.1 * T.a + 12 * u, S[1] - 0.68 * HH]], front: true });
   } else if (prop === "lewis") {
     // both hands on a Lewis gun held across the body: right hand at the grip by the right hip, left hand forward on the barrel
     const SR = sh(1), SL = sh(-1);
@@ -1032,6 +1067,23 @@ export const bodyFront = (p: Pen, o: Outfit, opts: FrontOpts) => {
       beardBundle(p, hx, hy - 2 * u, prop[2], u, 0.25 + 0.75 * k);
       p.dot(hx, hy, 5.5 * u);
     } else if (prop === "bite" || prop === "chin") {
+      p.dot(hx, hy, 5.5 * u);
+    } else if (Array.isArray(prop) && prop[0] === "fowling") {
+      if (hx > 300) { // drawn once, from the grip hand (right) through the left hand to the muzzle
+        const L = arms[arms.length - 1].pts[2], dx = L[0] - hx, dy = L[1] - hy, d = Math.hypot(dx, dy), ux = dx / d, uy = dy / d;
+        const at = (k: number): P2 => [hx + ux * k, hy + uy * k];
+        p.band([at(-48 * u), at(-2 * u)], "#8a5a32", 12 * u, 1.6 * u, "round"); // the stock
+        p.band([at(-4 * u), at(d * 0.75)], "#9a6a3a", 7 * u, 1.4 * u, "butt"); // the fore-stock
+        p.band([at(-4 * u), at(d + 120 * u)], "#4a4a52", 4 * u, 1.2 * u, "butt"); // the long barrel
+        const [lx, ly] = at(4 * u); p.ell(lx, ly - 5 * u, 5 * u, 4 * u, "#c9a24a", 1.2 * u); // the brass lock
+      }
+      p.dot(hx, hy, 5.5 * u);
+    } else if (Array.isArray(prop) && prop[0] === "whip") {
+      const k = clamp(prop[1], 0, 1), tip: P2 = [hx + 6 * u, hy - 46 * u];
+      p.band([[hx, hy + 10 * u], tip], "#5a3a22", 5 * u, 1.3 * u, "round"); // the handle
+      const end: P2 = lerp2([hx - 150 * u, hy - 10 * u], [hx + 170 * u, hy - 70 * u], k);
+      const mid: P2 = lerp2([hx - 70 * u, hy - 150 * u], [hx + 80 * u, hy - 110 * u], k);
+      p.stroke(curve(tip, mid, end, 14), 2.6 * u, "#3a2618"); // the lash
       p.dot(hx, hy, 5.5 * u);
     } else if (prop === "lewis") {
       if (hx > 300) { // draw the gun once, from the grip hand (right) up to the muzzle past the left hand

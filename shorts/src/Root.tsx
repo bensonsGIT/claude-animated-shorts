@@ -16,9 +16,10 @@ import { short as wombat } from "./videos/wombat";
 import { short as gatsby } from "./videos/gatsby";
 import { short as crime } from "./videos/crime";
 import { short as dancing } from "./videos/dancing";
+import { short as napoleon } from "./videos/napoleon";
 
 /** every short: 1080x1920 at 30 fps. A new short adds its folder's `short` here. */
-const SHORTS = [bridge, tycho, newton, franklin, formosus, meat, peter, emu, wombat, gatsby, crime, dancing];
+const SHORTS = [bridge, tycho, newton, franklin, formosus, meat, peter, emu, wombat, gatsby, crime, dancing, napoleon];
 
 // Each <Composition> is an entry in the sidebar!
 

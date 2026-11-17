@@ -1,0 +1,27 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5,
+ "cfg": 0.5,
+ "lead": 0.15,
+ "pause_k": 1.0,
+ "beats": [
+  ["The man who conquered half of Europe once ran away from a thousand bunnies!", 0.55],
+  ["According to one of his own generals, it happened in the summer of 1806.", 0.35],
+  ["Napoleon was at the height of his power, and his court competed to keep him entertained.", 0.35],
+  ["His chief of staff, Marshal Berthier, offered a rabbit shoot on his estate just outside Paris.", 0.3],
+  ["The estate had everything, except rabbits.", 0.4],
+  ["So Berthier bought a thousand of them, and set them loose that very morning.", 0.35],
+  ["After a splendid breakfast, the Emperor raised his gun.", 0.5],
+  ["But the rabbits didn't run. They bunched up, turned around, and charged straight at Napoleon!", 0.45],
+  ["Berthier counter-attacked with a squad of coachmen cracking long whips.", 0.35],
+  ["It worked, until the rabbits split into wings, swept around both flanks, and hit the Emperor from behind!", 0.4],
+  ["They piled up between his legs until he staggered.", 0.35],
+  ["The conqueror of conquerors retreated to his carriage, and left the rabbits the field.", 0.75],
+  ["Then the truth came out. Berthier's buyer didn't know one rabbit from another.", 0.35],
+  ["He'd bought tame hutch rabbits, not wild ones.", 0.4],
+  ["They thought Napoleon was the man with their cabbage, and nobody had fed them that day!", 0.5],
+  ["Everyone laughed. Berthier was mortified, because...", 0.2]
+ ],
+ "subs": {"1806.": "eighteen oh six.", "Berthier": "Bear-tee-ay", "Berthier,": "Bear-tee-ay,", "Berthier's": "Bear-tee-ay's"},
+ "fuzzy": ["Berthier", "Berthier's", "Bertier", "Napoleon", "1806", "eighteen", "six"]
+}
