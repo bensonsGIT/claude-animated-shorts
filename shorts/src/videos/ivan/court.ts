@@ -15,6 +15,8 @@ export const COURT: V3 = [100, 0, 0];
 export const CARDS: V3 = [140, 0, 0];
 export const BAIZE_Y = 0.78;
 export const CARD_TABLE: V3 = [140.6, 0.76, -1.6];
+/** chair positions [x, z of the seated card] (story.ts MARK pl1, pl2, peterC) */
+export const CHAIRS: [number, number][] = [[140.0, -2.62], [141.2, -2.62], [139.45, -1.6]];
 
 const wallTex = () => ctex("ivCourtWall", 512, 512, (g) => {
   g.fillStyle = "#8a9aa8"; g.fillRect(0, 0, 512, 512);
@@ -95,6 +97,17 @@ export class Court extends Room {
       deco.add(cyl(0.05, 0.06, 0.04, 10), brass, at(tx + s * 0.78, ty + 0.045, tz + 0.3));
       deco.add(cyl(0.025, 0.025, 0.2, 8), wax, at(tx + s * 0.78, ty + 0.16, tz + 0.3));
       this.flame(tx + s * 0.78, ty + 0.33, tz + 0.3, 0.05, 0.11, 2.4); this.glow(tx + s * 0.78, ty + 0.33, tz + 0.3, 1.4, 0.4);
+    }
+    // chairs for the players (seat top 0.5, just behind each seated card's plane so the card sits on it without clipping)
+    const chairW = lam("ivChair", () => ({ color: "#5a3422" })), velvet = lam("ivChairSeat", () => ({ color: "#8a2a3a" }));
+    for (const [x, zc] of CHAIRS) {
+      const z0 = zc - 0.46, z1 = zc - 0.05;
+      deco.add(boxGeo(V(x - 0.24, 0.44, z0), V(x + 0.24, 0.5, z1)), velvet);
+      deco.add(boxGeo(V(x - 0.25, 0.4, z0), V(x + 0.25, 0.45, z1)), chairW);
+      for (const [lx, lz] of [[x - 0.21, z0 + 0.03], [x + 0.21, z0 + 0.03], [x - 0.21, z1 - 0.03], [x + 0.21, z1 - 0.03]]) deco.add(boxGeo(V(lx - 0.025, 0, lz - 0.025), V(lx + 0.025, 0.4, lz + 0.025)), chairW);
+      for (const sx of [-0.21, 0.21]) deco.add(boxGeo(V(x + sx - 0.03, 0.45, z0), V(x + sx + 0.03, 1.12, z0 + 0.05)), chairW);
+      deco.add(boxGeo(V(x - 0.24, 0.95, z0), V(x + 0.24, 1.12, z0 + 0.05)), chairW);
+      deco.add(boxGeo(V(x - 0.18, 0.6, z0 + 0.005), V(x + 0.18, 0.95, z0 + 0.045)), velvet);
     }
     deco.add(cyl(0.05, 0.08, 1.4, 10), brass, at(kx - 2.4, 0.7, -3.2)); // a standing lamp at the left
     deco.add(cyl(0.18, 0.32, 0.36, 14), lam("ivShade", () => ({ color: "#f2d8a0", emissive: "#a87a30" })), at(kx - 2.4, 1.58, -3.2));
