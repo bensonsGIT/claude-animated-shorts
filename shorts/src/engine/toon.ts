@@ -465,6 +465,17 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     p.ell(fx, fy, 7 * u, 6 * u, "#f2ece4", 1.6 * u); // a little ribbon rosette
     return;
   }
+  if (o.hat === "tudor") { // Dancing Plague short (1518): a flat wide bonnet (beret) worn tilted, a white feather, over short hair
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    const col = o.cap ?? "#2a2230", yb = crown + 0.18 * HH, deg = (a * 180) / Math.PI, s = facing || 1;
+    const [bx, by] = R([[cx + s * 6 * u, yb - 0.05 * HH]])[0];
+    p.ell(bx, by, 0.66 * W, 0.12 * HH, mul(col, [0.9, 0.88, 0.92]), ow, 0, 360, deg - s * 6);
+    const [tx, ty] = R([[cx + s * 4 * u, yb - 0.13 * HH]])[0];
+    p.ell(tx, ty, 0.42 * W, 0.1 * HH, col, ow, 180, 360, deg - s * 6);
+    const [fx, fy] = R([[cx + s * 0.42 * W, yb - 0.18 * HH]])[0];
+    p.poly([[fx, fy], [fx + s * 30 * u, fy - 34 * u], [fx + s * 44 * u, fy - 30 * u], [fx + s * 8 * u, fy + 4 * u]], "#f6f2ea", 1.8 * u); // feather
+    return;
+  }
   if (o.hat === "battered") { // Crime and Punishment: Raskolnikov's worn tall round hat, dented, a rusty patch, over his hair
     hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
     hatOn(p, { ...o, hat: "tophat", hair: undefined }, hp, H, cx, hc, light, seed, facing, side);

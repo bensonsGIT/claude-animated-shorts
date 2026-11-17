@@ -1,0 +1,24 @@
+{
+ "ref": "/Users/benson/tts/refs/ref_am_michael.wav",
+ "exaggeration": 0.5, "cfg": 0.5, "lead": 0.15, "pause_k": 1.0,
+ "beats": [
+  ["In 1518, a city's cure for people who couldn't stop dancing was… more dancing!", 0.55],
+  ["It's July in Strasbourg, and a woman named Frau Troffea steps into the street and starts to dance.", 0.35],
+  ["She dances all day, all night, for days, and she can't stop.", 0.4],
+  ["Within a week, dozens of people have joined her.", 0.4],
+  ["This is the Dancing Plague of 1518.", 0.5],
+  ["The city's doctors decide it's a natural disease, caused by hot blood.", 0.35],
+  ["Their prescription: dance it out!", 0.5],
+  ["So the council opens the guild halls and builds a wooden stage for the dancers.", 0.35],
+  ["They even hire musicians, and strong men to hold the dancers up!", 0.55],
+  ["It doesn't work.", 0.4],
+  ["One chronicle says four hundred people were dancing within a month.", 0.45],
+  ["So the council does a U-turn and bans public dancing and music!", 0.45],
+  ["The dancers are loaded into wagons and sent to a mountain shrine of Saint Vitus, to pray.", 0.4],
+  ["By September, the dancing finally stops.", 0.6],
+  ["Today, most historians blame mass panic, after years of famine and disease.", 0.7],
+  ["But in 1518, the cure for dancing… was more dancing!", 0.3]
+ ],
+ "subs": {"1518,": "fifteen eighteen,", "1518.": "fifteen eighteen.", "1518": "fifteen eighteen", "Troffea": "Troffaya", "Vitus,": "Vytus,"},
+ "fuzzy": ["troffea", "troffaya", "trofea", "strasbourg", "strasburg", "vitus", "fifteen", "eighteen", "1518", "uturn", "u"]
+}
