@@ -9,6 +9,12 @@ export const TONE = {
   uShadeLift: { value: new THREE.Vector3() }, uLambert: { value: 0.35 }, uSideK: { value: 0.84 }, uTerm: { value: 0.2 },
   uBounce: { value: new THREE.Vector3() }, // warm bounce on shaded faces turned to the camera (golden only; day = 0)
   uSat: { value: 1 }, // world albedo saturation around its luminance (characters are not twoTone, so unaffected)
+  /** motivated light pools (East of Eden short): base light scale + up to 3 pools (view-space centre, HDR colour,
+   *  radius). Defaults (base 1, black pools) leave every other short unchanged. */
+  uBaseK: { value: 1 },
+  uPoolPos: { value: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()] },
+  uPoolCol: { value: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()] },
+  uPoolR: { value: [1, 1, 1] },
 };
 /** character-card uniforms (lighting.md 9.2 cardShade); world.ts keeps them in sync with LIGHTS for cardshade.ts */
 export const CHAR = {
@@ -35,13 +41,19 @@ const TWO_TONE = /* glsl */ `
   vec3 lit = uLitCol * mix( 1.0, ndl, uLambert );                             // keep some cosine modelling
   float facing = max( dot( geometryNormal, geometryViewDir ), 0.0 );        // 1 = faces the lens
   vec3 alb = max( mix( vec3( dot( diffuseColor.rgb, vec3( 0.2126, 0.7152, 0.0722 ) ) ), diffuseColor.rgb, uSat ), 0.0 );
-  reflectedLight.directDiffuse = alb * ( mix( uShadeCol, lit, sunTerm ) * skyK + uBounce * facing * clamp( 1.0 - dot( geometryNormal, upV ), 0.0, 1.0 ) * ( 1.0 - sunTerm ) )
-    + uShadeLift * LIFT_K * ( 1.0 - sunTerm );
+  vec3 pool = vec3( 0.0 );
+  for ( int i = 0; i < 3; i++ ) {
+    vec3 dp = uPoolPos[ i ] - ( -vViewPosition );
+    float k = 1.0 - smoothstep( 0.0, uPoolR[ i ], length( dp ) );
+    pool += uPoolCol[ i ] * k * k * ( 0.35 + 0.65 * max( dot( geometryNormal, normalize( dp + vec3( 1e-4 ) ) ), 0.0 ) );
+  }
+  reflectedLight.directDiffuse = ( alb * ( mix( uShadeCol, lit, sunTerm ) * skyK + uBounce * facing * clamp( 1.0 - dot( geometryNormal, upV ), 0.0, 1.0 ) * ( 1.0 - sunTerm ) )
+    + uShadeLift * LIFT_K * ( 1.0 - sunTerm ) ) * uBaseK + alb * pool;
   reflectedLight.indirectDiffuse = vec3( 0.0 );                               // hemisphere/fill no longer used here
 }
 #endif
 `;
-const DECL = "#include <common>\nuniform vec3 uLitCol; uniform vec3 uShadeCol; uniform vec3 uShadeLift; uniform float uLambert; uniform float uSideK; uniform float uTerm; uniform vec3 uBounce; uniform float uSat;";
+const DECL = "#include <common>\nuniform vec3 uLitCol; uniform vec3 uShadeCol; uniform vec3 uShadeLift; uniform float uLambert; uniform float uSideK; uniform float uTerm; uniform vec3 uBounce; uniform float uSat; uniform float uBaseK; uniform vec3 uPoolPos[ 3 ]; uniform vec3 uPoolCol[ 3 ]; uniform float uPoolR[ 3 ];";
 
 /** Lambert (or Phong: its specular term is kept, masked by the shadow) -> two-tone. Call once per material. */
 export function twoTone<T extends THREE.MeshLambertMaterial | THREE.MeshPhongMaterial>(m: T, liftK = 1): T {
@@ -52,7 +64,7 @@ export function twoTone<T extends THREE.MeshLambertMaterial | THREE.MeshPhongMat
       .replace("#include <lights_fragment_begin>", "float sunVis = 1.0;\n" + LFB)
       .replace("#include <lights_fragment_end>", "#include <lights_fragment_end>\n" + TWO_TONE);
   };
-  m.customProgramCacheKey = () => "twoTone5_" + liftK.toFixed(3);
+  m.customProgramCacheKey = () => "twoTone6_" + liftK.toFixed(3);
   return m;
 }
 

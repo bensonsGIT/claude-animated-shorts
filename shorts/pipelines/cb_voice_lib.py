@@ -9,6 +9,13 @@ SUBS, TRIES = spec.get("subs", {}), spec.get("tries", 6)
 NUMW = set("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen "
            "nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand".split())
 
+# another Chatterbox job on the same GPU roughly quintuples every take (East of Eden: 20 s -> 110 s per take)
+try:
+    import subprocess as _sp
+    _others = [l for l in _sp.run(["pgrep", "-fl", "cb_voice|cb_regen|cb_name_test"], capture_output=True, text=True).stdout.splitlines() if str(os.getpid()) not in l.split()[0]]
+    if _others: print("WARNING: another voice job is running and will share the GPU (takes ~5x slower):\n  " + "\n  ".join(_others), flush=True)
+except Exception:
+    pass
 dev = "mps" if torch.backends.mps.is_available() else "cpu"
 _load = torch.load
 torch.load = lambda *a, **k: _load(*a, **{**k, "map_location": k.get("map_location", torch.device(dev))})
@@ -22,13 +29,27 @@ bundle = torchaudio.pipelines.MMS_FA; aligner = bundle.get_model(with_star=False
 letters = lambda w: re.sub(r"[^a-z']", "", w.lower())
 tw = lambda text: [x for x in (letters(p) for p in re.split(r"[\s\-]+", text)) if x]  # aligner words (hyphens split)
 canon = lambda s: re.sub(r"[^a-z0-9' ]", " ", s.lower().replace("-", " ")).split()
-FUZZY = set(spec.get("fuzzy", []))
+FUZZY = {t for w in spec.get("fuzzy", []) for t in canon(w)}  # lower-cased like the transcript (a raw "Adam" never matched "adam")
 for d, s in SUBS.items():
     FUZZY.update(canon(d)); FUZZY.update(canon(s))
 
 
+# Whisper writes amounts as "$15,000" / "20%": the unit word then has no match, so treat it as part of the number
+UNITW = set("dollars dollar pounds pound cents percent miles mile acres acre tons ton feet foot yards".split())
+# sound-alikes Whisper picks over the script word (East of Eden: "profit" -> "prophet" on all 6 takes, ~11 min of
+# retries on a correct take). A swap between two words of one group counts as heard.
+HOMOPHONES = [{"profit", "prophet"}, {"sun", "son"}, {"knight", "night"}, {"sole", "soul"}, {"whole", "hole"}, {"heir", "air"},
+              {"mourning", "morning"}, {"principal", "principle"}, {"rite", "right", "write"}, {"peace", "piece"}, {"reign", "rain"},
+              {"pray", "prey"}, {"altar", "alter"}, {"aloud", "allowed"}, {"council", "counsel"}, {"cell", "sell"}, {"wait", "weight"},
+              {"tale", "tail"}, {"mussel", "muscle"}, {"base", "bass"}, {"bear", "bare"}, {"steal", "steel"}, {"board", "bored"}]
+
+
 def is_fuzzy(tok):
-    return tok in FUZZY or tok.isdigit() or tok in NUMW
+    return tok in FUZZY or tok.isdigit() or tok in NUMW or tok in UNITW
+
+
+def same_sound(exp, got):
+    return len(exp) == len(got) and all(e == g or any(e in h and g in h for h in HOMOPHONES) for e, g in zip(exp, got))
 
 
 def heard_ok(heard, display):
@@ -39,6 +60,8 @@ def heard_ok(heard, display):
             continue
         exp, got = e[a0:a1], h[b0:b1]
         if exp and got and op == "replace" and all(is_fuzzy(t) for t in exp):  # a name / number spelled differently
+            continue
+        if op == "replace" and same_sound(exp, got):  # a sound-alike (profit / prophet)
             continue
         return False
     return True

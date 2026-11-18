@@ -21,7 +21,7 @@ for bi, (disp, pause) in enumerate(spec["beats"]):
     for d, s in zip(dws, spoken_ws):
         n = len(tw(s)); groups.append((d, j, j + n)); j += n
     sub_idx = {k for d, a, b in groups if d in SUBS for k in range(a, b)}
-    best = None
+    best = None; n_ok = 0
     for k in range(TRIES):
         torch.manual_seed(11 + 100 * bi + k)
         t0 = time.time()
@@ -34,7 +34,10 @@ for bi, (disp, pause) in enumerate(spec["beats"]):
         key = (ok, worst)
         if best is None or key > best[0]:
             best = (key, y, al, heard)
-        if ok and worst >= 0.5:
+        # Whisper is the content check; MMS_FA's score is unreliable (it marks clean takes 0.3-0.5), so a clean take
+        # with worst >= 0.3 is kept, and two clean takes end the search (East of Eden: 23 min re-rolling clean takes)
+        n_ok = n_ok + 1 if ok else n_ok
+        if ok and (worst >= 0.3 or n_ok >= 2):
             break
     (ok, worst), y, al, heard = best
     if not ok:

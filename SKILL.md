@@ -26,7 +26,7 @@ The engine is shared; a short's folder holds only what is its own.
   plain tricorn became `tricornFlat` and his desk quill `writeQuill` because later shorts drew `tricorn`/`quill` differently.
 
 Later shorts (2026-11-15) are the better starting point now. They are interior stories with captions and the current
-voice/sound workflow; all three live in `shorts/src/videos/` with scripts, voice and sound in `~/<name>-short/`.
+voice/sound workflow; all three live in `shorts/src/videos/` with scripts, voice and sound in `/Users/benson/couch.potato.history/<name>-short/` (the home for every short's project folder since 2026-11-18; older notes say `~/<name>-short`).
 - **Newton** (`newton/`, composition `NewtonShort`): three sets (study, Royal Mint, Newgate cell), periwigs, wall fx, glare veil.
   Copy it for multi-location stories. Its `make_timing.py` auto-keys every word (`WORD.newton2` ...), cuts = `cf(beat)`.
 - **Franklin** (`franklin/`, `FranklinShort`): one parlour with dressings per shot. Copy it for single-room stories.
@@ -76,6 +76,10 @@ User rules that apply:
    - Fix any line still flagged (`!!` in the report) or with a mangled name:
      `cb_regen.py spec.json voice/ N --alt "respelled sentence" --must "regex Whisper must hear"`. It splices the new take and
      shifts every later word.
+   - **House pace (user-approved 2026-11-17, The Stranger):** after the Whisper-clean run, speed the narration up 8 %:
+     keep `voice_unsped.wav` / `words_unsped.json` / `beats_unsped.json`, then `ffmpeg -i voice_unsped.wav -af atempo=1.08 voice.wav`
+     and divide every word and beat time by 1.08 (see `~/the-stranger-short/voice`). Target ~180-190 words → ~65-67 s,
+     pauses 0.3-0.5 s, 0.8-0.9 s before the twist / closing lines.
    - Then `make_timing.py` -> `src/videos/<name>/timing.ts` + `~/<name>-short/timing.json` (TOTAL, WORD, BEAT/shots, WORDS for captions).
    - To audition voices: `~/newton-short/voice/chatterbox/samples.py` (refs from Kokoro voices via make_refs*.py).
 4. **Shot plan** in `story.ts`: copy `src/videos/newton/` (or `franklin/` for one room) to `src/videos/<name>/`, rename the export in its `index.tsx`, and add its `short` to `SHORTS` in `src/Root.tsx`. Only the short's own files are copied; the engine stays in `src/engine/`.
@@ -122,6 +126,32 @@ User rules that apply:
     - QA: `python scripts/short_qa.py final.mp4 out/<name>/qa shots.json` checks every frame for black, white, frozen and pop frames, plus loudness and sheets.
     - Fix anything it finds, then run a deep Opus audit.
 11. **Deliver.** SendUserFile the final mp4, update memory, write notes.
+
+## Fast path (workflow review after East of Eden, 2026-11-18: "try to cut down on total time")
+Where the time went on East of Eden (88 s, 24 lines): voice 67 min (39 min of it retries, with another session's voice
+job sharing the GPU), 4 fix rounds after delivery that Ben had to point out (flat lighting, see-through roof, plain
+doors/windows, flickering curtains), each a code fix + stills + a full render. Renders themselves were only ~2 min.
+1. **Voice first, alone on the GPU.** `cb_voice_lib.py` now warns when another `cb_voice`/`cb_regen`/`cb_name_test`
+   is running: wait for it or tell Ben (takes go from ~20 s to ~110 s). Start the run the moment the script is locked;
+   any later script change restarts it.
+2. **Voice retries are now cheap** (`cb_voice.py` / `cb_voice_lib.py`): a take Whisper hears cleanly is kept once the
+   aligner's worst score is >= 0.3, and two clean takes end the search (MMS_FA scores clean takes 0.3-0.5; 23 min went
+   to re-rolling them). Sound-alikes (profit/prophet, sun/son, knight/night...) and unit words after numbers ("$15,000"
+   for "fifteen thousand dollars") pass. `fuzzy` names are now lower-cased like the transcript: before this fix a
+   capitalised fuzzy name ("Adam") never matched, so "atom" for "Adam" burned 3 retries. Replayed on the East of Eden
+   log: 67 min -> 29 min with the same contention.
+3. **Build while the voice runs**, on the provisional timing (lit skill step 10), and check stills in big batches.
+4. **Pre-final checklist** (every item below was a fix round Ben had to ask for; do them before the first 2K render):
+   - Light: each interior has a motivated light plan (`lightPlan()` pools, base < 0.6, vignette); golden only for
+     sunsets; measure with `shorts/scripts/look_metrics.py` against `references/frames` (target p50 ~.35-.45 interiors).
+   - Roofs and overhangs double-sided with soffits; check every low exterior still for sky through eaves.
+   - Doors and windows built with `windowUnit()` / `doorUnit()` (casing, sill, panes, panels, knob), never flat boxes.
+   - **No coplanar or nested faces**: anything layered on a wall (curtains, frames, casings, sills, signs, rugs) stands
+     >= 4 cm in front of every layer behind it, and no two boxes share a face plane (the curtains' front face sat at
+     the sill's front face: z-fighting shimmer at 6 s). Render 3 consecutive frames of each interior shot and look at
+     them side by side; an automatic frame-diff detector was tried and drowned in h264/ink noise.
+   - Seated people on visible seats, nobody inside furniture, faces above tabletops (raised seat marks).
+5. **One full render, then QA, then deliver.** Re-render after each fix round (2 min) rather than patching segments.
 
 ## Final look values (bridge after 4 verifier rounds; all in `templates/bridge/`)
 These values now live in `shorts/src/engine/` (`templates/bridge/` is the original published copy): the look lives in these values, the
@@ -184,6 +214,26 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 4. **Verify** with a fresh Opus max agent: side-by-side sheets (`python scripts/sbs_sheet.py out.jpg --ours a b --ref r1 r2`), score each area out of 10 (colour day / golden, lighting, ink, textures, characters, depth, composition) plus a numbered fix list with frame numbers. Map each fix to the file owner and resume that owner's agent with SendMessage (keeps its context). Bridge scores: round 1 5/3/4/5/4/7/4/6 → round 2 5/4/5/6/4/7/6/6 → round 3 see notes.
 5. Contracts between owners live in exported constants (e.g. `NOINK` layer from ink.ts, `dofAt`/`FOREGROUND` from story.ts, `LIGHTS`/`LOOK` from lights.ts). Changing a contract means telling every owner that reads it.
 
+## Motivated interior light (East of Eden, 2026-11-18: Ben "the colors and lighting seem flat")
+Measured against the reference samples (`references/frames`, 38 frames): ours had median luma 0.58 vs 0.33, rooms lit
+evenly wall to wall, no corner darkening, no warm/cool split. The reference lights rooms from their sources (bulbs,
+windows, fires, lamps) and lets the rest fall off into dark, with warm practicals against a cool ambient.
+- `engine/shade.ts` has `TONE.uBaseK` (scales the whole two-tone light) and 3 light pools `uPoolPos/uPoolCol/uPoolR`
+  (view-space centre, HDR colour, radius; soft falloff, a little N.L). Defaults (1, black) leave every other short
+  unchanged. Plain three.js point lights do nothing: two-tone overwrites `directDiffuse`.
+- Per set, in the short's `world.ts` (see `videos/eden/world.ts` `lightPlan()`): interiors base 0.36-0.56, pools at
+  the window / candles / stove / lamp / moon, positions in world space converted with `cam.matrixWorldInverse` every
+  frame; animate the colour for flicker or a lamp going out. Exteriors keep base 1 and no pools.
+- Tint the cards a little toward the main pool colour (`CHAR.uCharTint`), but guard against a zero pool (a lamp at 0
+  divided the tint by 0 and turned Kate into a black silhouette).
+- `index.tsx` overlay: an elliptical multiply vignette (interiors ~0.5, exteriors ~0.22, clear to 55 % radius) plus a
+  soft-light tint per set (red-violet parlour, blue night, warm day). Stronger vignettes pulled the highlights down
+  (p98 .86 vs reference .905).
+- Golden light turns green fields and interiors purple; use day/sun and keep golden for real sunsets.
+- Measure: `~/tts/chatterbox/bin/python shorts/scripts/look_metrics.py "references/frames/*.jpg" "<our stills glob>"` (p2/p50/p98, saturation, colourfulness, local
+  contrast, shade/lit). Result: p50 .58 → .47. What is still missing vs the reference is set dressing and texture
+  (posters, patterned floors, props), not light.
+
 ## Gotchas
 - Kenney nature-kit materials are teal: recolour them by material name in build.ts.
 - Cameras end up inside houses: the sight-line culler in build.ts/world.ts removes anything blocking any camera ray.
@@ -194,7 +244,9 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 - Remotion writes a silent audio track: mux with `-map 0:v:0 -map 1:a:0`.
 - Sub-agents can't write report files in this harness: ask them for a ≤150-word final message and save it yourself to `out/<name>/<n>/REPORT.md`.
 - Scratch `.ts` files inside `out/` break `tsc`: name them `.txt`.
-- 2K renders run ~4 fps (≈10 min for 67 s). Stills at 0.5 take 3-8 s each after a ~40 s bundle.
+- 2K renders with the angle GL renderer run ~22 fps: **~2 min for 88 s** (East of Eden, measured; the old "~10 min"
+  was the pre-angle figure). A full re-render is cheap: never skip one to save time. Stills at 0.5 take ~1 s each after
+  a ~40 s bundle, so put every frame you need into ONE stills call.
 - Film grain at 2.5 % made the 2K file 910 MB instead of ~250 MB and will turn to mush on YouTube; the reference has none. Keep it off.
 
 ## Readability traps the verifier caught (check every new prop/shot for these)
@@ -208,6 +260,16 @@ lighting 5-6, ink 6, textures 5-6, characters 7, depth 6-7, composition 6-7 (fro
 - Golden rim light done as an offset outer copy turns every hat into a picture frame: inner rim only, head/torso only.
 - Balcony/railing rails at chest height through characters: put the lens ~2.5 m up so rails cross legs, not torsos.
 - Flat holds read as freezes in QA (frozen span ≥12 f): every hold needs a creeping push-in.
+- **Roof planes are single quads: the underside is invisible.** A camera low enough to see under the eaves looks
+  straight through the roof to the sky (East of Eden farmhouse, Ben spotted it at 10 s). Give roof materials
+  `side: THREE.DoubleSide` and add a soffit board under each overhang (`eden/rooms.ts` Ranch). Check every low or
+  wide exterior still for sky showing through eaves, gables or porch roofs.
+- **Doors and windows need real joinery** (Ben, East of Eden: "make doors and windows more detailed"). Flat dark
+  boxes read as holes. `videos/eden/rooms.ts` has reusable `windowUnit()` (glass with a sky-reflection texture,
+  casing, header, deep sill + apron, meeting rail + muntin grid, optional louvred shutters) and `doorUnit()`
+  (painted raised-panel leaf from `doorTex()`, casing, header + cornice, brass knob + escutcheon, optional transom
+  light). Both build out toward +z from a wall face; rotate a Group for side walls. Interior windows over a view pane
+  pass `glass: null`. Use them (or copy them into a new short) for every building, room and vehicle door.
 
 ## Voice, caption and render gotchas (Newton / Tycho / Franklin, 2026-11-15)
 - Chatterbox install: `uv venv --python 3.11 ~/tts/chatterbox` + `uv pip install chatterbox-tts "setuptools<81"` (its
