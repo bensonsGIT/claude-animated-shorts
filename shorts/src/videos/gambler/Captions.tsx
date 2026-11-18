@@ -7,7 +7,7 @@ import { AbsoluteFill, getInputProps, useCurrentFrame, useVideoConfig } from "re
 import { loadFont, TheBoldFont } from "../../load-font";
 import { WORDS } from "./timing";
 
-const PUNCH = new Set(["die.", "alive,", "zero.", "again!", "bank:", "gone.", "franc!", "stenographer.", "waiting"]);
+const PUNCH = new Set(["die.", "alive,", "zero.", "again!", "bank:", "gone.", "franc!", "gamble", "back."]);
 const HOLD = 0.6; // keep a word up across gaps shorter than this; clear it in longer pauses
 const clean = (w: string) => w.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}?!']+$/gu, "");
 
@@ -28,7 +28,7 @@ export const Captions: React.FC = () => {
   if (!text) return null;
   const age = (t - w.s) * fps; // frames since the word started
   const pop = age < 4 ? 0.72 + 0.34 * Math.sin(((age + 1) / 5) * (Math.PI / 2)) : 1; // overshoot then settle
-  const gold = PUNCH.has(text.toLowerCase());
+  const gold = PUNCH.has(w.w.toLowerCase()); // raw word, punctuation included (clean() strips it, so "die." never matched)
   return (
     <AbsoluteFill style={{ justifyContent: "flex-start", alignItems: "center", pointerEvents: "none" }}>
       <div style={{

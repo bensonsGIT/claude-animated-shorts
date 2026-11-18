@@ -7,17 +7,16 @@ src = open(os.path.join(HERE, "..", "dancing", "dancing_sound.py")).read()
 HEADER = '''# Sound for "Granny Bet the Whole Fortune on Zero" (The Gambler, Dostoyevsky, 1866): synthesized SFX + an original score:
 # a lilting spa-band waltz in 3/4 on the hotel verandah, a quicker casino waltz with roulette whirrs, ball clatter and coin
 # avalanches, a deflating trombone when Granny loses, a snare roll into a cymbal crash on "bank", champagne in Paris, the
-# waltz in a minor key for the deaths and the debtors' prison (with a silent beat before the stroke), a ticking pizzicato
-# for the dictation, wedding bells, and the opening waltz again, softly, for the loop.
+# waltz in a minor key for the deaths and the debtors' prison (with a silent beat before the stroke), and the opening
+# waltz again, softly, for the loop (the tutor's ten gold coins and tomorrow's comeback).
 # Usage: ~/tts/chatterbox/bin/python gambler_sound.py  ->  ~/gambler-short/audio/mix.wav, stems/*.wav, cues.md
 '''
 SETS = '''# sets on the timeline (s), from story.ts SHOTS
-SPA = [(0.0, cf(3)), (cf(15), DUR)]
+SPA = [(0.0, cf(3)), (cf(13), DUR)]
 CASINO = [(cf(3), cf(9))]
 PARIS = [(cf(9), cf(12)), (cw("then5"), cf(13))]
 CELL = [(cf(12), cw("then5"))]
-STUDYT = [(cf(13), cf(15))]
-COTTAGE = CELL + STUDYT   # small rooms (reverb)
+COTTAGE = CELL            # small rooms (reverb)
 PLAZA = CASINO            # the gaming salon (reverb)
 INSIDE = COTTAGE + PLAZA + PARIS
 '''
@@ -93,7 +92,6 @@ def build_sfx():
     for a, b in CELL:
         t = a + 0.2
         while t < b: place(S, pan(drip(r), 0.3), t, 0.12); t += 0.9
-    place(S, S2(hum(cf(15) - cf(13), r)), cf(13), 0.015)
     cue(0.0, "spa: birds + breeze; casino: crowd murmur + chip clinks; Paris: a little chatter; cell: drips")
     # ---- 1: the General's pocket watch ticking; a sting on "die" ----
     t = 0.3
@@ -145,20 +143,13 @@ def build_sfx():
     # ---- 13: the cell door; a glass on a tray ----
     place(S, st(clang(r)), W["prison"] - 0.03, 0.35)
     place(S, pan(G.clink(r, 4200, 0.15, 1.0), 0.3), W["footman"] + 0.05, 0.2); place(S, pan(G.clink(r, 5100, 0.12, 1.0), 0.3), W["footman"] + 0.12, 0.12)
-    # ---- 14: the dictation: a clock racing through 26 days, the quill scratching ----
-    t, step = cf(13) + 0.2, 0.45
-    while t < W["deadline"] - 0.1: place(S, pan(tok(r, 1500, 0.9), -0.3), t, 0.08); t += step; step = max(0.1, step * 0.9)
-    t = cf(13) + 0.4
-    while t < W["deadline"] - 0.2: place(S, pan(scratch(r), 0.3), t, 0.08); t += 0.45
-    place(S, st(thump(r, 80, 0.2)), W["deadline"] + 0.02, 0.3)
-    cue(cf(13), "a clock ticking faster and faster; quill scratching; a page slapped down on 'deadline'")
-    # ---- 15: wedding bells ----
-    for k in range(4): place(S, st(bell(r, (392.0, 330.0, 294.0, 262.0)[k], 2.2)), W["stenographer"] - 0.02 + 0.32 * k, 0.1)
-    # ---- 16: ten gold coins clink into his hand; the wheel's whirr comes back for the loop ----
+    # ---- 14-15: ten gold coins clink into his hand; a sly sparkle on "smiled"; the wheel's whirr comes back for the loop ----
     for k in range(6): place(S, pan(G.clink(r, r.uniform(3200, 4400), 0.1, 1.0), 0.1), W["coins"] - 0.25 + 0.07 * k, 0.15)
-    whirr(S, W["waiting2"] - 0.3, DUR, r, 0.07)
+    sparkle(S, W["smiled"] + 0.05, r, (79, 84, 88, 91), 4, 0.14, 0.07)
+    whirr(S, W["tomorrow"] - 0.3, DUR, r, 0.07)
+    cue(W["tomorrow"], "roulette whirr returns under 'Tomorrow' (loop)")
     # ---- whooshes on the place cuts ----
-    for tx in (cf(3), cf(9), cf(10), cf(12), cw("then5"), cf(13), cf(15)):
+    for tx in (cf(3), cf(9), cf(10), cf(12), cw("then5"), cf(13)):
         place(S, widen(G.whoosh(0.45, r, 0.25, 400, 3500), r), tx - 0.2, 0.1)
     return S
 
@@ -235,16 +226,12 @@ def build_music():
     cue(cf(11) - 0.3, "music: a silent beat before 'Then he died of a stroke'")
     place(M, pan(I.timpani(I.m2f(31), 0.9, r, 1.8), 0.0), W["stroke"] + 0.35, 0.35)
     waltz(M, W["kept"] - 0.05, cf(13) - 0.05, r, 0.55, bpm=140, minor=True, lead="box")
-    pizz(M, cf(13) + 0.1, W["deadline"] - 0.05, r, 0.9); cue(cf(13), "music: ticking pizzicato for the dictation")
-    place(M, pan(I.brass(I.m2f(60), 0.4, 0.8, r, "stab"), 0.0), W["deadline"] - 0.02, 0.15)
-    place(M, I.pad([I.m2f(m) for m in (60, 64, 67, 72)], cf(15) - W["stenographer"] + 0.3, 0.5, r, 0.2, 0.6), W["stenographer"] - 0.05, 0.12)
-    for k, m in enumerate((84, 88, 91, 96)): place(M, pan(I.glock(I.m2f(m), 0.7, r, 1.4), 0.0), W["stenographer"] + 0.1 * k, 0.15)
-    waltz(M, cf(15) + 0.05, DUR - 0.05, r, 0.6); cue(cf(15), "music: the opening waltz returns softly (loop)")
+    waltz(M, cf(13) + 0.05, DUR - 0.05, r, 0.6); cue(cf(13), "music: the opening waltz returns softly (loop)")
     return M
 '''
 
 out = HEADER + src[src.index("import os, sys, json, wave"):]
-out = out.replace('ROOT = os.path.expanduser("~/dancing-short")', 'ROOT = os.path.expanduser("~/gambler-short")')
+out = out.replace('ROOT = os.path.expanduser("~/dancing-short")', 'ROOT = os.path.expanduser("~/couch.potato.history/gambler-short")')
 a = out.index("# sets on the timeline (s), from story.ts SHOTS"); b = out.index("cues = []")
 out = out[:a] + SETS + out[b:]
 a = out.index("CROWD = None\n\n\ndef stamps"); b = out.index("# ================================================================ mix")

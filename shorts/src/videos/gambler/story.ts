@@ -9,7 +9,7 @@ export const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
 export const smooth = (x: number) => { const u = clamp01(x); return u * u * (3 - 2 * u); };
 
 // ---------------- shots ----------------
-/** sets: spa.ts (the hotel verandah + square round the origin), casino.ts (x 100), rooms.ts (Paris x 200, cell x 240, study x 280) */
+/** sets: spa.ts (the hotel verandah + square round the origin), casino.ts (x 100), rooms.ts (Paris x 200, cell x 240; the study at x 280 is built but unused since the 2026-11-18 rewrite) */
 export type ShotSet = "spa" | "casino" | "rooms";
 export type ShotDef = { id: number; a: number; b: number; light: LightName; set: ShotSet; sunAz?: number; sunEl?: number };
 const T = (f: number) => f / FPS;
@@ -20,7 +20,7 @@ const W = (k: keyof typeof WORD) => F(WORD[k]);
 const cw = (k: keyof typeof WORD) => W(k) - PRE;
 const sh = (set: ShotSet, light: LightName, extra: Partial<ShotDef> = {}) => (id: number, a: number, b: number): ShotDef => ({ id, a, b, light, set, ...extra });
 const day = sh("spa", "day", { sunAz: 140, sunEl: 40 }), gold = sh("spa", "golden", { sunAz: 150, sunEl: 14 });
-const casino = sh("casino", "night"), paris = sh("rooms", "sun"), cell = sh("rooms", "dark"), study = sh("rooms", "night");
+const casino = sh("casino", "night"), paris = sh("rooms", "sun"), cell = sh("rooms", "dark");
 export const SHOTS: ShotDef[] = [
   day(1, 0, cf(1)), // "A whole family in a German casino town was waiting for Granny to die."
   day(2, cf(1), cf(2)), // "The broke General needed her fortune to marry a French beauty called Blanche."
@@ -39,11 +39,9 @@ export const SHOTS: ShotDef[] = [
   paris(15, cf(11), cf(12)), // "Then he died of a stroke, and his new wife, Blanche, kept every franc!"
   cell(16, cf(12), cw("then5")), // "The tutor ended up in debtors' prison,"
   paris(17, cw("then5"), cf(13)), // "then working as a footman."
-  study(18, cf(13), cf(14)), // "The author, a gambler himself, dictated this book in twenty-six days to beat a deadline."
-  study(19, cf(14), cf(15)), // "Then he married the stenographer."
-  gold(20, cf(15), TOTAL), // "The tutor got ten gold coins from a friend, and started waiting all over again." -> loops into line 1
+  gold(18, cf(13), TOTAL), // "Then a friend gave him ten gold coins, and said, "You'll only gamble them." The tutor just smiled. Tomorrow, he'd win it all back." -> loops into line 1
 ];
-export const XFADE: Record<number, number> = { 4: 10, 8: 12, 12: 10, 13: 10, 16: 10, 18: 12, 20: 14 };
+export const XFADE: Record<number, number> = { 4: 10, 8: 12, 12: 10, 13: 10, 16: 10, 18: 14 };
 export const FLASH_AT = cf(1);
 
 export const shotAt = (f: number) => SHOTS.find((s) => f >= s.a && f < s.b) ?? SHOTS[SHOTS.length - 1];
@@ -64,7 +62,6 @@ export const MARK = {
   wheel: [98.75, 0.832, 0] as V3,
   blancheP: [199.5, 0, -1.4] as V3, tutorP: [200.75, 0, -1.0] as V3, genP: [199.3, 0, -1.2] as V3, portrait: [198.2, 2.55, -3.9] as V3,
   tutorCell: [240.15, 0, -0.5] as V3, lackey: [201.4, 0, -1.3] as V3,
-  dosto: [279.3, 0, -0.7] as V3, anna: [281.5, 0, -1.05] as V3, pages: [280.98, 0.7, -0.62] as V3,
 };
 const EYE = 1.6;
 export const eyesOf = (m: V3, dy = 0): V3 => [m[0], m[1] + EYE + dy, m[2]];
@@ -121,18 +118,16 @@ const C = {
   s15: hold([199.75, 1.55, 3.4], [199.7, 1.15, -1.3], 44, cf(11), 0.0016, W("franc") - 2, 0.006),
   s16: hold([240.15, 1.55, 3.6], [240.15, 1.35, -0.5], 42, cf(12), 0.0016, W("prison") - 2, 0.005),
   s17: hold([201.45, 1.6, 1.4], [201.4, 1.4, -1.3], 42, cw("then5"), 0.0016, W("footman") - 2, 0.005),
-  s18: hold([280.45, 1.7, 5.0], [280.45, 1.15, -0.9], 46, cf(13), 0.0012, W("deadline") - 2, 0.005),
-  s19: hold([280.35, 1.6, 2.6], [280.3, 1.4, -0.9], 42, cf(14), 0.0016, W("stenographer") - 2, 0.006),
-  s20: hold(S1[0], S1[1], S1[2], cf(15), 0.0016, W("waiting2") - 2, 0.006),
+  s18: hold(S1[0], S1[1], S1[2], cf(13), 0.0016, W("tomorrow") - 2, 0.006),
 };
 const CAMS: Record<number, Key[]> = {
   1: [{ f: 0, s: C.s1 }], 2: [{ f: cf(1), s: C.s2 }], 3: [{ f: cf(2), s: C.s3 }], 4: [{ f: cf(3), s: C.s4 }], 5: [{ f: cf(4), s: C.s5 }],
   6: [{ f: cf(5), s: C.s6 }], 7: [{ f: cw("again"), s: C.s7 }], 8: [{ f: cf(6), s: C.s8 }], 9: [{ f: cf(7), s: C.s9 }], 10: [{ f: cw("red"), s: C.s10 }],
   11: [{ f: cf(8), s: C.s11 }], 12: [{ f: cf(9), s: C.s12 }], 13: [{ f: cf(10), s: C.s13 }], 14: [{ f: cw("and6"), s: C.s14 }], 15: [{ f: cf(11), s: C.s15 }],
-  16: [{ f: cf(12), s: C.s16 }], 17: [{ f: cw("then5"), s: C.s17 }], 18: [{ f: cf(13), s: C.s18 }], 19: [{ f: cf(14), s: C.s19 }], 20: [{ f: cf(15), s: C.s20 }],
+  16: [{ f: cf(12), s: C.s16 }], 17: [{ f: cw("then5"), s: C.s17 }], 18: [{ f: cf(13), s: C.s18 }],
 };
 const KICKS: [number, number][] = [[WORD.die, 0.5], [WORD.alive, 0.9], [WORD.hit, 0.7], [WORD.again, 0.6], [WORD.bank, 1.0], [WORD.gone, 0.4], [WORD.stroke, 0.6],
-  [WORD.prison, 0.5], [WORD.deadline, 0.4]];
+  [WORD.prison, 0.5]];
 export const kickAt = (t: number) => {
   let a = 0;
   for (const [t0, g] of KICKS) {
@@ -170,9 +165,7 @@ export const DOF: Dof[] = [
   { f: cf(11), cInf: 9, focus: () => eyesOf(M.blancheP) },
   { f: cf(12), cInf: 10, focus: () => eyesOf(M.tutorCell) },
   { f: cw("then5"), cInf: 12, focus: () => eyesOf(M.lackey) },
-  { f: cf(13), cInf: 6, focus: () => eyesOf(M.dosto) },
-  { f: cf(14), cInf: 10, focus: () => [280.3, 1.55, -0.9] },
-  { f: cf(15), cInf: 6, focus: () => eyesOf(M.tutorSeat, -0.4) },
+  { f: cf(13), cInf: 6, focus: () => eyesOf(M.tutorSeat, -0.4) },
 ];
 export const dofAt = (f: number) => {
   let i = 0; while (i + 1 < DOF.length && f >= DOF[i + 1].f) i++;

@@ -11,7 +11,7 @@ import { Spa } from "./spa";
 import { Casino } from "./casino";
 import { Rooms } from "./rooms";
 import { Pool, Actor, Fx, stage } from "./cast";
-import { FPS, SHOTS, camAt, ShotDef, WORD, BEAT } from "./story";
+import { FPS, SHOTS, camAt, ShotDef } from "./story";
 
 export const loadKit = () => Promise.resolve({} as Kit);
 
@@ -70,10 +70,7 @@ export class World {
     if (s.set === "spa") this.spa.pose(s.light, cam.position);
     if (s.set === "casino") this.casino.pose();
     if (s.set === "rooms") {
-      // the study window: 26 days and nights flicker past while the book is dictated (shot 18), night after
-      const d0 = BEAT[13] + 0.3, d1 = Math.max(d0 + 1, WORD.deadline), u = (t - d0) / (d1 - d0);
-      const dayK = id === 18 && u > 0 && u < 1 ? 0.5 - 0.5 * Math.cos(u * 26 * Math.PI * 2) : 0;
-      this.rooms.pose(id === 16, dayK);
+      this.rooms.pose(id === 16, 0); // (the study's day/night window went unused with the dictation beat, 2026-11-18)
     }
     const focus = V(...c.look), dist = cam.position.distanceTo(focus);
     // ---- light rig ----

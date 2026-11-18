@@ -4,8 +4,7 @@
 import * as THREE from "three";
 import { Pen, bodyFront, bodySide, fxBurst, fxShadow, fxContact, fxPuff, fxStars, Outfit, FrontOpts, SideOpts } from "../../engine/toon";
 import { GRANNY, GENERAL, GENERAL_PARIS, BLANCHE, TUTOR, TUTOR_RICH, TUTOR_BROKE, TUTOR_LACKEY, POTAPITCH, MARTHA, CROUPIER, ASTLEY, FOOTMAN, PUNTER,
-  DOSTO, ANNA, ANNA_BRIDE, fxArmchair, fxRoulette, pocketAngle, fxCoins, fxBanknote, fxMoneyBubble, fxPortrait, fxHatboxes, fxPages, fxGold, fxBells } from "../../engine/library/gambler";
-import { fxHeart } from "../../engine/library/gatsby";
+  fxArmchair, fxRoulette, pocketAngle, fxCoins, fxBanknote, fxMoneyBubble, fxPortrait, fxHatboxes, fxGold } from "../../engine/library/gambler";
 import { ZERO_CELL, RED_CELL } from "./casino";
 import { FPS, SHOTS, V3, clamp01, smooth, WORD, BEAT, MARK } from "./story";
 import { NOINK } from "../../engine/ink";
@@ -218,7 +217,6 @@ const TU = who(903, TUTOR, "tu"), TUR = who(903, TUTOR_RICH, "tur"), TUB = who(9
 const PO = who(904, POTAPITCH, "po"), MA = who(905, MARTHA, "ma"), CR = who(906, CROUPIER, "cr"), AS = who(907, ASTLEY, "as");
 const FO = [0, 1].map((v) => who(910 + v, FOOTMAN(v), `fo${v}`));
 const PU = [0, 1, 2, 3, 4, 5].map((v) => who(930 + v, PUNTER(v), `pu${v}`));
-const DO = who(920, DOSTO, "do"), AN = who(921, ANNA, "an"), ANB = who(921, ANNA_BRIDE, "anb");
 const stand = (cam: CamInfo, out: Stage, w: Who, m: V3, fo: FrontOpts, shadow = true, scale = 1) => {
   out.places.push(person(cam, w, m[0], m[1], m[2], FRONT, { mode: "stand", blink: lidAt(cam.t ?? 0, w.i), ...fo }, {}, scale));
   if (shadow) blob(out, m[0], m[1], m[2], scale);
@@ -301,17 +299,18 @@ const stepY = (z: number) => (z > 1.5 ? 0 : z < 0 ? VY : VY * (1.5 - z) / 1.5);
 export const gambStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
   const M = MARK;
   cam.t = t;
-  if (id === 1 || id === 20) { // the verandah: the family waiting (the loop: the tutor alone, waiting again)
+  if (id === 1 || id === 18) { // the verandah: the family waiting (the loop: the tutor alone, plotting tomorrow's comeback)
     if (id === 1) {
       const d = on(t, WORD.die);
       stand(cam, out, GE, M.gen, { expr: d ? "grin" : "nervous", prop: "watch", facing: 1 });
       stand(cam, out, BL, M.blanche, { expr: d ? "grin" : "smug", prop: "fan", facing: -1 });
       stand(cam, out, TU, M.tutorSeat, { mode: "sit", expr: d ? "nervous" : "neutral", look: d ? -0.6 : 0 }, false);
     } else {
-      const got = on(t, WORD.coins), w2 = on(t, WORD.waiting2);
-      stand(cam, out, TUB, M.tutorSeat, { mode: "sit", expr: w2 ? "smug" : got ? "relief" : "dazed", prop: got ? "coin" : null, look: w2 ? 0 : -0.4 }, false);
-      const off = Math.max(0, t - WORD.friend - 0.2);
-      if (off < 1.6) go(off > 0, cam, out, AS, [M.astley[0] + 0.0, VY, M.astley[2] + 1.4 * smooth(off / 1.6)], t, { expr: "nervous", prop: on(t, WORD.coins) ? null : "coin", facing: -1 });
+      const got = on(t, WORD.coins), sm = on(t, WORD.smiled), tm = on(t, WORD.tomorrow);
+      stand(cam, out, TUB, M.tutorSeat, { mode: "sit", expr: tm ? "smug" : sm ? "smile" : got ? "relief" : "dazed", prop: got ? "coin" : null, look: tm ? 0 : -0.4 }, false);
+      // Mr. Astley hands over the coins, wags a finger on "You'll only gamble them", then leaves
+      const off = Math.max(0, t - WORD.them - 0.4), warn = on(t, WORD.youll);
+      if (off < 1.6) go(off > 0, cam, out, AS, [M.astley[0] + 0.0, VY, M.astley[2] + 1.4 * smooth(off / 1.6)], t, { expr: warn ? "stern" : "nervous", prop: got ? (warn && off === 0 ? "point" : null) : "coin", facing: -1 });
       if (t >= WORD.ten - 0.1 && t < WORD.coins + 0.2) { // the ten coins tumble from his hand to the tutor's
         const u = clamp01((t - WORD.ten + 0.1) / Math.max(0.3, WORD.coins - WORD.ten + 0.3));
         for (let i = 0; i < 4; i++) { const sq = q(Math.cos(t * 14 + i), 6); const a = handAt(cam, M.astley, 0.3, VY + 1.3, 0.1), b = handAt(cam, M.tutorSeat, 0.3, VY + 0.9, 0.2);
@@ -435,28 +434,8 @@ export const gambStage = (id: number, t: number, cam: CamInfo, out: Stage) => {
     stand(cam, out, TUL, M.lackey, { expr: on(t, WORD.footman) ? "nervous" : "neutral", prop: "tray", facing: -1 });
     return;
   }
-  if (id === 18) { // October 1866: he paces and dictates, she takes it down; the pages pile up, days and nights flick past
-    const x = M.dosto[0] + 0.35 + 0.3 * Math.sin((t - BEAT[13]) * 1.4), vx = Math.cos((t - BEAT[13]) * 1.4);
-    walk(cam, out, DO, [x, 0, M.dosto[2]], t, { expr: on(t, WORD.deadline) ? "relief" : (Math.floor(t * 1.5) % 2 ? "yell" : "stern"), facing: (scr(cam, vx, 0) || 1) as -1 | 1 }, 1.6);
-    stand(cam, out, AN, [M.anna[0], 0.3, M.anna[2]], { mode: "sit", expr: on(t, WORD.deadline) ? "relief" : "nervous", prop: "writeQuill" }, false);
-    const k = clamp01((t - BEAT[13]) / Math.max(1, WORD.deadline - BEAT[13]));
-    out.fx.push({ key: `pages${q(k, 24)}`, cw: 260, ch: 400, draw: (p) => fxPages(p, q(k, 24)), x: M.pages[0], y: M.pages[1] + 0.2, z: M.pages[2], w: 0.26, h: 0.4 });
-    burst(out, t, WORD.deadline - 0.05, [M.pages[0], 1.3, M.pages[2] + 0.2], 1.2, "#fff3b0", 0.3);
-    return;
-  }
-  if (id === 19) { // then he married the stenographer
-    const st = on(t, WORD.stenographer);
-    stand(cam, out, DO, [279.85, 0, -0.9], { expr: st ? "smile" : "neutral", facing: 1 });
-    stand(cam, out, st ? ANB : AN, [280.75, 0, -0.95], { expr: st ? "smile" : "nervous", facing: -1 });
-    const s = popK(t, WORD.stenographer - 0.1);
-    if (s > 0.01) { const k = q(Math.sin((t - WORD.stenographer) * 6), 10); out.fx.push({ key: `bells${k}`, cw: 300, ch: 260, draw: (p) => fxBells(p, k), x: 280.3, y: 2.55, z: -0.85, w: 0.75 * s, h: 0.65 * s }); }
-    if (st) for (let i = 0; i < 5; i++) { const u = (t - WORD.stenographer) * 0.7 + hh(i, 51) * 0.6; if (u > 1.4) continue; out.fx.push({ key: "heart", cw: 200, ch: 180, draw: (p) => fxHeart(p), x: 280.3 + (hh(i, 52) - 0.5) * 1.4, y: 1.4 + u, z: -0.7, w: 0.2, h: 0.18 }); }
-    return;
-  }
 };
 
-/** which way (screen) a world motion goes: -1 / 1 */
-const scr = (cam: CamInfo, vx: number, vz: number) => Math.sign(vx * cam.right.x + vz * cam.right.z) as -1 | 0 | 1;
 const TOP = 0.82;
 
 export const stage = (id: number, t: number, cam: CamInfo): Stage => {
