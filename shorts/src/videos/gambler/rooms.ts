@@ -63,7 +63,8 @@ export class Rooms extends Room {
     fix.add(boxGeo(V(px + 2.37, 0.75, -3.9), V(px + 2.43, 4.25, -3.86)), gilt); fix.add(boxGeo(V(px + 1.55, 2.47, -3.9), V(px + 3.25, 2.53, -3.86)), gilt);
     deco.add(boxGeo(V(px - 2.6, 0.1, -3.7), V(px + 0.4, 0.5, -2.9)), rose); // the sofa
     deco.add(boxGeo(V(px - 2.6, 0.5, -3.9), V(px + 0.4, 1.2, -3.6)), rose);
-    for (const x of [px - 2.6, px + 0.4]) deco.add(boxGeo(V(x - 0.12, 0.1, -3.9), V(x + 0.12, 0.8, -2.9)), gilt);
+    // arms stand 4 cm proud of the seat front: a shared z = -2.9 face z-fought gold through the rose seat (shot 12, ~37 s)
+    for (const x of [px - 2.6, px + 0.4]) deco.add(boxGeo(V(x - 0.12, 0.1, -3.9), V(x + 0.12, 0.8, -2.86)), gilt);
     deco.add(boxGeo(V(px - 2.6, 0, -3.8), V(px + 0.4, 0.1, -2.9)), gilt);
     fix.add(cyl(0.02, 0.02, 1.2, 6), gilt, at(px - 0.5, 4.4, 0)); fix.add(new THREE.TorusGeometry(0.5, 0.05, 6, 20), gilt, at(px - 0.5, 3.8, 0, Math.PI / 2));
     for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2; this.flame(px - 0.5 + 0.5 * Math.cos(a), 3.95, 0.5 * Math.sin(a), 0.06, 0.12, 2.0); }
