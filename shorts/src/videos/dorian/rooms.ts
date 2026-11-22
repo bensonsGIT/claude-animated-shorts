@@ -17,7 +17,7 @@ import { Pen } from "../../engine/toon";
 import { drawPortrait, PORTRAIT_W, PORTRAIT_H } from "../../engine/library/dorian";
 import type { V3 } from "./story";
 
-const shell = (b: Batch, x0: number, x1: number, z0: number, z1: number, h: number, wall: THREE.Material, floor: THREE.Material, ceil: THREE.Material | null, back = true, tile = 2) => {
+export const shell = (b: Batch, x0: number, x1: number, z0: number, z1: number, h: number, wall: THREE.Material, floor: THREE.Material, ceil: THREE.Material | null, back = true, tile = 2) => {
   b.add(quad(V(x0, 0, z1), V(x1, 0, z1), V(x1, 0, z0), V(x0, 0, z0), (x1 - x0) / tile, (z1 - z0) / tile), floor);
   b.add(boxGeo(V(x0 - 0.4, 0, z0), V(x0, h, z1), 2), wall);
   b.add(boxGeo(V(x1, 0, z0), V(x1 + 0.4, h, z1), 2), wall);
@@ -26,13 +26,13 @@ const shell = (b: Batch, x0: number, x1: number, z0: number, z1: number, h: numb
   if (ceil) b.add(boxGeo(V(x0 - 0.4, h, z0 - 0.4), V(x1 + 0.4, h + 0.3, z1 + 0.4), 0, true), ceil);
 };
 /** the back wall of a room with one rectangular hole (window or door) at x0..x1, y0..y1 */
-const holedWall = (b: Batch, X0: number, X1: number, z: number, h: number, x0: number, x1: number, y0: number, y1: number, wall: THREE.Material) => {
+export const holedWall = (b: Batch, X0: number, X1: number, z: number, h: number, x0: number, x1: number, y0: number, y1: number, wall: THREE.Material) => {
   b.add(boxGeo(V(X0 - 0.4, 0, z - 0.4), V(x0, h, z), 2), wall);
   b.add(boxGeo(V(x1, 0, z - 0.4), V(X1 + 0.4, h, z), 2), wall);
   if (y0 > 0) b.add(boxGeo(V(x0, 0, z - 0.4), V(x1, y0, z), 2), wall);
   b.add(boxGeo(V(x0, y1, z - 0.4), V(x1, h, z), 2), wall);
 };
-const paper = (key: string, a: string, b2: string, stripe = true) => ctex(key, 512, 512, (g, r) => {
+export const paper = (key: string, a: string, b2: string, stripe = true) => ctex(key, 512, 512, (g, r) => {
   g.fillStyle = a; g.fillRect(0, 0, 512, 512);
   for (let x = 0; x < 512; x += 64) {
     g.fillStyle = b2;
@@ -41,7 +41,7 @@ const paper = (key: string, a: string, b2: string, stripe = true) => ctex(key, 5
   }
   for (let i = 0; i < 200; i++) { g.fillStyle = "rgba(0,0,0,0.03)"; g.fillRect(r() * 512, r() * 512, 20, 20); }
 });
-const doorTex = (key: string, col: string, dark: string) => ctex(key, 256, 512, (g, r) => {
+export const doorTex = (key: string, col: string, dark: string) => ctex(key, 256, 512, (g, r) => {
   g.fillStyle = col; g.fillRect(0, 0, 256, 512);
   for (let i = 0; i < 40; i++) { g.strokeStyle = "rgba(0,0,0,0.05)"; g.lineWidth = 2; const x = r() * 256; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + r() * 6 - 3, 512); g.stroke(); }
   const panel = (x: number, y: number, w: number, h: number) => {
@@ -56,7 +56,7 @@ const doorTex = (key: string, col: string, dark: string) => ctex(key, 256, 512, 
 });
 type WinOpts = { frame: THREE.Material; glass?: THREE.Material | null; cols?: number; rows?: number; shutter?: THREE.Material; sill?: THREE.Material; head?: boolean };
 /** a window on a wall whose face is the plane z, built out toward +z: casing, header, sill + apron, sash bars, shutters */
-const windowUnit = (b: Batch, x: number, y0: number, w: number, h: number, z: number, o: WinOpts) => {
+export const windowUnit = (b: Batch, x: number, y0: number, w: number, h: number, z: number, o: WinOpts) => {
   const { frame, glass = null, cols = 2, rows = 2, shutter, sill = frame, head = true } = o;
   const c = 0.09, bar = 0.035;
   if (glass) b.add(boxGeo(V(x - w / 2, y0, z - 0.02), V(x + w / 2, y0 + h, z + 0.01)), glass);
@@ -75,7 +75,7 @@ const windowUnit = (b: Batch, x: number, y0: number, w: number, h: number, z: nu
   }
 };
 /** a door on a wall face at z (built toward +z): casing + header + cornice, optional transom light, the leaf, a brass knob */
-const doorUnit = (b: Batch, x: number, y0: number, w: number, h: number, z: number, o: { frame: THREE.Material; leaf?: THREE.Material | null; knob: THREE.Material; transom?: THREE.Material }) => {
+export const doorUnit = (b: Batch, x: number, y0: number, w: number, h: number, z: number, o: { frame: THREE.Material; leaf?: THREE.Material | null; knob: THREE.Material; transom?: THREE.Material }) => {
   const c = 0.1;
   if (o.leaf) {
     b.add(boxGeo(V(x - w / 2, y0, z - 0.02), V(x + w / 2, y0 + h, z + 0.03)), o.leaf);
@@ -89,8 +89,8 @@ const doorUnit = (b: Batch, x: number, y0: number, w: number, h: number, z: numb
   b.add(boxGeo(V(x - w / 2 - c - 0.05, top, z), V(x + w / 2 + c + 0.05, top + 0.12, z + 0.11)), o.frame);
   b.add(boxGeo(V(x - w / 2 - c - 0.08, top + 0.12, z), V(x + w / 2 + c + 0.08, top + 0.16, z + 0.15)), o.frame);
 };
-const gold = () => twoTone(new THREE.MeshPhongMaterial({ color: "#c8a04a", specular: "#fff0c0", shininess: 70 }), 0.2);
-const brassK = () => twoTone(new THREE.MeshPhongMaterial({ color: "#d8b04a", specular: "#fff0c0", shininess: 80 }), 0.2);
+export const gold = () => twoTone(new THREE.MeshPhongMaterial({ color: "#c8a04a", specular: "#fff0c0", shininess: 70 }), 0.2);
+export const brassK = () => twoTone(new THREE.MeshPhongMaterial({ color: "#d8b04a", specular: "#fff0c0", shininess: 80 }), 0.2);
 
 // ================= the portrait (one prop, five painted stages) =================
 const portraitMat = (s: number) => lam(`dgPortrait${s}`, () => ({ map: ctex(`dgPortraitT${s}`, PORTRAIT_W, PORTRAIT_H, (g) => drawPortrait(new Pen(g), s)) }));
