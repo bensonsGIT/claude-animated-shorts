@@ -12,18 +12,18 @@ import { shell, holedWall, doorTex, windowUnit, doorUnit, brassK } from "../dori
 import type { V3 } from "./story";
 
 const ink = "#141018";
-const plaster = (key: string, a: string, b: string) => ctex(key, 512, 512, (g, r) => {
+export const plaster = (key: string, a: string, b: string) => ctex(key, 512, 512, (g, r) => {
   g.fillStyle = a; g.fillRect(0, 0, 512, 512);
   for (let i = 0; i < 260; i++) { g.fillStyle = r() < 0.5 ? b : "rgba(0,0,0,0.05)"; g.beginPath(); g.ellipse(r() * 512, r() * 512, 6 + r() * 26, 4 + r() * 16, r() * 3, 0, Math.PI * 2); g.fill(); }
 });
-const stone = (key: string, cols: string[], mortar: string) => ctex(key, 512, 512, (g, r) => {
+export const stone = (key: string, cols: string[], mortar: string) => ctex(key, 512, 512, (g, r) => {
   g.fillStyle = mortar; g.fillRect(0, 0, 512, 512);
   for (let y = 0, row = 0; y < 512; y += 64, row++) for (let x = (row % 2) * -48; x < 512; x += 96) {
     g.fillStyle = cols[Math.floor(r() * cols.length)]; g.fillRect(x + 4, y + 4, 88, 56);
     g.strokeStyle = "rgba(0,0,0,0.18)"; g.lineWidth = 3; g.strokeRect(x + 4, y + 4, 88, 56);
   }
 });
-const skyDome = (root: THREE.Object3D, key: string, stops: [number, string][], r = 140, stars = false) => {
+export const skyDome = (root: THREE.Object3D, key: string, stops: [number, string][], r = 140, stars = false) => {
   const t = ctex(key, 256, 512, (g, rr) => {
     const gr = g.createLinearGradient(0, 0, 0, 512); for (const [k, c] of stops) gr.addColorStop(k, c); g.fillStyle = gr; g.fillRect(0, 0, 256, 512);
     if (stars) for (let i = 0; i < 90; i++) { g.fillStyle = "rgba(255,255,240,0.85)"; g.fillRect(rr() * 256, rr() * 220, 1.5, 1.5); }
@@ -31,11 +31,11 @@ const skyDome = (root: THREE.Object3D, key: string, stops: [number, string][], r
   const dome = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, fog: false, depthWrite: false }));
   dome.renderOrder = -2; dome.layers.set(NOINK); root.add(dome);
 };
-const backdrop = (root: THREE.Object3D, tex: THREE.Texture, w: number, h: number, z: number, landFrac = 830 / 1024) => {
+export const backdrop = (root: THREE.Object3D, tex: THREE.Texture, w: number, h: number, z: number, landFrac = 830 / 1024) => {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: tex, fog: false, transparent: true, alphaTest: 0.02 }));
   m.position.set(0, h * landFrac - h / 2 - 0.5, z); m.layers.set(NOINK); root.add(m);
 };
-const ridgeTex = (key: string, layers: [number, number, number, string, string | null][], ground: string | null) => ctex(key, 2048, 1024, (g, r) => {
+export const ridgeTex = (key: string, layers: [number, number, number, string, string | null][], ground: string | null) => ctex(key, 2048, 1024, (g, r) => {
   g.clearRect(0, 0, 2048, 1024);
   for (const [y0, amp, n, col, snow] of layers) {
     const pts: [number, number][] = [];

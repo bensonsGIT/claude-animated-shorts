@@ -15,9 +15,10 @@ import { short as stranger } from "./videos/stranger";
 import { short as eden } from "./videos/eden";
 import { short as dorian } from "./videos/dorian";
 import { short as frankenstein } from "./videos/frankenstein";
+import { short as inquisitor } from "./videos/inquisitor";
 
 /** every short: 1080x1920 at 30 fps. A new short adds its folder's `short` here. */
-const SHORTS = [bridge, tycho, newton, franklin, formosus, meat, peter, stranger, eden, dorian, frankenstein];
+const SHORTS = [bridge, tycho, newton, franklin, formosus, meat, peter, stranger, eden, dorian, frankenstein, inquisitor];
 
 // Each <Composition> is an entry in the sidebar!
 
