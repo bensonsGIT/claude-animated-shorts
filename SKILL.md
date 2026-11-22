@@ -42,8 +42,8 @@ User rules that apply:
   time, black outline, ~71 % frame height, punchline words gold, SMALL: 104 px (88 px for words > 9 letters), 15 px
   outline, 7 px shadow at 1080 wide (`Captions.tsx`, `PUNCH` set). No other labels in the video.
 - English only.
-- Voice: Chatterbox cloned from the synthetic Kokoro voice am_michael (natural American male), every line
-  Whisper-checked (see step 3). The user rejected macOS say, flat Kokoro voices and Kokoro at 1.18x.
+- Voice: Ben's own ElevenLabs narration (he sends the mp3; step 3). Before 2026-11-22: Chatterbox cloned from the
+  synthetic Kokoro voice am_michael, Whisper-checked. The user rejected macOS say, flat Kokoro voices and Kokoro at 1.18x.
 - Jokes are researched real facts. When the user supplies the script, use it verbatim.
 - Mix: voice -16 LUFS through the broadcast chain, music bed ~-27 ducked under words, SFX ~-24, master -14 LUFS.
 - Final export 2K vertical: 1440x2560, `--scale 1.3333333333333333` (exactly 4/3; `1.3333` gives a non-integer height and fails).
@@ -64,24 +64,22 @@ User rules that apply:
    - **Consequence:** the rule it created.
    - **Callback twist:** the ending.
    - Never describe on screen what the viewer already sees.
-3. **Voice** (Chatterbox, venv `~/tts/chatterbox`; reference `~/tts/refs/ref_am_michael.wav`). Everything is timed to the
-   resulting `words.json`, so lock the voice before the picture.
-   - Write `~/<name>-short/voice/cb_spec.json`: `ref`, `exaggeration` 0.5, `cfg` 0.5, `pause_k` 1.0,
-     `beats` = [[sentence, pause s], ...] (one beat per sentence, the picture cuts on them, "!" on punchlines),
-     `subs` = per-word TTS respellings (captions keep the script spelling), `fuzzy` = names Whisper may spell differently.
-     Respellings that work: years spelled out ("1699," -> "sixteen ninety-nine,"), "Tyco" (Tycho), "Challoner", "lyve" (live wire).
-   - `~/tts/chatterbox/bin/python shorts/pipelines/cb_voice.py spec.json voice/` -> voice.wav, words.json (torchaudio
-     MMS_FA forced alignment), beats.json, cb_report.txt. Each take is transcribed by Whisper (small.en) and retried
-     (up to 6) until Whisper hears the script's words.
-   - Fix any line still flagged (`!!` in the report) or with a mangled name:
-     `cb_regen.py spec.json voice/ N --alt "respelled sentence" --must "regex Whisper must hear"`. It splices the new take and
-     shifts every later word.
-   - **House pace (user-approved 2026-11-17, The Stranger):** after the Whisper-clean run, speed the narration up 8 %:
-     keep `voice_unsped.wav` / `words_unsped.json` / `beats_unsped.json`, then `ffmpeg -i voice_unsped.wav -af atempo=1.08 voice.wav`
-     and divide every word and beat time by 1.08 (see `~/the-stranger-short/voice`). Target ~180-190 words → ~65-67 s,
-     pauses 0.3-0.5 s, 0.8-0.9 s before the twist / closing lines.
-   - Then `make_timing.py` -> `src/videos/<name>/timing.ts` + `~/<name>-short/timing.json` (TOTAL, WORD, BEAT/shots, WORDS for captions).
-   - To audition voices: `~/newton-short/voice/chatterbox/samples.py` (refs from Kokoro voices via make_refs*.py).
+3. **Voice: Ben's own ElevenLabs narration (since 2026-11-22: "wait for my file from now on").** Never generate a
+   Chatterbox voice for a new short. Everything is timed to `words.json`, so build on a provisional timing and swap his
+   narration in when it arrives (the shots are word-keyed and retime on their own).
+   - Write `<short folder>/voice/cb_spec.json` with `beats` (the script lines, display spelling) and `fuzzy` (names, the
+     author, numbers/units Whisper writes as digits, homophones). Hand Ben the voice script (the numbered lines).
+   - Provisional: `python3 shorts/pipelines/prov_voice.py voice/cb_spec.json prov/` → words.json + beats.json paced like
+     his reads (~2.4 words/s), then `make_timing.py` on `prov/` (it does not write timing.json for a provisional voice).
+   - His mp3: `~/tts/chatterbox/bin/python shorts/pipelines/ext_voice.py voice/cb_spec.json <mp3> voice/` → voice.wav,
+     words.json (script spelling, MMS_FA forced alignment), beats.json, plus Whisper's diff against the script. Only
+     digit/spelling differences are fine; a real wording change means re-check the line with Ben. Any earlier voice files
+     are kept as `*_chatterbox`. **No atempo**: his pace is the pace.
+   - Then `make_timing.py` → `src/videos/<name>/timing.ts` + timing.json, `mkshots.py` → shots.json, the sound script, a
+     still at every shot end + gag (fixed-length gags can drift with his longer pauses: Dorian's knife white-out grew from
+     0.47 s to 0.67 s), render, mux, QA. A swap on a finished short takes ~10 min.
+   - The old Chatterbox pipeline (`cb_voice.py`, `cb_regen.py`, `cb_name_test.py`, the am_michael reference) stays in
+     `shorts/pipelines/` for re-voicing an old short only if Ben asks.
 4. **Shot plan** in `story.ts`: copy `src/videos/newton/` (or `franklin/` for one room) to `src/videos/<name>/`, rename the export in its `index.tsx`, and add its `short` to `SHORTS` in `src/Root.tsx`. Only the short's own files are copied; the engine stays in `src/engine/`.
    - Cuts and gags are keyed to `WORD.<word>` / beat onsets (never to hard frame numbers), so a re-voice retimes the whole film.
    - 9:16 is narrow: stage two-shots in depth, keep close-ups ~2.5 m from these bean-head cards, frame faces in the upper
@@ -131,17 +129,11 @@ User rules that apply:
 Where the time went on East of Eden (88 s, 24 lines): voice 67 min (39 min of it retries, with another session's voice
 job sharing the GPU), 4 fix rounds after delivery that Ben had to point out (flat lighting, see-through roof, plain
 doors/windows, flickering curtains), each a code fix + stills + a full render. Renders themselves were only ~2 min.
-1. **Voice first, alone on the GPU.** `cb_voice_lib.py` now warns when another `cb_voice`/`cb_regen`/`cb_name_test`
-   is running: wait for it or tell Ben (takes go from ~20 s to ~110 s). Start the run the moment the script is locked;
-   any later script change restarts it.
-2. **Voice retries are now cheap** (`cb_voice.py` / `cb_voice_lib.py`): a take Whisper hears cleanly is kept once the
-   aligner's worst score is >= 0.3, and two clean takes end the search (MMS_FA scores clean takes 0.3-0.5; 23 min went
-   to re-rolling them). Sound-alikes (profit/prophet, sun/son, knight/night...) and unit words after numbers ("$15,000"
-   for "fifteen thousand dollars") pass. `fuzzy` names are now lower-cased like the transcript: before this fix a
-   capitalised fuzzy name ("Adam") never matched, so "atom" for "Adam" burned 3 retries. Replayed on the East of Eden
-   log: 67 min -> 29 min with the same contention.
-3. **Build while the voice runs**, on the provisional timing (lit skill step 10), and check stills in big batches.
-4. **Pre-final checklist** (every item below was a fix round Ben had to ask for; do them before the first 2K render):
+1. **Voice = Ben's file.** Give him the voice script the moment the script is locked and build on `prov_voice.py` timing;
+   swap his mp3 in with `ext_voice.py` (~1 min) when it arrives. (The Chatterbox notes on GPU contention and retries only
+   matter when re-voicing an old short with `cb_voice.py`.)
+2. **Build while waiting for Ben's mp3**, on the provisional timing (lit skill step 10), and check stills in big batches.
+3. **Pre-final checklist** (every item below was a fix round Ben had to ask for; do them before the first 2K render):
    - Light: each interior has a motivated light plan (`lightPlan()` pools, base < 0.6, vignette); golden only for
      sunsets; measure with `shorts/scripts/look_metrics.py` against `references/frames` (target p50 ~.35-.45 interiors).
    - Roofs and overhangs double-sided with soffits; check every low exterior still for sky through eaves.
@@ -151,7 +143,7 @@ doors/windows, flickering curtains), each a code fix + stills + a full render. R
      the sill's front face: z-fighting shimmer at 6 s). Render 3 consecutive frames of each interior shot and look at
      them side by side; an automatic frame-diff detector was tried and drowned in h264/ink noise.
    - Seated people on visible seats, nobody inside furniture, faces above tabletops (raised seat marks).
-5. **One full render, then QA, then deliver.** Re-render after each fix round (2 min) rather than patching segments.
+4. **One full render, then QA, then deliver.** Re-render after each fix round (2 min) rather than patching segments.
 
 ## Final look values (bridge after 4 verifier rounds; all in `templates/bridge/`)
 These values now live in `shorts/src/engine/` (`templates/bridge/` is the original published copy): the look lives in these values, the
@@ -272,7 +264,7 @@ windows, fires, lamps) and lets the rest fall off into dark, with warm practical
   pass `glass: null`. Use them (or copy them into a new short) for every building, room and vehicle door.
 
 ## Voice, caption and render gotchas (Newton / Tycho / Franklin, 2026-11-15)
-- Chatterbox install: `uv venv --python 3.11 ~/tts/chatterbox` + `uv pip install chatterbox-tts "setuptools<81"` (its
+- (Legacy voice, only for re-voicing old shorts) Chatterbox install: `uv venv --python 3.11 ~/tts/chatterbox` + `uv pip install chatterbox-tts "setuptools<81"` (its
   watermarker imports pkg_resources). On a Mac load with device "mps" and patch `torch.load` to map_location the device.
 - Chatterbox mis-speaks ~1 line in 7 ("dolding" for building, a stray "Hm", "Tia" for Tycho, "Legends said").
   The aligner does not catch these; Whisper does. Never ship a voice without the Whisper pass.
