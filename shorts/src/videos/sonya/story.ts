@@ -61,7 +61,7 @@ export const MARK = {
   // his rush chair at (1.25, -0.75) (seat 0.47); the locked door x 2.55
   rDoor: [-0.75, 0, -2.55] as V3,
   sChest: [-2.3, 0, -0.55] as V3,
-  sBed: [-1.5, 0.02, -2.0] as V3, rChair: [0.35, -0.01, -0.85] as V3,
+  sBed: [-1.5, 0.02, -2.0] as V3, rChair: [0.35, -0.01, -0.64] as V3,
   kneel: [-0.35, 0, -0.85] as V3, sKneel: [-0.35, 0, -0.6] as V3,
   rCorner: [2.45, 0, -2.25] as V3,
   sCross: [-0.35, 0, -1.6] as V3, rCross: [0.75, 0, -1.05] as V3,

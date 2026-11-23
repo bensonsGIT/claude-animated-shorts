@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { Pen, bodyFront, bodySide, fxShadow, fxContact, Outfit, FrontOpts, SideOpts, fxPuff } from "../../engine/toon";
 import { fxShine } from "../../engine/library/stranger";
 import { fxTearLarge, fxGlow } from "../../engine/library/inquisitor";
-import { RASKOL, RASKOL_IN, SONYA_HOME, LIZAVETA, MOTHER, DUNYA, OLDWOMAN, GIRL, SVID, kneelSide, hugSide, ghost, fxCoin, fxSplash, fxShadowAlone, fxListen, fxCopper, fxSnow } from "../../engine/library/sonya";
+import { RASKOL, RASKOL_IN, SONYA_HOME, LIZAVETA, MOTHER, DUNYA, OLDWOMAN, GIRL, SVID, kneelSide, hugSide, kneelAlone, ghost, fxCoin, fxSplash, fxShadowAlone, fxListen, fxCopper, fxSnow } from "../../engine/library/sonya";
 import { fxShadow2, fxNapoleon } from "../../engine/library/crime";
 import { FPS, SHOTS, V3, smooth, clamp01, WORD, MARK, BEAT } from "./story";
 import { WALL_Z, RAIL_Z, KNEEL } from "./rooms";
@@ -386,7 +386,7 @@ export const stage = (id: number, t: number, cam: CamInfo): Stage => {
       break;
     }
     case 15: { // the Haymarket crossroads: someone kneeling far off; snow on "Siberia"
-      sit(cam, out, RA, [KNEEL[0], -0.34, KNEEL[2]], { expr: "pained", facing: 0, blink: 1, headTilt: 10 });
+      tableau(cam, out, "kneelAlone", KNEEL, (p) => kneelAlone(p, RASKOL, { expr: "pained", blink: 1, light: 0, seed: seedOf(900) }));
       if (on(t, W.siberia - 0.1)) for (let i = 0; i < 60; i++) {
         const x = (hh(i, 1) - 0.5) * 9, z = -2 - hh(i, 2) * 14, y = 6 - ((t * (0.6 + 0.5 * hh(i, 3)) + hh(i, 4) * 6) % 6.2);
         out.fx.push({ key: "snow", cw: 60, ch: 60, draw: fxSnow, x: x + 0.3 * Math.sin(t + i), y, z, w: 0.07, h: 0.07 });

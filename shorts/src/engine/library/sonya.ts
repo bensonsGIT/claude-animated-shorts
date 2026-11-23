@@ -87,6 +87,13 @@ export const hugSide = (p: Pen, rso: SideOpts, sso: SideOpts, hold = 0) => {
   }
 };
 
+/** a man kneeling alone in profile (the crossroads): body clipped at the floor, shins folded back along the ground */
+export const kneelAlone = (p: Pen, o: Outfit, so: SideOpts) => {
+  p.band([[300, 955], [210, 960], [150, 962]], o.pants, 34, 6, "round");
+  p.ell(140, 958, 26, 16, o.boots, 5);
+  sideAt(p, o, so, 300, false, 1, 175);
+};
+
 // ================= effects =================
 /** an open hand from below holding a coin (k 0 = coin in the palm, 1 = palm turned, coin gone) */
 export const fxHandCoin = (p: Pen, k = 0, sleeve = RASKOL.jacket, skin = RASKOL.skin!) => {
