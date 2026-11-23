@@ -457,6 +457,14 @@ const hatOn = (p: Pen, o: Outfit, hp: P2[], H: Blob, cx: number, hc: number, lig
     for (let i = 0; i <= 12; i++) { const t = i / 12; base.push([cx + wb * (2 * t - 1), yb + 3 * u * (1 - (2 * t - 1) ** 2)]); }
     return base;
   };
+  if (o.hat === "battered") { // Crime and Punishment: Raskolnikov's worn tall round hat, dented, a rusty patch, over his hair
+    hatOn(p, { ...o, hat: "hair" }, hp, H, cx, hc, light, seed, facing, side);
+    hatOn(p, { ...o, hat: "tophat", hair: undefined }, hp, H, cx, hc, light, seed, facing, side);
+    const yb = crown + 0.22 * HH, ht = 0.8 * HH, wt = 0.33 * W;
+    p.stroke(R([[cx - wt * 0.7, yb - ht * 0.95], [cx - wt * 0.1, yb - ht * 0.78], [cx + wt * 0.5, yb - ht * 0.98]]), 2.6 * u, "#5a5060"); // the dent
+    p.poly(R([[cx + wt * 0.15, yb - ht * 0.55], [cx + wt * 0.7, yb - ht * 0.5], [cx + wt * 0.62, yb - ht * 0.32], [cx + wt * 0.12, yb - ht * 0.36]]), "#6a4a3a", 1.6 * u); // a rusty patch
+    return;
+  }
   if (o.hat === "fur" || o.hat === "furcap") {
     // boyar's tall fur hat (gorlatnaya, wider at the top) / a merchant's low cap with a fur band
     const tallH = o.hat === "fur", yb = crown + (tallH ? 0.24 : 0.2) * HH, ht = (tallH ? 0.95 : 0.42) * HH;
