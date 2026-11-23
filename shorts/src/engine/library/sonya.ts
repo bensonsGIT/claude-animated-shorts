@@ -1,8 +1,8 @@
 // Cast + effects first drawn for the Sonya confession short (Crime and Punishment, Part V ch. 4; Garnett 1914).
 // Raskolnikov, Sonya and Lizaveta come from library/crime.ts; this adds his mother and sister (III.1), the old woman and
 // girl on the bridge (II.2), Svidrigailov (IV.1) and the tableau / effect cards. No blade is ever drawn.
-import { Pen, bodyFront, mul } from "../toon";
-import type { Outfit, FrontOpts } from "../toon";
+import { Pen, bodyFront, bodySide, mul } from "../toon";
+import type { Outfit, FrontOpts, SideOpts } from "../toon";
 import { RASKOL, SONYA, LIZAVETA } from "./crime";
 
 export { RASKOL, SONYA, LIZAVETA };
@@ -49,6 +49,42 @@ export const ghost = (p: Pen, o: Outfit, fo: FrontOpts) => {
   const g = p.g;
   bodyFront(p, o, fo);
   g.save(); g.globalCompositeOperation = "source-atop"; g.fillStyle = "rgba(200,190,240,0.55)"; g.fillRect(0, 0, 600, 1000); g.restore();
+};
+
+
+// ================= side-view tableaux (V.4: she falls on her knees, then jumps up and throws her arms round his neck) =================
+/** one side-view body in the shared 600 x 1000 tableau canvas: centred on x, facing right (or left when mirror),
+ *  scaled about the soles, dropped by `drop` units and clipped at the floor (kneeling) */
+const sideAt = (p: Pen, o: Outfit, so: SideOpts, x: number, mirror: boolean, scale = 1, drop = 0) => {
+  const g = p.g; g.save();
+  if (drop) { g.beginPath(); g.rect(0, 0, 600, 975); g.clip(); }
+  g.translate(x, 0); if (mirror) g.scale(-1, 1); g.translate(-300, 0);
+  g.translate(300, 975 + drop); g.scale(scale, scale); g.translate(-300, -975);
+  bodySide(p, o, { mode: "stand", ...so });
+  g.restore();
+};
+/** she kneels in profile a step from him, hands clasped, looking up; he stands facing her (no touching) */
+export const kneelSide = (p: Pen, rso: SideOpts, sso: SideOpts) => {
+  sideAt(p, RASKOL_IN, rso, 470, true);
+  const dress = SONYA_HOME.dress!;
+  // her skirt folded on the floor behind her knees
+  p.poly([[40, 975], [48, 905], [120, 850], [192, 868], [212, 975]], dress, 7);
+  sideAt(p, SONYA_HOME, sso, 135, false, 0.92, 175);
+  // clasped hands at her chest, toward him
+  p.band([[152, 720], [192, 700], [212, 672]], dress, 26, 6, "round");
+  p.ell(218, 664, 15, 13, SONYA_HOME.skin!, 4);
+};
+/** standing embrace in profile: her arms round his neck, her head at his shoulder; hold 1 = his arm round her back too */
+export const hugSide = (p: Pen, rso: SideOpts, sso: SideOpts, hold = 0) => {
+  sideAt(p, RASKOL_IN, rso, 360, true);
+  sideAt(p, SONYA_HOME, sso, 235, false, 0.8);
+  const dress = SONYA_HOME.dress!, skin = SONYA_HOME.skin!;
+  p.band([[262, 572], [336, 500], [398, 452]], dress, 24, 6, "round"); // her near arm up round his neck
+  p.ell(404, 448, 13, 11, skin, 4);
+  if (hold > 0.5) { // his near arm round her back
+    p.band([[340, 470], [270, 560], [190, 610]], RASKOL_IN.jacket, 24, 6, "round");
+    p.ell(182, 614, 13, 11, RASKOL_IN.skin!, 4);
+  }
 };
 
 // ================= effects =================

@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { Pen, bodyFront, bodySide, fxShadow, fxContact, Outfit, FrontOpts, SideOpts, fxPuff } from "../../engine/toon";
 import { fxShine } from "../../engine/library/stranger";
 import { fxTearLarge, fxGlow } from "../../engine/library/inquisitor";
-import { RASKOL, RASKOL_IN, SONYA_HOME, LIZAVETA, MOTHER, DUNYA, OLDWOMAN, GIRL, SVID, kneelHug, ghost, fxCoin, fxSplash, fxShadowAlone, fxListen, fxCopper, fxSnow } from "../../engine/library/sonya";
+import { RASKOL, RASKOL_IN, SONYA_HOME, LIZAVETA, MOTHER, DUNYA, OLDWOMAN, GIRL, SVID, kneelSide, hugSide, ghost, fxCoin, fxSplash, fxShadowAlone, fxListen, fxCopper, fxSnow } from "../../engine/library/sonya";
 import { fxShadow2, fxNapoleon } from "../../engine/library/crime";
 import { FPS, SHOTS, V3, smooth, clamp01, WORD, MARK, BEAT } from "./story";
 import { WALL_Z, RAIL_Z, KNEEL } from "./rooms";
@@ -350,20 +350,24 @@ export const stage = (id: number, t: number, cam: CamInfo): Stage => {
       sit(cam, out, SO, M.sBed, { expr: on(t, W.stares) ? "shock" : "nervous", facing: 1, blink: on(t, W.stares) ? 0 : lidAt(t, 901), tilt: back ? 8 : 0, prop: back ? "point" : null });
       break;
     }
-    case 11: case 17: { // she falls to her knees and holds him
-      const down = id === 17 || on(t, W.knees);
-      if (down) tableau(cam, out, `kneel${id === 17 ? 1 : 0}|${q(lidAt(t, 900), 4)}`, M.kneel, (p) => kneelHug(p, { expr: id === 17 ? "relief" : "shock", facing: 0, blink: lidAt(t, 900), light: 0, seed: seedOf(900) }, id === 17 ? 1 : 0));
+    case 11: case 17: { // V.4: she falls on her knees before him, then jumps up and throws her arms round his neck (side view)
+      const lit = { light: 0, seed: seedOf(900) };
+      const hug = id === 17 || on(t, W.throws2), down = on(t, W.knees);
+      if (hug) tableau(cam, out, `hug${id === 17 ? 1 : 0}|${q(lidAt(t, 900), 4)}|${q(lidAt(t, 901), 4)}`, M.kneel, (p) => hugSide(p,
+        { ...lit, expr: id === 17 ? "relief" : "shock", blink: id === 17 ? 1 : lidAt(t, 900) }, { ...lit, seed: seedOf(901), expr: id === 17 ? "relief" : "pained", blink: 1 }, id === 17 ? 1 : 0));
+      else if (down) tableau(cam, out, `kneelS|${q(lidAt(t, 900), 4)}`, M.kneel, (p) => kneelSide(p,
+        { ...lit, expr: "shock", blink: lidAt(t, 900) }, { ...lit, seed: seedOf(901), expr: "shock", blink: 0 }));
       else {
-        standAt(cam, out, RI, M.kneel, { mode: "stand", expr: "stern", facing: 0, blink: lidAt(t, 900) });
-        standAt(cam, out, SO, [M.kneel[0] - 0.55, 0, M.kneel[2] + 0.35], { mode: "stand", expr: "pained", facing: 1, blink: lidAt(t, 901) });
+        standAt(cam, out, RI, [M.kneel[0] + 0.25, 0, M.kneel[2]], { mode: "stand", expr: "stern", facing: -1, blink: lidAt(t, 900) });
+        standAt(cam, out, SO, [M.kneel[0] - 0.35, 0, M.kneel[2] + 0.1], { mode: "stand", expr: "pained", facing: 1, blink: lidAt(t, 901) });
       }
       glow(out, t, (id === 17 ? W.truth : W.knees) - 0.05, [M.kneel[0], 1.55, M.kneel[2] - 0.45], 1.2, 3.0);
       break;
     }
     case 12: { // her face looking up, then his, breaking
       if (!on(t, W.unhappy - 0.1)) {
-        sit(cam, out, SO, M.sKneel, { expr: "pained", facing: 0, blink: lidAt(t, 901), headTilt: 0, look: 0 });
-        tear(out, t, b0 + 0.3, [M.sKneel[0] - 0.07, M.sKneel[1] + 1.38, M.sKneel[2] + 0.12]);
+        standAt(cam, out, SO, M.sKneel, { mode: "stand", expr: "pained", facing: 0, blink: lidAt(t, 901) });
+        tear(out, t, b0 + 0.3, [M.sKneel[0] - 0.07, M.sKneel[1] + 1.5, M.sKneel[2] + 0.12]);
       } else {
         standAt(cam, out, RI, M.kneel, { mode: "stand", expr: "nervous", facing: 0, blink: lidAt(t, 900, [W.unhappy]) });
         tear(out, t, W.unhappy + 0.4, [M.kneel[0] + 0.07, M.kneel[1] + 1.52, M.kneel[2] + 0.12], 1.3);
